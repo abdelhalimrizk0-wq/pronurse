@@ -94,6 +94,11 @@
     "name": "Urology Quizzes",
     "file": "quizzes/Urology Exams.html",
     "questions": 0
+  },
+      {
+    "name": "Neurology Quizzes",
+    "file": "quizzes/Neurology Quizzes.html",
+    "questions": 0
   }
     ]
   },
