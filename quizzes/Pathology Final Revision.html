@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">General and Clinical Pathology Review</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 50 QUESTIONS HERE) ---
+        const rawQuizData = [
+            { id: 1, question: "Which term describes the study of disease by examination of body fluids such as blood and urine?", options: ["Surgical Pathology", "Clinical Pathology", "Gross Pathology", "Systemic Pathology"], correct: 1, rationale: "Clinical Pathology refers to the study of disease by examination of blood, urine, feces, skin scrapings, and other body fluids." },
+            { id: 2, question: "What is the primary mechanism of injury in Zenker's necrosis?", options: ["Liquefaction of tissue", "Caseation of proteins", "Denaturation of proteins", "Saponification of fats"], correct: 2, rationale: "Zenker's necrosis is a form of coagulative necrosis where cellular proteins and enzymes are denatured." },
+            { id: 3, question: "Which pigment is associated with the condition known as Anthracosis?", options: ["Silicon dioxide", "Carbon dust", "Iron oxide", "Melanin"], correct: 1, rationale: "Anthracosis is caused by the deposition of coal-dust (carbon) in pulmonary tissue." },
+            { id: 4, question: "What is the specific nuclear change characterized by the fragmentation of the nucleus?", options: ["Pyknosis", "Karyorrhexis", "Karyolysis", "Chromatolysis"], correct: 1, rationale: "Karyorrhexis is the nuclear change characterized by the fragmentation of the nucleus into smaller particles." },
+            { id: 5, question: "Which type of gangrene is most frequently associated with internal organs?", options: ["Dry gangrene", "Moist gangrene", "Gas gangrene", "Primary gangrene"], correct: 1, rationale: "Moist gangrene is the most frequent type and occurs in internal organs due to rich blood supply and moisture." },
+            { id: 6, question: "What is the defining characteristic of amyloidosis?", options: ["Intracellular lipid accumulation", "Extracellular protein fibril deposition", "Nuclear fragmentation", "Cytoplasmic fluid retention"], correct: 1, rationale: "Amyloidosis results from the deposition of amyloid protein fibrils on loose connective tissue between cells." },
+            { id: 7, question: "Which blood tube color is correctly paired with its additive?", options: ["Red top with Heparin", "Purple top with EDTA", "Blue top with Fluoride", "Green top with Citrate"], correct: 1, rationale: "Purple top tubes contain EDTA and are used for collecting whole blood samples for hematology." },
+            { id: 8, question: "What term describes the complete failure of an organ to develop?", options: ["Aplasia", "Hypoplasia", "Agenesis", "Atrophy"], correct: 2, rationale: "Agenesis is the almost complete failure of an organ to develop, either partially or completely." },
+            { id: 9, question: "Which inflammatory mediator is primarily responsible for the immediate transient vasoconstriction?", options: ["Histamine", "Serotonin", "Neurogenic reflexes", "Bradykinin"], correct: 2, rationale: "The initial transient vasoconstriction in acute inflammation is a neurogenic response, while mediators like histamine cause subsequent vasodilation." },
+            { id: 10, question: "What is the main function of neutrophils in acute inflammation?", options: ["Antibody production", "Phagocytosis of bacteria", "Fibrosis formation", "Histamine release"], correct: 1, rationale: "Neutrophils are the predominant leukocytes in acute inflammation and are responsible for phagocytosis of bacteria." },
+            { id: 11, question: "Which type of necrosis is characteristic of tuberculosis?", options: ["Coagulative necrosis", "Liquefactive necrosis", "Caseous necrosis", "Fat necrosis"], correct: 2, rationale: "Caseous necrosis is a mixture of coagulated protein and lipid, classically associated with tuberculosis." },
+            { id: 12, question: "What is the correct definition of ischemia?", options: ["Systemic lack of oxygen", "Venous obstruction", "Local arterial deficiency", "Reduced blood quality"], correct: 2, rationale: "Ischemia is defined as a local deficiency of arterial blood in a portion of an organ or region." },
+            { id: 13, question: "Which condition is characterized by an increase in the size of cells?", options: ["Hyperplasia", "Hypertrophy", "Metaplasia", "Neoplasia"], correct: 1, rationale: "Hypertrophy is the increased size of an organ or tissue due to the increased size of its specialized cells." },
+            { id: 14, question: "What constitutes the 'soft callus' during bone fracture healing?", options: ["Compact bone", "Hematoma", "Granulation tissue and cartilage", "Calcified trabeculae"], correct: 2, rationale: "The soft callus is formed by granulation tissue and cartilage before it is converted into bone." },
+            { id: 15, question: "Which enzyme is elevated specifically in obstructive jaundice?", options: ["Creatine Kinase", "Alkaline Phosphatase", "Amylase", "Troponin"], correct: 1, rationale: "Alkaline Phosphatase (ALP) and GGT are key markers that rise significantly in cholestasis or obstructive jaundice." },
+            { id: 16, question: "What is the primary cause of metastatic calcification?", options: ["Necrotic tissue", "Hypercalcemia", "Ischemia", "Chronic inflammation"], correct: 1, rationale: "Metastatic calcification occurs in normal tissues due to persistently elevated blood-calcium levels (Hypercalcemia)." },
+            { id: 17, question: "Which term refers to the stiffening of muscles after death?", options: ["Algor mortis", "Livor mortis", "Rigor mortis", "Autolysis"], correct: 2, rationale: "Rigor mortis refers to the stiffening of all muscles after death due to ATP depletion." },
+            { id: 18, question: "What is the outcome of healing by first intention?", options: ["Extensive scarring", "Delayed closure", "Minimal scarring", "Wound contraction"], correct: 2, rationale: "Healing by first intention occurs in clean surgical wounds with opposed edges and results in minimal scarring." },
+            { id: 19, question: "Which type of shock is caused by severe bacterial infection?", options: ["Hypovolemic shock", "Cardiogenic shock", "Septic shock", "Neurogenic shock"], correct: 2, rationale: "Septic shock is a type of distributive shock caused by severe infection and bacterial toxins." },
+            { id: 20, question: "What does the term 'pathognomonic lesion' indicate?", options: ["A reversible change", "A specific disease cause", "A generalized swelling", "A postmortem change"], correct: 1, rationale: "A pathognomonic lesion is a change specifically characteristic of a disease that indicates without doubt the cause." },
+            { id: 21, question: "Which cells are considered 'labile' in terms of proliferative potential?", options: ["Neurons", "Cardiac myocytes", "Epidermal cells", "Hepatocytes"], correct: 2, rationale: "Labile cells, such as those in the epidermis and GI mucosa, are continuously dividing and turning over." },
+            { id: 22, question: "What distinguishes an exudate from a transudate?", options: ["Lower protein content", "Presence of bacteria", "Higher protein content", "Absence of cells"], correct: 2, rationale: "Exudates are inflammatory fluids characterized by high protein content and cellular debris, unlike transudates." },
+            { id: 23, question: "Which condition involves the twisting of an intestine section?", options: ["Volvulus", "Intussusception", "Hernia", "Prolapse"], correct: 0, rationale: "Volvulus refers to the rotation of an organ or part around its mesenteric base, often causing obstruction." },
+            { id: 24, question: "What is the main cause of cloudy swelling?", options: ["Viral mutation", "Genetic defect", "Toxins or hypoxia", "Excessive nutrition"], correct: 2, rationale: "Cloudy swelling is generally caused by toxins or hypoxia which affect cellular energy production." },
+            { id: 25, question: "Which leukocyte is most associated with allergic reactions?", options: ["Neutrophil", "Monocyte", "Eosinophil", "Lymphocyte"], correct: 2, rationale: "Eosinophils are typically increased during allergic reactions and parasitic infections." },
+            { id: 26, question: "What is the clinical term for blood in the urine?", options: ["Hemoptysis", "Hematemesis", "Hematuria", "Melena"], correct: 2, rationale: "Hematuria is the specific terminology for the presence of blood in the urine." },
+            { id: 27, question: "Which type of hypersensitivity is mediated by IgE antibodies?", options: ["Type I", "Type II", "Type III", "Type IV"], correct: 0, rationale: "Type I hypersensitivity (Immediate/Anaphylactic) involves IgE antibodies binding to mast cells." },
+            { id: 28, question: "What is the role of fibroblasts in wound healing?", options: ["Phagocytosis", "Collagen production", "Clot formation", "Oxygen transport"], correct: 1, rationale: "Fibroblasts are responsible for fibroplasia, which involves producing the collagen matrix for tissue repair." },
+            { id: 29, question: "Which term describes a decrease in the number of neutrophils?", options: ["Neutrophilia", "Neutropenia", "Leukocytosis", "Thrombocytosis"], correct: 1, rationale: "Neutropenia is the reduction in the number of neutrophils in the blood." },
+            { id: 30, question: "What defines a 'thrombus'?", options: ["A traveling clot", "Intravascular solid mass", "Extravascular bleeding", "Air bubble in blood"], correct: 1, rationale: "A thrombus is a blood clot formed inappropriately within blood vessels and remains at the site of formation." },
+            { id: 31, question: "Which organ is the primary site of hematopoiesis in adults?", options: ["Liver", "Spleen", "Bone marrow", "Thymus"], correct: 2, rationale: "In adults, the bone marrow is the primary site for the formation of blood cells." },
+            { id: 32, question: "What is the definition of 'Etiology'?", options: ["Study of disease cause", "Study of structural changes", "Prediction of outcome", "Mechanism of development"], correct: 0, rationale: "Etiology refers to the study of the cause of a disease or the causative agent." },
+            { id: 33, question: "Which necrosis type involves the central nervous system?", options: ["Coagulative", "Liquefactive", "Caseous", "Fat"], correct: 1, rationale: "Liquefactive necrosis is characteristic of necrosis in the central nervous system due to its high lipid and low protein content." },
+            { id: 34, question: "What does 'rubor' represent in inflammation?", options: ["Swelling", "Pain", "Redness", "Heat"], correct: 2, rationale: "Rubor is the Latin term for redness, one of the cardinal signs of inflammation." },
+            { id: 35, question: "Which condition is a reversible retrogressive change of adipose tissue?", options: ["Serous atrophy of fat", "Fat necrosis", "Lipidosis", "Steatosis"], correct: 0, rationale: "Serous atrophy of fat is a reversible change where fat is replaced by a gelatinous material, often due to malnutrition." },
+            { id: 36, question: "What is the cause of 'Milk fever' or 'Eclampsia'?", options: ["Hyperglycemia", "Hypocalcemia", "Hyperkalemia", "Hyponatremia"], correct: 1, rationale: "Hypocalcemia (reduced plasma calcium) is the cause of conditions like Milk fever." },
+            { id: 37, question: "Which term describes the telescoping of one intestinal segment into another?", options: ["Torsion", "Volvulus", "Intussusception", "Hernia"], correct: 2, rationale: "Intussusception is the telescoping of one portion of a hollow organ into another portion." },
+            { id: 38, question: "What characterizes chronic inflammation microscopically?", options: ["Neutrophil infiltration", "Fluid exudation", "Mononuclear infiltration", "Vascular congestion"], correct: 2, rationale: "Chronic inflammation is characterized by the predominance of macrophages, lymphocytes, and plasma cells (mononuclear cells)." },
+            { id: 39, question: "Which plasma protein is primarily responsible for colloid osmotic pressure?", options: ["Fibrinogen", "Albumin", "Globulin", "Prothrombin"], correct: 1, rationale: "Albumin is the major plasma protein responsible for maintaining osmotic pressure." },
+            { id: 40, question: "What is 'Anasarca'?", options: ["Fluid in the chest", "Fluid in the abdomen", "Generalized edema", "Local swelling"], correct: 2, rationale: "Anasarca refers to severe, generalized subcutaneous edema." },
+            { id: 41, question: "Which type of anemia is characterized by Vitamin B12 deficiency?", options: ["Iron deficiency", "Hemolytic", "Megaloblastic", "Aplastic"], correct: 2, rationale: "Megaloblastic anemia is caused by a deficiency of Vitamin B12 or folate." },
+            { id: 42, question: "What is the specific gravity range for isosthenuria?", options: ["1.003 - 1.035", "Above 1.035", "Below 1.003", "Around 1.010"], correct: 3, rationale: "Isosthenuria is a fixed specific gravity around 1.010, indicating severe renal damage and loss of concentrating ability." },
+            { id: 43, question: "Which growth disturbance is strictly limited to the stimulus duration?", options: ["Neoplasia", "Hyperplasia", "Hamartoma", "Teratoma"], correct: 1, rationale: "Hyperplasia exists only as long as the stimulus is applied and disappears upon its removal." },
+            { id: 44, question: "What is the term for a local defect or excavation of a tissue surface?", options: ["Abscess", "Ulcer", "Fistula", "Sinus"], correct: 1, rationale: "An ulcer is implied in the context of lesions like decubitus ulcers or diphtheritic membranes leaving ulcerative surfaces." },
+            { id: 45, question: "Which pigment gives a blue line on the gums in poisoning cases?", options: ["Lead sulfide", "Iron sulfide", "Bilirubin", "Melanin"], correct: 0, rationale: "Lead poisoning (Plumbism) causes a blue-black line on the gums due to the formation of Lead Sulfide." },
+            { id: 46, question: "What is the immediate response of arterioles to injury?", options: ["Vasodilation", "Vasoconstriction", "Stasis", "Permeability"], correct: 1, rationale: "The immediate vascular response is transient vasoconstriction, followed quickly by vasodilation." },
+            { id: 47, question: "Which type of giant cell is associated with tuberculosis?", options: ["Foreign body giant cell", "Langhans giant cell", "Touton giant cell", "Osteoclast"], correct: 1, rationale: "Although not explicitly named in the snippet, chronic inflammation and granulomas (TB) are classically associated with Langhans type giant cells." },
+            { id: 48, question: "What distinguishes a hamartoma from a neoplasm?", options: ["Uncoordinated growth", "Lack of capsule", "Metastasis", "Rapid growth"], correct: 1, rationale: "Hamartomas stop growing after adolescence, their growth is coordinated with surrounding tissue, and they lack a capsule." },
+            { id: 49, question: "Which term describes difficulty in breathing?", options: ["Apnea", "Dyspnea", "Tachypnea", "Bradypnea"], correct: 1, rationale: "While not explicitly defined in the glossary, respiratory distress is mentioned. Clinical terminology for difficult breathing is dyspnea." },
+            { id: 50, question: "What is the primary cause of pre-renal azotemia?", options: ["Kidney damage", "Urethral obstruction", "Reduced perfusion", "Bladder rupture"], correct: 2, rationale: "Pre-renal azotemia is caused by decreased perfusion to the kidneys, such as in dehydration or shock." },
+            { id: 51, question: "Which type of infarction typically occurs in organs with end-arteries?", options: ["Red infarct", "White infarct", "Septic infarct", "Venous infarct"], correct: 1, rationale: "White (pale) infarcts typically occur in solid organs with end-arterial circulation like the heart and kidneys." },
+            { id: 52, question: "What is the correct definition of 'Autopsy'?", options: ["Microscopic exam", "Gross exam of a carcass", "Biopsy of living tissue", "Blood analysis"], correct: 1, rationale: "Autopsy refers to the gross examination of the carcass (dead body) by systematic dissection." },
+            { id: 53, question: "Which condition involves the replacement of one adult cell type by another?", options: ["Dysplasia", "Metaplasia", "Anaplasia", "Hyperplasia"], correct: 1, rationale: "Metaplasia is the transformation of one type of differentiated cell to another type within the same germinal layer." },
+            { id: 54, question: "What does 'Morbidity' refer to?", options: ["Death rate", "Sickness ratio", "Survival rate", "Cure rate"], correct: 1, rationale: "Morbidity refers to the occurrence of disease in relation to the number of individuals exposed (ratio of sick to well)." },
+            { id: 55, question: "Which vitamin deficiency leads to 'Pink Tooth' in porphyria?", options: ["Vitamin A", "Vitamin D", "Vitamin E", "None"], correct: 3, rationale: "Pink Tooth (Congenital Porphyria) is due to a defective heme enzyme system, not a vitamin deficiency." },
+            { id: 56, question: "What is the fate of a thrombus that dissolves?", options: ["Organization", "Calcification", "Lysis", "Embolization"], correct: 2, rationale: "Lysis is the fate where the thrombus is dissolved by fibrinolytic action." },
+            { id: 57, question: "Which type of edema is caused by heart failure?", options: ["Renal edema", "Cardiac edema", "Hepatic edema", "Nutritional edema"], correct: 1, rationale: "Generalized edema caused by heart failure is termed Cardiac edema." },
+            { id: 58, question: "What is the main component of a 'hard callus'?", options: ["Fibrous tissue", "Cartilage", "Spongy bone", "Clotted blood"], correct: 2, rationale: "The hard callus involves the conversion of the soft fibrocartilaginous callus into bony trabeculae (Spongy bone)." },
+            { id: 59, question: "Which tube additive is used for glucose estimation?", options: ["EDTA", "Citrate", "Fluoride", "Heparin"], correct: 2, rationale: "Sodium fluoride (Gray top) is used for blood sugar tests as it inhibits glycolysis." },
+            { id: 60, question: "What defines 'Active Hyperemia'?", options: ["Venous obstruction", "Arterial dilation", "Lymphatic blockage", "Decreased outflow"], correct: 1, rationale: "Active hyperemia is an increased amount of blood in the arterial side due to vasodilation." },
+            { id: 61, question: "Which cellular change is considered reversible?", options: ["Karyolysis", "Cloudy swelling", "Pyknosis", "Karyorrhexis"], correct: 1, rationale: "Cloudy swelling is the mildest, reversible retrogressive change." },
+            { id: 62, question: "What is the primary feature of 'Granulomatous Inflammation'?", options: ["Pus formation", "Fluid exudation", "Macrophage aggregation", "Neutrophil dominance"], correct: 2, rationale: "Granulomatous inflammation is characterized by granulomas, which are collections of activated macrophages." },
+            { id: 63, question: "Which term describes a congenital absence of a body opening?", options: ["Fissure", "Atresia", "Hypoplasia", "Fusion"], correct: 1, rationale: "Although 'Atresia' is a standard term, the text implies obstructions. 'Imperforate' is often used. Based on common path terms aligned with the text's 'Arrest of development', Atresia fits 'failure to form an opening'." },
+            { id: 64, question: "What is 'Melena'?", options: ["Blood in urine", "Blood in vomit", "Blood in feces", "Blood in sputum"], correct: 2, rationale: "Melena refers to the presence of digested blood in the feces." },
+            { id: 65, question: "Which protein accumulates in 'Hyaline degeneration'?", options: ["Amyloid", "Keratin", "No specific protein", "Fibrin"], correct: 2, rationale: "Hyaline degeneration refers to a glassy appearance; it is a descriptive term for various alterations, not a specific single protein accumulation like amyloid." },
+            { id: 66, question: "What causes 'Rickets' or 'Osteomalacia'?", options: ["Vitamin C deficiency", "Vitamin D deficiency", "Iron deficiency", "Protein deficiency"], correct: 1, rationale: "Metastatic calcification mentions Vitamin D. Pathologically, Vitamin D deficiency leads to bone issues like Rickets (implied in mineral metabolism context)." },
+            { id: 67, question: "Which type of hemorrhage involves pin-point bleeding?", options: ["Ecchymoses", "Suffusions", "Petechiae", "Hematoma"], correct: 2, rationale: "Petechiae are defined as pin-point hemorrhages measuring 1-2 mm." },
+            { id: 68, question: "What is the cause of 'Exogenous Hemochromatosis'?", options: ["Genetic defect", "Repeated transfusions", "Bacterial infection", "Sun exposure"], correct: 1, rationale: "Exogenous hemochromatosis is caused by repeated blood transfusions leading to iron overload." },
+            { id: 69, question: "Which cells are 'Stable' cells?", options: ["Bone marrow cells", "Neurons", "Liver cells", "Epidermal cells"], correct: 2, rationale: "Stable cells, like those in the liver and kidney, have a low replication rate but can divide in response to injury." },
+            { id: 70, question: "What is 'Dysplasia'?", options: ["Lack of growth", "Disordered growth", "Tumor formation", "Cell death"], correct: 1, rationale: "Dysplasia refers to abnormal or disordered growth and maturation of cells." },
+            { id: 71, question: "Which term describes the protrusion of an organ through a natural opening?", options: ["Volvulus", "Hernia", "Prolapse", "Torsion"], correct: 1, rationale: "A hernia is the protrusion of an organ through a natural or artificial body opening covered by skin or serosa." },
+            { id: 72, question: "What is the primary cell type in a purulent exudate?", options: ["Lymphocyte", "Macrophage", "Neutrophil", "Plasma cell"], correct: 2, rationale: "Purulent (suppurative) inflammation is characterized by the production of pus, which consists predominantly of neutrophils." },
+            { id: 73, question: "Which condition is caused by the deposition of urate crystals?", options: ["Amyloidosis", "Anthracosis", "Gout", "Silicosis"], correct: 2, rationale: "Gout is the infiltration of urate crystals, mentioned under protein metabolism disturbances." },
+            { id: 74, question: "What is 'Hyperkalemia'?", options: ["High sodium", "High calcium", "High potassium", "High phosphate"], correct: 2, rationale: "Hyperkalemia is the raised plasma potassium concentration." },
+            { id: 75, question: "Which process involves the passage of blood cells through intact vessel walls?", options: ["Rhexis", "Diapedesis", "Chemotaxis", "Phagocytosis"], correct: 1, rationale: "Hemorrhage by diapedesis is the passage of blood cells through intact vessel walls." },
+            { id: 76, question: "What describes a 'Scirrhous' reaction?", options: ["Pus formation", "Extensive fibrosis", "Fluid accumulation", "Tissue death"], correct: 1, rationale: "Though 'Scirrhous' often refers to tumors, in chronic inflammation, it implies extensive proliferation of fibrous connective tissue (scarring)." },
+            { id: 77, question: "Which type of bilirubin is water soluble?", options: ["Indirect", "Unconjugated", "Direct", "Albumin-bound"], correct: 2, rationale: "Direct (Conjugated) bilirubin is water soluble." },
+            { id: 78, question: "What is 'Oliguria'?", options: ["Excessive urine", "No urine", "Reduced urine", "Blood in urine"], correct: 2, rationale: "Oliguria is defined as reduced urine production." },
+            { id: 79, question: "Which factor delays wound healing?", options: ["Vitamin C", "Good blood supply", "Infection", "Youth"], correct: 2, rationale: "Infection prolongs inflammation and destroys collagen, thereby delaying wound healing." },
+            { id: 80, question: "What is the definition of 'Teratology'?", options: ["Study of tumors", "Study of aging", "Study of developmental defects", "Study of cell death"], correct: 2, rationale: "Teratology is the study of developmental disturbances during embryonic or fetal life." },
+            { id: 81, question: "True or False: Apoptosis is always a pathological process.", options: ["True", "False"], correct: 1, rationale: "Apoptosis is a programmed cell death that can be physiological (e.g., embryogenesis) or pathological." },
+            { id: 82, question: "True or False: Dry gangrene is usually associated with a bacterial infection.", options: ["True", "False"], correct: 1, rationale: "Dry gangrene is primarily due to ischemia and has little bacterial growth compared to moist gangrene." },
+            { id: 83, question: "True or False: Hypertrophy involves an increase in the number of cells.", options: ["True", "False"], correct: 1, rationale: "Hypertrophy is an increase in cell size; Hyperplasia is an increase in cell number." },
+            { id: 84, question: "True or False: Transudates have a high protein content.", options: ["True", "False"], correct: 1, rationale: "Transudates have low protein content; Exudates have high protein content." },
+            { id: 85, question: "True or False: The heart is a common site for white infarcts.", options: ["True", "False"], correct: 0, rationale: "White infarcts occur in solid organs with end-arteries like the heart and kidneys." },
+            { id: 86, question: "True or False: Neutrophils are the first cells to arrive in acute inflammation.", options: ["True", "False"], correct: 0, rationale: "Neutrophils are indeed the predominant leukocytes in the early stages of acute inflammation." },
+            { id: 87, question: "True or False: Metaplasia is an irreversible process.", options: ["True", "False"], correct: 1, rationale: "Metaplasia is generally a reversible adaptation if the stimulus is removed." },
+            { id: 88, question: "True or False: Serum contains fibrinogen.", options: ["True", "False"], correct: 1, rationale: "Serum is plasma minus clotting factors; therefore, it lacks fibrinogen." },
+            { id: 89, question: "True or False: Rigor mortis is permanent.", options: ["True", "False"], correct: 1, rationale: "Rigor mortis disappears 24 to 48 hours after death." },
+            { id: 90, question: "True or False: Hypoxia is the most common cause of cell injury.", options: ["True", "False"], correct: 0, rationale: "Hypoxia is probably the most common cause of cell injury and disease." },
+            { id: 91, question: "True or False: A thrombus is a clot formed after death.", options: ["True", "False"], correct: 1, rationale: "A thrombus is formed in the living body; a postmortem clot forms after death." },
+            { id: 92, question: "True or False: Cardiac muscle cells are permanent cells.", options: ["True", "False"], correct: 0, rationale: "Permanent cells like cardiac myocytes and neurons have no regenerative capability." },
+            { id: 93, question: "True or False: Vitamin C is required for collagen synthesis.", options: ["True", "False"], correct: 0, rationale: "Vitamin C is essential for collagen synthesis; deficiency leads to poor wound healing." },
+            { id: 94, question: "True or False: An embolus can be a gas bubble.", options: ["True", "False"], correct: 0, rationale: "Embolism involves the circulation of a foreign body, which can be solid, liquid, or gas." },
+            { id: 95, question: "True or False: Benign tumors typically metastasize.", options: ["True", "False"], correct: 1, rationale: "Benign tumors do not metastasize; metastasis is a characteristic of malignant tumors." },
+            { id: 96, question: "True or False: Jaundice is visible when bilirubin exceeds 2.0 mg/dl.", options: ["True", "False"], correct: 0, rationale: "Yellow discoloration (Jaundice) becomes visible when serum bilirubin exceeds 2.0 mg/dl." },
+            { id: 97, question: "True or False: Granulation tissue is composed of new capillaries and fibroblasts.", options: ["True", "False"], correct: 0, rationale: "Granulation tissue consists of proliferating fibroblasts and new blood vessels (angiogenesis)." },
+            { id: 98, question: "True or False: Phagocytosis is the process of cell eating.", options: ["True", "False"], correct: 0, rationale: "Phagocytosis is the engulfment and digestion of particulate matter (cell eating) by cells like macrophages." },
+            { id: 99, question: "True or False: Agenesis refers to the incomplete development of an organ.", options: ["True", "False"], correct: 1, rationale: "Agenesis is the complete failure to develop; Hypoplasia is incomplete development." },
+            { id: 100, question: "True or False: Eosinophils are the main cells in viral infections.", options: ["True", "False"], correct: 1, rationale: "Lymphocytes are the predominant cells in viral infections; Eosinophils are for parasites/allergies." }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

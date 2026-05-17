@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة اختبارات الميكروبيولوجي | Microbiology Quiz Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', 'Noto Sans', sans-serif; }
+        .ltr-text { direction: ltr; font-family: 'Noto Sans', sans-serif; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen transition-colors duration-300">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3" onclick="showHome()" style="cursor: pointer;">
+                    <i class="fas fa-microscope text-blue-600 text-2xl"></i>
+                    <h1 class="text-xl font-bold text-slate-800 hidden sm:block">عبدالحليم <span class="text-blue-600">رزق</span></h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                    <button onclick="showHome()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-semibold text-sm">
+                        <i class="fas fa-home ms-2"></i> القائمة الرئيسية
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <!-- Updated container width and padding for mobile full screen feel -->
+    <main class="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6" id="app-container">
+        <!-- Views will be injected here -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
+            <p>   تم بواسطة عبدالحليم رزق</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- DATA STORE ---
+        const quizzes = {
+            "immunity": {
+                title: "Immunity to Microbial Infection",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-shield-virus",
+                color: "text-emerald-600",
+                bg: "bg-emerald-50",
+                data: [
+  { id: 1, question: "Which of the following acts as a chemical barrier in the first line of defense?", options: ["Hair like cilia", "Stomach acid", "Intact skin", "Normal flora"], correct: 1, rationale: "Chemical barriers include substances like acid, enzymes, mucus, sweat, and stomach acid that prevent bacteria from gaining a foothold." },
+  { id: 2, question: "What is the primary function of Natural Killer cells?", options: ["Phagocytose bacteria", "Secrete antibodies", "Eliminate virus infected cells", "Present antigens"], correct: 2, rationale: "Natural Killer cells react nonspecifically to eliminate cancerous and virus-infected cells by releasing cytolytic chemicals." },
+  { id: 3, question: "Where do T lymphocytes mature to become immunocompetent?", options: ["Bone marrow", "Thymus gland", "Lymph nodes", "Spleen tissue"], correct: 1, rationale: "While all lymphocytes originate in the bone marrow, T cells migrate to and mature in the thymus." },
+  { id: 4, question: "The innate immune response is best described as:", options: ["Specific and delayed", "Nonspecific and immediate", "Specific and immediate", "Nonspecific and delayed"], correct: 1, rationale: "Innate immunity provides an immediate (0-4 hours) but nonspecific response to pathogens." },
+  { id: 5, question: "Which cell type is the most abundant phagocyte in the innate immune system?", options: ["Basophils", "Neutrophils", "Eosinophils", "Lymphocytes"], correct: 1, rationale: "Neutrophils are the most abundant white blood cells and are efficient phagocytes in the innate immune system." },
+  { id: 6, question: "What is the role of MHC proteins on the cell surface?", options: ["Digesting antigens", "Marking the cell as self", "Producing antibodies", "Releasing toxins"], correct: 1, rationale: "MHC proteins mark a cell as 'self' so the immune system can distinguish it from foreign substances." },
+  { id: 7, question: "Innate immunity generates lasting protective memory.", options: ["True", "False"], correct: 1, rationale: "Innate immunity does not generate lasting protective immunity; immunological memory is a feature of the adaptive system." },
+  { id: 8, question: "Which immunity is acquired through the transfer of antibodies from mother to fetus?", options: ["Natural active immunity", "Natural passive immunity", "Artificial active immunity", "Artificial passive immunity"], correct: 1, rationale: "Natural passive immunity occurs when antibodies pass from mother to fetus via the placenta or to the infant via milk." },
+  { id: 9, question: "What triggers the activation of the internal innate immune system?", options: ["Antibody production", "Breach of surface barriers", "T cell maturation", "Vaccine injection"], correct: 1, rationale: "The internal innate immune system is triggered when invading microbes breach the initial physical and chemical barriers." },
+  { id: 10, question: "Which cells are responsible for secreting antibodies?", options: ["Helper T cells", "Plasma cells", "Memory T cells", "Natural Killer cells"], correct: 1, rationale: "Plasma cells, which are a type of B cell, are responsible for secreting antibodies into the blood." },
+  { id: 11, question: "Phagosomes fuse with lysosomes to form phagolysosomes.", options: ["True", "False"], correct: 0, rationale: "During phagocytosis, the phagosome containing the microbe fuses with a lysosome to form a phagolysosome for digestion." },
+  { id: 12, question: "Which antimicrobial protein causes direct lysis of pathogens?", options: ["Interferon", "Complement", "Lysozyme", "Lactoferrin"], correct: 1, rationale: "Complement proteins can bind to microbes and cause direct lysis of the pathogen." },
+  { id: 13, question: "What acts as a biological barrier in the first line of defense?", options: ["Mucous membranes", "Normal flora", "Stomach acid", "Intact skin"], correct: 1, rationale: "Normal flora competes with pathogens for nutrients and space, acting as a biological barrier." },
+  { id: 14, question: "Adaptive immunity response is delayed by days.", options: ["True", "False"], correct: 0, rationale: "The adaptive immune response is not immediate and typically requires days to develop." },
+  { id: 15, question: "Which cells cooperate with B cells to produce antibodies?", options: ["Cytotoxic T cells", "Helper T cells", "Suppressor T cells", "Natural Killer cells"], correct: 1, rationale: "Helper T cells produce cytokines and cooperate with B cells to facilitate antibody production." },
+  { id: 16, question: "What is the correct definition of inflammation?", options: ["Systemic response to fever", "Localized protective response", "Production of antibodies", "Maturation of T cells"], correct: 1, rationale: "Inflammation is a localized protective response elicited by injury or destruction of tissues." },
+  { id: 17, question: "Which antigen type is in its natural functional state?", options: ["Processed antigen", "Native antigen", "Digested antigen", "Presented antigen"], correct: 1, rationale: "Native antigens are proteins in their natural, properly folded state, recognized by B cells." },
+  { id: 18, question: "The skin provides a chemical barrier to pathogens.", options: ["True", "False"], correct: 1, rationale: "The skin is primarily a physical (mechanical) barrier; its secretions (sweat/sebum) are chemical, but the skin itself is physical." },
+  { id: 19, question: "Which feature is unique to active immunity compared to passive immunity?", options: ["Immediate protection", "Short term duration", "Long term memory", "Antibody transfer"], correct: 2, rationale: "Active immunity induces immunological memory and lasts much longer, sometimes for life, unlike short-lived passive immunity." },
+  { id: 20, question: "What substance prevents bacteria from settling in the bronchi?", options: ["Acidic urine", "Hair like cilia", "Vaginal acid", "Tear fluid"], correct: 1, rationale: "Movements created by hair-like structures called cilia in the bronchi stop germs from settling." },
+  { id: 21, question: "Which cells release perforins to kill target cells?", options: ["Macrophages", "Natural Killer cells", "B lymphocytes", "Dendritic cells"], correct: 1, rationale: "Natural Killer (NK) cells kill their target cells by releasing perforins and other cytolytic chemicals." },
+  { id: 22, question: "Artificial active immunity is acquired through:", options: ["Breast feeding", "Viral infection", "Vaccination", "Serum injection"], correct: 2, rationale: "Artificial active immunity develops through deliberate actions such as vaccination." },
+  { id: 23, question: "Cytokines are small proteins that affect the behavior of other cells.", options: ["True", "False"], correct: 0, rationale: "Cytokines are signaling molecules secreted by immune cells that affect the behavior of other cells." },
+  { id: 24, question: "Which component is part of the second line of defense?", options: ["Intact skin", "Mucous membranes", "Inflammatory response", "Normal flora"], correct: 2, rationale: "The inflammatory response is part of the internal innate immunity, which is the second line of defense." },
+  { id: 25, question: "What is the final step in the phagocytosis mechanism?", options: ["Phagosome formation", "Adherence", "Exocytosis", "Digestion"], correct: 2, rationale: "Indigestible and residual material is removed from the phagocyte by exocytosis." },
+  { id: 26, question: "B cells mature in the thymus.", options: ["True", "False"], correct: 1, rationale: "B cells mature in the bone marrow; T cells mature in the thymus." },
+  { id: 27, question: "Which T cell type turns off activated lymphocytes?", options: ["Helper T cells", "Cytotoxic T cells", "Suppressor T cells", "Memory T cells"], correct: 2, rationale: "Suppressor T cells turn off activated lymphocytes to limit the powerful effects of the immune response." },
+  { id: 28, question: "What is the main result of the humoral immune response?", options: ["Direct cell lysis", "Antigen inactivation", "Phagocyte death", "Tissue repair"], correct: 1, rationale: "Antibodies in the humoral response bind to foreign antigens and inactivate them." },
+  { id: 29, question: "Self molecules are recognized as foreign by the immune system.", options: ["True", "False"], correct: 1, rationale: "Self molecules are components of the body that are distinguished from foreign substances and are not antigenic to the host." },
+  { id: 30, question: "Which type of antigen requires processing before recognition?", options: ["Native antigen", "Processed antigen", "Soluble antigen", "Surface antibody"], correct: 1, rationale: "Processed antigens are digested within a phagocyte and presented on its surface for T cell recognition." },
+  { id: 31, question: "What stimulates the inflammatory response?", options: ["Chemical factors", "Mechanical pressure", "Neural signals", "Hormonal changes"], correct: 0, rationale: "Inflammation is stimulated by chemical factors released by injured cells." },
+  { id: 32, question: "Which characteristic is specific to the adaptive immune system?", options: ["Immediate response", "Immunological memory", "Nonspecific defense", "Physical barrier"], correct: 1, rationale: "The adaptive immune system is characterized by specificity and immunological memory." },
+  { id: 33, question: "Antibodies are also known as immunoglobulins.", options: ["True", "False"], correct: 0, rationale: "Antibodies are proteins secreted by B cells and are also known as immunoglobulins." },
+  { id: 34, question: "Which cells are considered professional phagocytes?", options: ["Macrophages", "Platelets", "Red blood cells", "Plasma cells"], correct: 0, rationale: "Macrophages, along with neutrophils, monocytes, and dendritic cells, are professional phagocytes." },
+  { id: 35, question: "What is a characteristic symptom of inflammation?", options: ["Localized swelling", "Decreased heat", "Tissue pallor", "Systemic fever"], correct: 0, rationale: "The symptoms of inflammation include redness, heat, swelling, pain, and dysfunction." },
+  { id: 36, question: "Passive immunity provides protection that lasts for years.", options: ["True", "False"], correct: 1, rationale: "Passive immunity is short-lived, usually lasting only a few months." },
+  { id: 37, question: "Which phase comes after the establishment of infection in the immune response?", options: ["Memory phase", "Induction phase", "Adaptive response", "Clearance phase"], correct: 1, rationale: "The course of infection proceeds from establishment to the induction of the adaptive response." },
+  { id: 38, question: "The flushing action of urine is a mechanical barrier.", options: ["True", "False"], correct: 0, rationale: "Mechanical barriers include the flushing action of tears and urine which removes pathogens." },
+  { id: 39, question: "Which T cell type directly inactivates abnormal body cells?", options: ["Helper T cells", "Cytotoxic T cells", "Suppressor T cells", "Memory T cells"], correct: 1, rationale: "Cytotoxic (Killer) T-cells directly inactivate abnormal body cells by releasing powerful toxins." },
+  { id: 40, question: "What is the timeframe for the immediate innate response?", options: ["Zero to four hours", "One to two days", "Three to five days", "Over one week"], correct: 0, rationale: "The innate immune response is immediate, occurring within 0-4 hours of infection." }
+]
+            },
+            "control": {
+                title: "Microbial Control: Sterilization and Disinfection",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-spray-can-sparkles",
+                color: "text-blue-600",
+                bg: "bg-blue-50",
+                data: [
+  { id: 1, question: "Which process completely destroys or eliminates all forms of microbial life including bacterial spores?", options: ["Sterilization", "Disinfection", "Sanitization", "Cleaning"], correct: 0, rationale: "Sterilization is defined as a process that completely destroys or eliminates all forms of microbial life including bacterial spores." },
+  { id: 2, question: "Which monitoring method uses heat-resistant bacterial endospores to verify sterilization?", options: ["Biological indicators", "Chemical tapes", "Mechanical gauges", "Thermal sensors"], correct: 0, rationale: "Biological indicators use heat-resistant bacterial endospores to demonstrate whether or not sterilization has been achieved." },
+  { id: 3, question: "What is the primary mechanism of action for moist heat sterilization?", options: ["Coagulation of proteins", "Oxidation of cells", "Disruption of DNA", "Production of free radicals"], correct: 0, rationale: "Moist heat kills microorganisms primarily by coagulating (denaturing) their enzymes and other proteins." },
+  { id: 4, question: "Which classification applies to medical devices that contact the vascular system or sterile tissue?", options: ["Critical", "Semi critical", "Non critical", "Intermediate"], correct: 0, rationale: "Critical items are devices that contact the vascular system or sterile tissue and must be sterile at the time of use." },
+  { id: 5, question: "What is the standard temperature and time required for autoclaving?", options: ["121 degrees for 15 minutes", "100 degrees for 30 minutes", "160 degrees for 60 minutes", "72 degrees for 15 seconds"], correct: 0, rationale: "Autoclaving is typically performed at a temperature of steam 121°C for 15 minutes at twice atmospheric pressure." },
+  { id: 6, question: "Which chemical agent is most suitable for disinfecting heat-sensitive fiberoptic equipment?", options: ["Glutaraldehyde", "Phenol", "Hydrogen peroxide", "Ethanol"], correct: 0, rationale: "Glutaraldehyde (Cidex) is used as a 2% solution to decontaminate expensive, precision items like fiberoptic equipment." },
+  { id: 7, question: "True or False: Moist heat is generally much more effective than dry heat.", options: ["True", "False"], correct: 0, rationale: "The text states that in general, moist heat is much more effective than dry heat." },
+  { id: 8, question: "Which concentration of ethanol is considered optimum for disinfection?", options: ["70 percent", "95 percent", "100 percent", "40 percent"], correct: 0, rationale: "For ethanol, the optimum concentration for disinfection is 70%." },
+  { id: 9, question: "What is the primary limitation of boiling water at 100°C for sterilization?", options: ["It may not kill bacterial endospores", "It destroys surgical instruments", "It evaporates too quickly", "It requires special equipment"], correct: 0, rationale: "Boiling at 100°C kills microbial pathogens and vegetative forms but may not kill bacterial endospores." },
+  { id: 10, question: "Which term refers to the reduction of microbial populations to levels considered safe by public health standards?", options: ["Sanitization", "Disinfection", "Sterilization", "Decontamination"], correct: 0, rationale: "Sanitization is the process of reducing microbial populations to levels that are considered safe by public health standards." },
+  { id: 11, question: "Which method is best suited for sterilizing heat-sensitive pharmaceutical fluids?", options: ["Membrane filtration", "Autoclaving", "Dry heat oven", "Pasteurization"], correct: 0, rationale: "Fluids that would be damaged by heat can be sterilized by microfiltration using membrane filters." },
+  { id: 12, question: "True or False: Isopropanol is considered a better disinfectant than ethanol.", options: ["True", "False"], correct: 0, rationale: "The text explicitly states that Isopropanol is a better disinfectant than ethanol and is also cheaper." },
+  { id: 13, question: "Which gas is used to sterilize heat-sensitive objects like plastic containers?", options: ["Ethylene oxide", "Oxygen", "Nitrogen", "Carbon dioxide"], correct: 0, rationale: "Ethylene oxide gas is used to sterilize heat-sensitive objects such as medical products and plastic containers." },
+  { id: 14, question: "Which level of disinfection destroys vegetative bacteria and Mycobacterium tuberculosis but not spores?", options: ["Intermediate level", "High level", "Low level", "Sterilization"], correct: 0, rationale: "Intermediate-level disinfection destroys vegetative bacteria including M. tuberculosis but does not always kill bacterial spores." },
+  { id: 15, question: "How does dry heat primarily destroy microorganisms?", options: ["Oxidation effects", "Protein coagulation", "DNA fragmentation", "Cell wall rupture"], correct: 0, rationale: "Dry heat kills microorganisms by oxidation effects." },
+  { id: 16, question: "Which item is classified as semi-critical?", options: ["Respiratory therapy equipment", "Surgical instruments", "Blood pressure cuffs", "Urinary catheters"], correct: 0, rationale: "Semi-critical items contact mucous membranes; examples include respiratory therapy equipment." },
+  { id: 17, question: "Which factor primarily inactivates sodium hypochlorite disinfectants?", options: ["Presence of organic material", "Low temperature", "High pressure", "Basic pH levels"], correct: 0, rationale: "Sodium hypochlorite is easily inactivated by organic materials and light." },
+  { id: 18, question: "True or False: Cleaning is mandatory prior to any disinfection or sterilization process.", options: ["True", "False"], correct: 0, rationale: "Prior to any reprocessing to achieve disinfection or sterility, all instruments and equipment MUST be cleaned." },
+  { id: 19, question: "Which type of radiation is commonly used for surface disinfection in operating theatres?", options: ["Ultraviolet radiation", "Gamma rays", "Electron beams", "X rays"], correct: 0, rationale: "Non-ionizing UV radiation has a germicidal effect and is commonly used for surface disinfection in hospitals and operating theatres." },
+  { id: 20, question: "What is the specific advantage of phenolic compounds like Lysol?", options: ["They remain active in organic matter", "They kill all bacterial spores", "They are non toxic to skin", "They evaporate without residue"], correct: 0, rationale: "Phenols are stable, persist for long times, and remain active in the presence of organic compounds." },
+  { id: 21, question: "Which chemical is known as a surfactant that helps remove soil but does not necessarily kill microbes?", options: ["Detergent", "Glutaraldehyde", "Formaldehyde", "Alcohol"], correct: 0, rationale: "Cleaning is normally accomplished using water with detergents to remove visible soiling." },
+  { id: 22, question: "True or False: Antiseptics are chemicals used to kill microorganisms on inanimate objects.", options: ["False", "True"], correct: 0, rationale: "Antiseptics are non-toxic chemicals used to kill microorganisms on skin or living tissue; disinfectants are for inanimate objects." },
+  { id: 23, question: "Which method is preferred for sterilizing oils, ointments, and powders?", options: ["Hot air oven", "Autoclave", "Boiling", "Filtration"], correct: 0, rationale: "The hot air oven is preferred for reusable glass, metal instruments, oil ointments, and powders." },
+  { id: 24, question: "What is the active ingredient in household bleach?", options: ["Sodium hypochlorite", "Phenol", "Glutaraldehyde", "Formaldehyde"], correct: 0, rationale: "Sodium hypochlorite (NaOCl) is the active ingredient of bleach." },
+  { id: 25, question: "True or False: Low-level disinfection can be relied upon to kill Mycobacterium tuberculosis.", options: ["False", "True"], correct: 0, rationale: "Low-level disinfection cannot be relied on to kill more resistant bacteria such as M. tuberculosis." },
+  { id: 26, question: "Which form of iodine releases the chemical slowly and is less irritating to the skin?", options: ["Iodophors", "Tincture of iodine", "Iodine crystals", "Gas iodine"], correct: 0, rationale: "Iodophors are compounds containing iodine in complex form (e.g., Betadine) that are slow releasing." },
+  { id: 27, question: "Why does absolute alcohol fail to kill microorganisms effectively?", options: ["It requires water molecules", "It evaporates too slowly", "It is too acidic", "It cannot penetrate cells"], correct: 0, rationale: "Absolute alcohol fails to kill microorganisms because the lethal process (protein denaturation) requires water molecules." },
+  { id: 28, question: "Which device contacts only intact skin and is considered non-critical?", options: ["Stethoscope", "Dental mirror", "Endoscope", "Surgical scalpel"], correct: 0, rationale: "Non-critical devices only come into contact with intact skin; examples include stethoscopes." },
+  { id: 29, question: "True or False: Incineration is an effective way to sterilize reusable surgical scissors.", options: ["False", "True"], correct: 0, rationale: "Incineration is used for disposable items and biological waste, not reusable instruments." },
+  { id: 30, question: "Which water-soluble gas is a broad-spectrum germicide that kills endospores?", options: ["Formaldehyde", "Nitrogen dioxide", "Oxygen", "Helium"], correct: 0, rationale: "Formaldehyde is a water-soluble gas and broad-spectrum germicide that kills endospores." },
+  { id: 31, question: "What is the minimum time required for sterilization in a hot air oven at 160°C?", options: ["One hour", "Fifteen minutes", "Thirty minutes", "Five minutes"], correct: 0, rationale: "A hot air oven requires 1-2 hours at 160-170°C for sterilization." },
+  { id: 32, question: "True or False: Critical medical devices must be sterile at the time of use.", options: ["True", "False"], correct: 0, rationale: "Critical devices carry a high risk of infection if contaminated and must be sterile at the time of use." },
+  { id: 33, question: "Which sterilization method is best for disposable plastic syringes?", options: ["Gamma rays", "Autoclaving", "Hot air oven", "Direct flaming"], correct: 0, rationale: "Gamma rays are commonly used for the sterilization of disposable petri dishes, plastic syringes, and fabrics." },
+  { id: 34, question: "Which indicator tape changes color when a specific temperature is reached?", options: ["Chemical indicator", "Biological indicator", "Mechanical indicator", "Physical indicator"], correct: 0, rationale: "Chemical indicators are tapes with lines that change color when the intended temperature has been reached." },
+  { id: 35, question: "True or False: Ultraviolet radiation penetrates deep into matter to damage DNA.", options: ["False", "True"], correct: 0, rationale: "Ionizing radiation penetrates deep, while UV radiation primarily works on surfaces." },
+  { id: 36, question: "Which antiseptic is commonly used for skin preparation before surgery?", options: ["Betadine", "Formaldehyde", "Glutaraldehyde", "Sodium hypochlorite"], correct: 0, rationale: "Betadine (an Iodophor) is used as a skin antiseptic in surgery." },
+  { id: 37, question: "What is the main use of direct flaming in the laboratory?", options: ["Sterilizing inoculating loops", "Disinfecting benches", "Sterilizing culture media", "Cleaning glassware"], correct: 0, rationale: "Direct flaming is used to sterilize inoculating loops and needles until they have a red glow." },
+  { id: 38, question: "True or False: Mechanical indicators provide the most reliable confirmation of sterilization.", options: ["False", "True"], correct: 0, rationale: "Biological indicators are the most reliable; mechanical indicators only show machine readings." },
+  { id: 39, question: "Which process eliminates many pathogenic microorganisms on inanimate objects but not spores?", options: ["Disinfection", "Sterilization", "Antisepsis", "Filtration"], correct: 0, rationale: "Disinfection describes a process that eliminates many or all pathogenic microorganisms, except bacterial spores, on inanimate objects." },
+  { id: 40, question: "True or False: Glutaraldehyde is typically used as an antiseptic for human tissue.", options: ["False", "True"], correct: 0, rationale: "Glutaraldehyde is used for high-level disinfection of equipment; Chlorhexidine or Iodine are used for tissue." }
+]
+            },
+            "specimens": {
+                title: "Management of Specimens",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-vial",
+                color: "text-purple-600",
+                bg: "bg-purple-50",
+                data: [
+  { id: 1, question: "What is the correct storage temperature for serum samples intended for serology?", options: ["Room temperature", "2 to 8 degrees Celsius", "Minus 20 degrees Celsius", "Minus 70 degrees Celsius"], correct: 2, rationale: "Serum for serology should be stored at -20°C." },
+  { id: 2, question: "Refrigeration is the preferred method for storing delayed blood culture specimens.", options: ["True", "False"], correct: 1, rationale: "Blood culture specimens must never be refrigerated and should be kept at room temperature or incubated at 37°C." },
+  { id: 3, question: "Which type of urine specimen is required to minimize contamination from the urethra?", options: ["First morning void", "Random spot collection", "Mid stream clean catch", "24 hour collection"], correct: 2, rationale: "A mid-stream clean catch urine sample is necessary to prevent bacteria from the urethra and hands from contaminating the specimen." },
+  { id: 4, question: "Why is it critical to transport specimens to the laboratory within two hours?", options: ["To prevent container leakage", "To ensure technician availability", "To prevent pathogen death", "To reduce transport costs"], correct: 2, rationale: "Pathogens may die in transit leading to false negative results; delays can also cause overgrowth of flora." },
+  { id: 5, question: "What instruction should be given to a patient prior to collecting a sputum sample?", options: ["Rinse mouth with water", "Brush teeth with toothpaste", "Use antiseptic mouthwash", "Eat a heavy meal"], correct: 0, rationale: "The patient should be instructed to wash the mouth with plain water a few minutes before taking the specimen to reduce oral contamination." },
+  { id: 6, question: "What is the minimum volume of blood required for a single adult culture sample?", options: ["2 milliliters", "5 milliliters", "10 milliliters", "20 milliliters"], correct: 2, rationale: "The minimum volume of blood for a single adult sample is 10 mL." },
+  { id: 7, question: "Which condition is grounds for rejecting a microbiology specimen?", options: ["Sterile container use", "Transport time under one hour", "Presence of formalin", "Labeling with patient ID"], correct: 2, rationale: "Microbiology specimens should never be sent in formalin; this is a rejection criterion." },
+  { id: 8, question: "Specimens should generally be collected after the administration of antibiotics.", options: ["True", "False"], correct: 1, rationale: "Preferably, specimens should be obtained before antibiotics or other antimicrobial agents are administered." },
+  { id: 9, question: "How should a cerebrospinal fluid sample be stored if processing is unavoidably delayed?", options: ["Refrigerated at 4 degrees", "Frozen at minus 20 degrees", "Incubated at 50 degrees", "Kept at room temperature"], correct: 3, rationale: "If CSF cannot be processed immediately, it should be kept at room temperature and NEVER refrigerated." },
+  { id: 10, question: "Which site is appropriate for collecting a urine sample from a catheterized patient?", options: ["Drainage bag tap", "Catheter collection port", "Junction of tube and bag", "Tubing loop"], correct: 1, rationale: "Catheter specimens should be taken aseptically with a needle and syringe from the catheter collection port." },
+  { id: 11, question: "What is the preferred method for collecting a specimen from a wound with pus?", options: ["Swabbing the surface", "Aspiration with syringe", "Scraping with scalpel", "Application of gauze"], correct: 1, rationale: "Where pus is present, it is preferable to withdraw pus with a syringe rather than just using a swab." },
+  { id: 12, question: "Three sputum samples are required for the diagnosis of mycobacterium tuberculosis.", options: ["True", "False"], correct: 0, rationale: "The slides explicitly state that three sputum samples are needed for diagnosis of mycobacterium tuberculosis." },
+  { id: 13, question: "Which information is essential on the specimen label if the patient is on antimicrobial therapy?", options: ["Pharmacy name", "Drug price", "Dosage and time", "Brand of drug"], correct: 2, rationale: "If antibiotics have been administered, the dosage and time given should be provided on the label." },
+  { id: 14, question: "How much formed stool should be placed in the specimen container?", options: ["Fill completely", "Fill one half", "Fill one third", "Fill two thirds"], correct: 2, rationale: "About one third of the container should be filled with the stool; it should never be completely filled." },
+  { id: 15, question: "Where should used needles and ampules be disposed of?", options: ["Red biohazard bag", "Sharps container", "General waste bin", "Recycling bin"], correct: 1, rationale: "Needles, ampules, broken glass, and blades must be disposed of in a Sharps Container." },
+  { id: 16, question: "Urine obtained from a drainage bag is acceptable for culture if the bag is new.", options: ["True", "False"], correct: 1, rationale: "Urine must never be obtained from the drainage bag as bacteria multiply in the stagnant urine, leading to misleading results." },
+  { id: 17, question: "What is the maximum storage time for most specimens at 2-8°C if processing is delayed?", options: ["12 hours", "24 hours", "48 hours", "72 hours"], correct: 1, rationale: "If processing is delayed, specimens must be stored at 2-8°C but only for a maximum of 24 hours." },
+  { id: 18, question: "Which chemical is used first to disinfect the venipuncture site for blood culture?", options: ["Isopropyl alcohol", "Hydrogen peroxide", "Tincture of iodine", "Chlorine solution"], correct: 2, rationale: "The site should be disinfected first by tincture of iodine which is allowed to dry, followed by alcohol." },
+  { id: 19, question: "How many blood cultures are needed within a 24 hour period per septic episode?", options: ["One single culture", "Two to three cultures", "Four to five cultures", "Six cultures"], correct: 1, rationale: "A single blood culture is not adequate; two to three blood cultures within a 24-hour period are needed per septic episode." },
+  { id: 20, question: "A wound swab is necessary for all chronic wounds even without signs of infection.", options: ["True", "False"], correct: 1, rationale: "A swab needs only be taken when a wound exhibits clinical signs like pus, erythema, or inflammation; colonization is common and harmless." },
+  { id: 21, question: "What type of bag is required for transporting specimen containers?", options: ["Single layer paper bag", "Double sided biohazard bag", "Clear standard ziplock", "Open top plastic bag"], correct: 1, rationale: "Containers must be transported in a double-sided, self-sealing polythene bag with separate compartments for the form and specimen." },
+  { id: 22, question: "When should swabs from the ear, nose, or eye be collected?", options: ["After cleaning with alcohol", "Before topical antibiotics", "During antibiotic course", "After applying ointment"], correct: 1, rationale: "Ear, nose, and eye swabs should be collected before topical antibiotics are applied." },
+  { id: 23, question: "What is a consequence of delaying specimen transportation?", options: ["Increased pathogen viability", "Overgrowth of normal flora", "Improved isolation rates", "Better clinical relevance"], correct: 1, rationale: "Delay in transportation may result in overgrowth of flora and death of labile, fastidious organisms." },
+  { id: 24, question: "Cerebrospinal fluid is collected using a lumbar puncture procedure.", options: ["True", "False"], correct: 0, rationale: "A physician collects CSF aseptically using a special spinal needle via a lumbar puncture procedure." },
+  { id: 25, question: "Which time of day is preferable for collecting a sputum sample for culture?", options: ["Late evening", "Early morning", "After lunch", "Mid afternoon"], correct: 1, rationale: "Early morning sputum samples are preferable for routine culture and sensitivity." },
+  { id: 26, question: "What is the correct temperature for long term storage of specimens?", options: ["Minus 4 degrees", "Minus 20 degrees", "Minus 70 degrees", "Zero degrees"], correct: 2, rationale: "Specimens for long term storage should be frozen at -70°C." },
+  { id: 27, question: "How is the blood sample distributed between anaerobic and aerobic bottles?", options: ["All in aerobic", "All in anaerobic", "Equal split of 10 ml each", "15 ml aerobic and 5 ml anaerobic"], correct: 2, rationale: "The 20 ml drawn should be put 10 ml in the anaerobic bottle and 10 ml in the aerobic bottle." },
+  { id: 28, question: "A leaking container is an acceptable reason to reject a specimen.", options: ["True", "False"], correct: 0, rationale: "A leaking container is listed explicitly as a criterion for specimen rejection." },
+  { id: 29, question: "Which PPE item is specifically recommended if a procedure generates aerosols?", options: ["Surgical mask", "Protective eyewear", "Shoe covers", "Hair net"], correct: 1, rationale: "Protective eyewear or face shields should be used if the procedure is likely to generate aerosols." },
+  { id: 30, question: "In which population is a rectal swab preferred over a stool sample?", options: ["Healthy adults", "Ambulatory patients", "Debilitated adults", "Adolescents"], correct: 2, rationale: "Rectal swabs are preferred in certain cases such as newborns and debilitated adults." },
+  { id: 31, question: "Inadequate amounts of specimen may lead to false negative results.", options: ["True", "False"], correct: 0, rationale: "Collecting an adequate amount is crucial; inadequate amounts may yield false-negative results." },
+  { id: 32, question: "What should be done with a urine specimen that cannot reach the lab within two hours?", options: ["Freeze immediately", "Leave on counter", "Refrigerate immediately", "Incubate at 37 degrees"], correct: 2, rationale: "If the urine specimen cannot reach the lab within 2 hours, it should be refrigerated immediately." },
+  { id: 33, question: "Which containers are appropriate for collecting microbiological specimens?", options: ["Sterile screw cap", "Clean glass jar", "Plastic pop top", "Cardboard box"], correct: 0, rationale: "Specimens should be collected in sterile, screw-cap, leak-proof containers." },
+  { id: 34, question: "What is the maximum age for an unpreserved specimen before it is rejected?", options: ["One hour", "Two hours", "Four hours", "Six hours"], correct: 1, rationale: "Unpreserved specimens over 2 hours old are subject to rejection." },
+  { id: 35, question: "The septum of the blood culture vial should be disinfected with 70% alcohol.", options: ["True", "False"], correct: 0, rationale: "The septum of the blood culture vial should be disinfected by 70% alcohol before inoculation." },
+  { id: 36, question: "Which clinical sign indicates the need for a wound swab?", options: ["Presence of pus", "Healed tissue", "Dry skin", "Scar formation"], correct: 0, rationale: "A swab needs only be taken when a wound exhibits signs like pus, erythema, inflammation, or fever." },
+  { id: 37, question: "Which waste category includes blood products and cultures?", options: ["General waste", "Recyclable waste", "Biohazard waste", "Chemical waste"], correct: 2, rationale: "Blood products and cultures are classified as Infectious Waste and belong in the Biohazard (Red) container." },
+  { id: 38, question: "To increase isolation chances, specimens should be collected during which phase?", options: ["Recovery stage", "Latent stage", "Active stage", "Incubation stage"], correct: 2, rationale: "Specimens should be collected at the most active stage of the disease to increase chances of isolation." },
+  { id: 39, question: "Saliva from the upper respiratory tract is suitable for lung infection culture.", options: ["True", "False"], correct: 1, rationale: "Sputum is a secretion from the Lower Respiratory Tract (LRT); saliva is from the URT and care must be taken to prevent mixing." },
+  { id: 40, question: "What is the purpose of disinfecting the catheter port with alcohol?", options: ["To lubricate the needle", "To prevent contamination", "To dilute the sample", "To active the port"], correct: 1, rationale: "The port is disinfected with 70% alcohol to maintain asepsis and prevent introduction of bacteria into the specimen." }
+]
+            },
+            "structure": {
+                title: "Bacterial Cell Structure & Classification",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-dna",
+                color: "text-rose-600",
+                bg: "bg-rose-50",
+                data: [
+  { id: 1, question: "Which component is uniquely found in Gram-positive bacterial cell walls?", options: ["Teichoic acids", "Lipopolysaccharides", "Outer membrane", "Porin proteins"], correct: 0, rationale: "Gram-positive cell walls contain a thick layer of peptidoglycan along with teichoic acids, which are absent in Gram-negative bacteria." },
+  { id: 2, question: "What is the primary function of bacterial flagella?", options: ["Adhesion", "Reproduction", "Locomotion", "Storage"], correct: 2, rationale: "Flagella are long filaments that rotate to propel the bacterium through liquids, enabling movement." },
+  { id: 3, question: "Which term describes bacteria that are spherical in shape?", options: ["Bacilli", "Cocci", "Spirilla", "Vibrios"], correct: 1, rationale: "Cocci are spherical or round-shaped cells, whereas bacilli are rod-shaped and spirilla are spiral-shaped." },
+  { id: 4, question: "True or False: Bacterial cells contain a membrane-bound nucleus.", options: ["True", "False"], correct: 1, rationale: "Bacteria are prokaryotic organisms, meaning they lack a true nucleus enclosed by a nuclear membrane." },
+  { id: 5, question: "What is the main chemical component of the bacterial cell wall?", options: ["Phospholipids", "Peptidoglycan", "Polypeptides", "Cellulose"], correct: 1, rationale: "The bacterial cell wall is a thick rigid layer composed mainly of peptidoglycan." },
+  { id: 6, question: "Which structure functions as an adhesion organ to attach bacteria to host cells?", options: ["Flagella", "Pili", "Ribosomes", "Endospores"], correct: 1, rationale: "Pili, or fimbriae, are thin hair-like appendages that function as adhesion organs to attach the cell to surfaces." },
+  { id: 7, question: "Where are the enzymes for respiration and photosynthesis located in bacteria?", options: ["Cell wall", "Plasma membrane", "Nucleoid", "Capsule"], correct: 1, rationale: "The cytoplasmic or plasma membrane contains enzymes required for respiration and photosynthesis." },
+  { id: 8, question: "What arrangement describes cocci dividing in one plane to form chains?", options: ["Staphylococci", "Streptococci", "Diplococci", "Tetrads"], correct: 1, rationale: "Streptococci are arrangements of spherical cells that form chains." },
+  { id: 9, question: "True or False: Endospores are a reproductive form of bacteria.", options: ["True", "False"], correct: 1, rationale: "Endospores are dormant, inactive forms used for survival, not reproduction. Bacteria reproduce via binary fission." },
+  { id: 10, question: "Which molecule is a major component of the Gram-negative outer membrane?", options: ["Teichoic acid", "Peptidoglycan", "Lipopolysaccharide", "Cholesterol"], correct: 2, rationale: "Gram-negative cell walls feature an outer membrane made of phospholipids and lipopolysaccharides (LPS)." },
+  { id: 11, question: "What is the primary purpose of the bacterial capsule?", options: ["Protein synthesis", "Energy production", "Protection", "Motility"], correct: 2, rationale: "The capsule is a dense layer that provides protection and enhances virulence by helping bacteria evade the immune system." },
+  { id: 12, question: "Which cellular process occurs at the ribosomes?", options: ["DNA replication", "Protein synthesis", "Lipid storage", "Cell division"], correct: 1, rationale: "Ribosomes are the discrete units within the cell where protein synthesis is performed." },
+  { id: 13, question: "True or False: Binary fission results in two genetically identical daughter cells.", options: ["True", "False"], correct: 0, rationale: "Binary fission involves the parent cell making a copy of its DNA and splitting into two identical daughter cells." },
+  { id: 14, question: "What term defines the time required for a bacterial cell to divide?", options: ["Lag time", "Incubation time", "Generation time", "Activation time"], correct: 2, rationale: "Generation time (or doubling time) is the specific period it takes for a bacterial cell to divide and double in number." },
+  { id: 15, question: "Which structure prevents the bacterial cell from bursting due to internal pressure?", options: ["Cell wall", "Cell membrane", "Capsule", "Flagella"], correct: 0, rationale: "The cell wall is a rigid layer that gives the cell its shape and protects it from osmotic lysis." },
+  { id: 16, question: "What is the shape of Escherichia coli bacteria?", options: ["Spherical", "Spiral", "Rod-shaped", "Comma-shaped"], correct: 2, rationale: "Escherichia coli is explicitly cited as an example of Bacilli, which are rod-shaped cells." },
+  { id: 17, question: "Which component constitutes approximately 80% of the cytoplasm?", options: ["Proteins", "Lipids", "Water", "Carbohydrates"], correct: 2, rationale: "The cytoplasm is a complex fluid mixture described as being 80% water." },
+  { id: 18, question: "True or False: All bacterial cells possess flagella.", options: ["True", "False"], correct: 1, rationale: "Not all bacteria have flagella; those that lack them are described as non-motile." },
+  { id: 19, question: "Which arrangement describes bacteria forming grape-like clusters?", options: ["Streptococci", "Staphylococci", "Diplococci", "Sarcina"], correct: 1, rationale: "Staphylococci is the arrangement where cocci form clusters resembling grapes." },
+  { id: 20, question: "What is the function of inclusion bodies?", options: ["Genetic replication", "Nutrient storage", "Cell motility", "Protein synthesis"], correct: 1, rationale: "Inclusion bodies, or granules, are particles where bacteria store nutrients and energy products." },
+  { id: 21, question: "How is the bacterial heredity material best described?", options: ["Paired linear chromosomes", "Single circular DNA", "Multiple RNA strands", "Fragmented DNA segments"], correct: 1, rationale: "Bacterial heredity material exists as a single circular coiled strand of DNA located in the nucleoid." },
+  { id: 22, question: "True or False: The cell membrane controls the transport of substances in and out of the cell.", options: ["True", "False"], correct: 0, rationale: "The phospholipid bilayer of the cell membrane acts as a physiological barrier controlling substance transport." },
+  { id: 23, question: "Which condition primarily triggers endospore formation?", options: ["High moisture", "Nutrient abundance", "Adverse environment", "Rapid division"], correct: 2, rationale: "Endospores form to resist adverse environmental conditions like drying, heat, or nutritional deprivation." },
+  { id: 24, question: "Which method classifies bacteria based on antibody interaction with surface structures?", options: ["Gram staining", "Serological analysis", "Microscopic morphology", "Biochemical testing"], correct: 1, rationale: "Serological analysis involves the interaction of antibodies with surface structures for classification." },
+  { id: 25, question: "What characterizes the cell wall of Gram-negative bacteria?", options: ["Thick peptidoglycan layer", "Thin peptidoglycan layer", "Absence of outer membrane", "Presence of teichoic acids"], correct: 1, rationale: "Gram-negative cell walls are complex featuring a thin peptidoglycan layer surrounded by an outer membrane." },
+  { id: 26, question: "True or False: Bacteria grow by increasing in size rather than number.", options: ["True", "False"], correct: 1, rationale: "The text states bacteria grow in number, not in size, by making copies of themselves." },
+  { id: 27, question: "Which term refers to spiral or helical-shaped bacterial cells?", options: ["Cocci", "Bacilli", "Spirilla", "Vibrio"], correct: 2, rationale: "Spirilla are described as bacteria with spiral or helical-shaped cells." },
+  { id: 28, question: "Which structure acts as the structural and physiological barrier enclosing the protoplasm?", options: ["Cell envelope", "Capsule", "Flagellum", "Pilum"], correct: 0, rationale: "The cell envelope (cell wall and membrane) is the outer layer providing the barrier between the protoplasm and the environment." },
+  { id: 29, question: "True or False: Capsules are composed primarily of peptidoglycan.", options: ["True", "False"], correct: 1, rationale: "Capsules are composed primarily of polysaccharides and sometimes polypeptides, not peptidoglycan." },
+  { id: 30, question: "What is the arrangement name for pairs of spherical bacteria?", options: ["Diplococci", "Streptococci", "Tetrads", "Sarcina"], correct: 0, rationale: "Diplococci refers to spherical cells arranged in pairs." },
+  { id: 31, question: "Which structure allows endospores to become active bacteria again?", options: ["Germination", "Sporulation", "Binary fission", "Replication"], correct: 0, rationale: "Spores survive for long times until they are triggered to germinate (regrow)." },
+  { id: 32, question: "True or False: Gram-positive bacteria lack an outer membrane.", options: ["True", "False"], correct: 0, rationale: "Gram-positive bacteria have a thick peptidoglycan layer but lack the outer membrane found in Gram-negative bacteria." },
+  { id: 33, question: "What is the aggregated dense area of DNA in a bacterium called?", options: ["Nucleus", "Nucleoid", "Ribosome", "Plasmid"], correct: 1, rationale: "Since bacteria lack a nucleus, their DNA aggregates in a dense area called the nucleoid." },
+  { id: 34, question: "Which term describes rod-shaped bacteria arranged in chains?", options: ["Streptobacilli", "Diplobacilli", "Coccobacilli", "Palisades"], correct: 0, rationale: "Streptobacilli refers to rod-shaped cells (bacilli) that are arranged in chains." },
+  { id: 35, question: "True or False: Pili are thicker and longer than flagella.", options: ["True", "False"], correct: 1, rationale: "Pili are described as thin hair-like appendages, generally distinct from the long filaments of flagella." },
+  { id: 36, question: "What protects the bacterial cell from osmotic lysis?", options: ["Cytoplasm", "Cell wall", "Ribosomes", "Inclusions"], correct: 1, rationale: "The cell wall gives the cell its shape and specifically protects it from osmotic lysis." },
+  { id: 37, question: "Which classification method analyzes phenotypic characteristics like shape?", options: ["Microscopic morphology", "DNA sequencing", "Serology", "Growth requirements"], correct: 0, rationale: "Microscopic morphology classifies bacteria based on cell shape (cocci, bacilli, spirals) and arrangement." },
+  { id: 38, question: "True or False: The cell membrane is located outside the cell wall.", options: ["True", "False"], correct: 1, rationale: "The cell membrane (phospholipid bilayer) is located just inside the cell wall." },
+  { id: 39, question: "What is the nature of the bacterial cell membrane structure?", options: ["Rigid monolayer", "Phospholipid bilayer", "Polysaccharide mesh", "Protein coat"], correct: 1, rationale: "The cell membrane is described as a phospholipid bilayer located just inside the cell wall." },
+  { id: 40, question: "Which bacterial structure is considered a key virulence factor?", options: ["Ribosome", "Capsule", "Cytoplasm", "Nucleoid"], correct: 1, rationale: "The capsule is explicitly identified as a key virulence factor that enhances the ability to cause disease." }
+]
+            },
+            "pathogens": {
+                title: "Important Bacterial and Viral Pathogens",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-viruses",
+                color: "text-amber-600",
+                bg: "bg-amber-50",
+                data: [
+  { id: 1, question: "Which bacterial species is known to cause hospital-acquired infections related to medical devices?", options: ["Staphylococcus epidermidis", "Staphylococcus saprophyticus", "Streptococcus pyogenes", "Salmonella typhi"], correct: 0, rationale: "Staphylococcus epidermidis is a common cause of hospital-acquired infections related to medical devices." },
+  { id: 2, question: "What is the primary genetic material found in the Hepatitis B virus?", options: ["DNA", "RNA", "Both DNA and RNA", "Proteins only"], correct: 0, rationale: "Hepatitis B virus is an enveloped virus that contains a DNA genome, unlike Hepatitis A and C which are RNA viruses." },
+  { id: 3, question: "Which organism is described as a gram-negative rod that is notably non-motile and often has a prominent capsule?", options: ["Klebsiella pneumoniae", "Escherichia coli", "Pseudomonas aeruginosa", "Proteus mirabilis"], correct: 0, rationale: "Klebsiella pneumoniae is notably non-motile and often possesses a prominent capsule." },
+  { id: 4, question: "What shape is the capsid of the Rabies virus described as?", options: ["Bullet shaped", "Icosahedral", "Spherical", "Filamentous"], correct: 0, rationale: "The Rabies virus is enveloped and its virion is described as being bullet-shaped with a helical capsid." },
+  { id: 5, question: "Which complication is specifically associated with Group A streptococci infections?", options: ["Rheumatic fever", "Neonatal sepsis", "Kidney stones", "Paralysis"], correct: 0, rationale: "Group A streptococci (Streptococcus pyogenes) can cause complications such as glomerulonephritis and rheumatic fever." },
+  { id: 6, question: "Pseudomonas aeruginosa is characterized as being which of the following?", options: ["Aerobic", "Anaerobic", "Facultative anaerobic", "Microaerophilic"], correct: 0, rationale: "Pseudomonas aeruginosa is an aerobic bacterium." },
+  { id: 7, question: "True or False: All viral envelopes contain a phospholipid bilayer.", options: ["True", "False"], correct: 0, rationale: "The text states that all envelopes have a phospholipid bilayer, acquired from the host cell membrane." },
+  { id: 8, question: "Which bacteria is a free-living non-pathogen that may produce urinary tract infections in women?", options: ["Staphylococcus saprophyticus", "Staphylococcus aureus", "Streptococcus agalactiae", "Pseudomonas aeruginosa"], correct: 0, rationale: "Staphylococcus saprophyticus is a free-living non-pathogen but may produce urinary tract infections in women." },
+  { id: 9, question: "What is the primary route of transmission for Hepatitis A?", options: ["Ingestion of contaminated food", "Sexual contact", "Blood transfusion", "Respiratory droplets"], correct: 0, rationale: "Hepatitis A is transmitted primarily through the ingestion of contaminated food or drinks." },
+  { id: 10, question: "Which of the following is a complication associated with Mumps in adults?", options: ["Testicular inflammation", "Liver cirrhosis", "Rheumatic fever", "Hydrophobia"], correct: 0, rationale: "Complications of Mumps include meningitis, pancreatitis, permanent deafness, and testicular inflammation." },
+  { id: 11, question: "True or False: Staphylococcus aureus is responsible for most Staphylococcal infections.", options: ["True", "False"], correct: 0, rationale: "Staphylococcus aureus is responsible for most Staphylococcal infections and causes a variety of suppurative infections." },
+  { id: 12, question: "Which term describes the protein coat that surrounds the nucleic acid of a virus?", options: ["Capsid", "Envelope", "Peptidoglycan", "Flagella"], correct: 0, rationale: "The nucleic acid of a virus is surrounded by a protective protein coat called a capsid." },
+  { id: 13, question: "Proteus mirabilis contributes to kidney stone formation by producing which enzyme?", options: ["Urease", "Coagulase", "Catalase", "Polymerase"], correct: 0, rationale: "Proteus mirabilis produces urease, which contributes to kidney stone formation." },
+  { id: 14, question: "Which condition is caused by Shigella species?", options: ["Bacillary dysentery", "Typhoid fever", "Rheumatic fever", "Traveler's diarrhea"], correct: 0, rationale: "Shigella species are the cause of shigellosis, or bacillary dysentery." },
+  { id: 15, question: "True or False: Hepatitis C has a currently available vaccine for prophylaxis.", options: ["True", "False"], correct: 1, rationale: "There is no available vaccine for Hepatitis C." },
+  { id: 16, question: "Which bacterial family is described as facultative anaerobic rods that primarily live in intestines?", options: ["Enterobacteriaceae", "Staphylococcaceae", "Streptococcaceae", "Pseudomonadaceae"], correct: 0, rationale: "Enterobacteriaceae are Gram-negative, rod-shaped, facultative anaerobic bacteria that live primarily in the intestines." },
+  { id: 17, question: "What is the approximate percentage of chronically infected Hepatitis C patients who develop chronic liver disease?", options: ["60 to 70 percent", "15 to 25 percent", "5 to 10 percent", "90 to 100 percent"], correct: 0, rationale: "60%–70% of chronically infected Hepatitis C persons develop chronic liver disease." },
+  { id: 18, question: "True or False: Viruses can contain both DNA and RNA genomes simultaneously.", options: ["True", "False"], correct: 1, rationale: "Viruses contain either an RNA or DNA genome, but not both." },
+  { id: 19, question: "Which organism causes Neonatal sepsis and meningitis?", options: ["Group B Streptococci", "Group A Streptococci", "Staphylococcus epidermidis", "Proteus mirabilis"], correct: 0, rationale: "Group B streptococci (Streptococcus agalactiae) cause Neonatal sepsis and meningitis." },
+  { id: 20, question: "What structure do Staphylococcus species form when viewed under a microscope?", options: ["Grape like clusters", "Long chains", "Pairs", "Linear filaments"], correct: 0, rationale: "Staphylococcus species are gram-positive cocci that occur in irregular grape-like clusters." },
+  { id: 21, question: "Measles is primarily spread through which method?", options: ["Coughing and sneezing", "Contaminated water", "Sexual contact", "Insect vectors"], correct: 0, rationale: "Measles is highly contagious and is spread by coughing and sneezing via close personal contact." },
+  { id: 22, question: "True or False: Klebsiella pneumoniae is a motile bacterium.", options: ["True", "False"], correct: 1, rationale: "Klebsiella pneumoniae are notably non-motile." },
+  { id: 23, question: "Which virus is non-enveloped and has an icosahedral capsid?", options: ["Poliovirus", "Rabies virus", "Hepatitis B virus", "Hepatitis C virus"], correct: 0, rationale: "Poliovirus is characterized by an icosahedral capsid and is non-enveloped." },
+  { id: 24, question: "Which disease is associated with Salmonella species?", options: ["Typhoid fever", "Bacillary dysentery", "Impetigo", "Poliomyelitis"], correct: 0, rationale: "Salmonella species cause gastroenteritis and typhoid fever." },
+  { id: 25, question: "True or False: Pseudomonas aeruginosa is a spore-forming bacterium.", options: ["True", "False"], correct: 1, rationale: "Pseudomonas aeruginosa is non-capsulated and non-spore forming." },
+  { id: 26, question: "Which term refers to a virus that lacks an envelope?", options: ["Naked virus", "Simple virus", "Core virus", "Basic virus"], correct: 0, rationale: "If a virus doesn’t have an envelope, it is considered to be a naked virus." },
+  { id: 27, question: "Methicillin-resistant Staphylococcus aureus is commonly abbreviated as what?", options: ["MRSA", "MSSA", "VRSA", "ORSA"], correct: 0, rationale: "Methicillin-resistant Staphylococcus aureus is abbreviated as MRSA." },
+  { id: 28, question: "True or False: Mumps symptoms are often more severe in children than in adults.", options: ["True", "False"], correct: 1, rationale: "Symptoms of Mumps in adults are often more severe than in children." },
+  { id: 29, question: "Which virus is known to cause Acquired Immunodeficiency Syndrome?", options: ["Human Immunodeficiency Virus", "Hepatitis B Virus", "Poliovirus", "Measles Virus"], correct: 0, rationale: "HIV is the virus associated with Acquired Immunodeficiency Syndrome (AIDS)." },
+  { id: 30, question: "Hydrophobia is a symptom associated with which viral infection?", options: ["Rabies", "Measles", "Mumps", "Hepatitis A"], correct: 0, rationale: "Rabies symptoms include salivation, vomiting, muscle spasms, and hydrophobia." },
+  { id: 31, question: "True or False: Viruses are capable of metabolic activity outside of a host cell.", options: ["True", "False"], correct: 1, rationale: "Viruses are metabolically inert with no metabolic activity outside the host cell." },
+  { id: 32, question: "Which bacteria is a normal part of gut flora but can cause traveler's diarrhea?", options: ["Escherichia coli", "Pseudomonas aeruginosa", "Streptococcus pyogenes", "Staphylococcus epidermidis"], correct: 0, rationale: "E. coli is a normal part of the gut flora but can cause UTIs, traveler's diarrhea, and foodborne illness." },
+  { id: 33, question: "Hepatitis B vaccine is typically administered in how many shots?", options: ["3 shots", "1 shot", "2 shots", "4 shots"], correct: 0, rationale: "The Hepatitis B vaccine is usually given as 3 shots over a 6-month period." },
+  { id: 34, question: "What are the small structural units that make up a viral capsid called?", options: ["Capsomeres", "Spikes", "Envelopes", "Nucleotides"], correct: 0, rationale: "The capsid is composed of small structural units called capsomeres." },
+  { id: 35, question: "True or False: Hepatitis A leads to chronic liver damage in most patients.", options: ["True", "False"], correct: 1, rationale: "Most persons with acute Hepatitis A recover with no lasting liver damage; it rarely causes chronic issues." },
+  { id: 36, question: "Which type of flagella arrangement does Pseudomonas aeruginosa possess?", options: ["Polar flagella", "Peritrichous flagella", "Axial filaments", "No flagella"], correct: 0, rationale: "Pseudomonas aeruginosa is actively motile by single or multiple polar flagella." },
+  { id: 37, question: "Which clinical sign is described as a generalized maculopapular erythematous rash?", options: ["Measles", "Mumps", "Polio", "Hepatitis B"], correct: 0, rationale: "Measles symptoms include a generalized, maculopapular, erythematous rash." },
+  { id: 38, question: "True or False: Streptococcus pyogenes causes pharyngitis and impetigo.", options: ["True", "False"], correct: 0, rationale: "Group A streptococci (Streptococcus pyogenes) causes pharyngitis, tonsillitis, and impetigo." },
+  { id: 39, question: "Which virus is transmitted mainly through unprotected sex and contaminated needles?", options: ["HIV", "Hepatitis A", "Polio", "Measles"], correct: 0, rationale: "HIV is spread primarily by unprotected sex and contaminated needles." },
+  { id: 40, question: "What is the nature of the genome in Poliovirus?", options: ["RNA", "DNA", "Single-stranded DNA", "Double-stranded DNA"], correct: 0, rationale: "The Poliovirus genome consists of RNA." }
+]
+            },
+            "growth": {
+                title: "Microbial Growth and Nutrition",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-chart-line",
+                color: "text-cyan-600",
+                bg: "bg-cyan-50",
+                data: [
+  { id: 1, question: "What is the primary definition of microbial growth in bacteria?", options: ["Increase in the size of the cell", "Increase in the number of cells", "Increase in metabolic activity", "Increase in cellular water content"], correct: 1, rationale: "Microbial growth is defined as an increase in the number of cells rather than an increase in the size of individual cells." },
+  { id: 2, question: "Which process do bacteria mainly use to grow and divide?", options: ["Sexual reproduction", "Binary fission", "Meiosis", "Spore formation"], correct: 1, rationale: "Bacteria grow and divide by binary fission, which is a rapid and relatively simple process." },
+  { id: 3, question: "What percentage of the dry weight of a bacterial cell is composed of carbon?", options: ["14%", "25%", "50%", "75%"], correct: 2, rationale: "Carbon makes up 50% of the dry weight of the cell and serves as the structural backbone of organic compounds." },
+  { id: 4, question: "Nitrogen is primarily used by bacteria to form which structures?", options: ["Carbohydrates and lipids", "Amino acids and DNA", "Cell walls and capsules", "Vitamins and minerals"], correct: 1, rationale: "Nitrogen makes up 14% of dry cell weight and is used to form amino acids, DNA, and RNA." },
+  { id: 5, question: "Autotrophs are bacteria that can synthesize their own organic compounds using which source?", options: ["Atmospheric carbon dioxide", "Complex organic sugars", "Animal proteins", "Decomposing matter"], correct: 0, rationale: "Autotrophs can synthesize all their organic compounds by utilizing atmospheric CO2 and N2." },
+  { id: 6, question: "Which type of bacteria depends on preformed organic compounds for nutrition?", options: ["Autotrophs", "Heterotrophs", "Phototrophs", "Lithotrophs"], correct: 1, rationale: "Heterotrophs are unable to synthesize their own metabolites and depend on preformed organic compounds. This group includes all pathogens." },
+  { id: 7, question: "What is a characteristic feature of passive diffusion?", options: ["Movement from low to high concentration", "Requirement for metabolic energy", "Movement from high to low concentration", "Requirement for carrier proteins"], correct: 2, rationale: "Passive diffusion involves the movement of nutrients from an area of high concentration to an area of low concentration without energy." },
+  { id: 8, question: "Facilitated diffusion differs from simple diffusion because it requires which component?", options: ["Metabolic energy", "Carrier proteins", "ATP hydrolysis", "Active enzymes"], correct: 1, rationale: "Facilitated passive diffusion differs in that transport is facilitated by the use of carrier proteins embedded in the cell membrane." },
+  { id: 9, question: "Active transport allows bacteria to move substances in which direction?", options: ["With the concentration gradient", "Against the concentration gradient", "Freely across the membrane", "From high to low concentration"], correct: 1, rationale: "Active transport moves substances against a concentration gradient, meaning from low concentration inside to high concentration outside, or vice versa." },
+  { id: 10, question: "What is the optimal temperature range for mesophilic bacteria?", options: ["Below 20 degrees Celsius", "25 to 40 degrees Celsius", "55 to 80 degrees Celsius", "80 to 100 degrees Celsius"], correct: 1, rationale: "Mesophilic bacteria grow best between 25°C and 40°C. This group includes most bacterial pathogens." },
+  { id: 11, question: "Which group of bacteria grows best at temperatures below 20 degrees Celsius?", options: ["Mesophiles", "Thermophiles", "Psychrophiles", "Hyperthermophiles"], correct: 2, rationale: "Psychrophilic bacteria are cold-loving organisms that grow best below 20°C." },
+  { id: 12, question: "Thermophilic bacteria are characterized by their ability to grow in which environment?", options: ["High salt concentrations", "Extreme cold temperatures", "High temperatures", "Absence of oxygen"], correct: 2, rationale: "Thermophilic (heat loving) bacteria grow best at high temperatures, specifically between 55°C and 80°C." },
+  { id: 13, question: "Obligate aerobes require which element for growth?", options: ["Nitrogen", "Hydrogen", "Oxygen", "Carbon dioxide"], correct: 2, rationale: "Strict (Obligate) Aerobes require Oxygen for growth as they use it as a final electron acceptor." },
+  { id: 14, question: "Which bacteria may die upon exposure to oxygen?", options: ["Obligate aerobes", "Facilitative anaerobes", "Obligate anaerobes", "Aerotolerant anaerobes"], correct: 2, rationale: "Strict (Obligate) Anaerobes grow in the absence of O2 and may even die on exposure to it." },
+  { id: 15, question: "Facultative anaerobes generally grow by aerobic respiration but switch to fermentation under which condition?", options: ["High temperature", "Low pH", "Anaerobic conditions", "High osmotic pressure"], correct: 2, rationale: "Facultative anaerobes switch to fermentation or anaerobic respiration under anaerobic conditions (absence of oxygen)." },
+  { id: 16, question: "Microaerophilic bacteria grow best under which specific atmospheric conditions?", options: ["High oxygen and low carbon dioxide", "Reduced oxygen and increased carbon dioxide", "Zero oxygen and high nitrogen", "Atmospheric levels of oxygen"], correct: 1, rationale: "Microaerophilic bacteria grow best under reduced oxygen (5% to 10%) and increased carbon dioxide (8% to 10%)." },
+  { id: 17, question: "What is the optimal pH range for the majority of pathogenic bacteria?", options: ["4.0 to 5.0", "6.0 to 6.5", "7.2 to 7.6", "8.5 to 9.0"], correct: 2, rationale: "The majority of pathogenic bacteria grow best at neutral or slightly alkaline pH, specifically 7.2 to 7.6." },
+  { id: 18, question: "What happens to a bacterial cell in a hypertonic solution?", options: ["It bursts due to water intake", "It swells significantly", "It loses water and shrinks", "It maintains perfect equilibrium"], correct: 2, rationale: "In hypertonic solutions, high osmotic pressure removes water from the cell, causing shrinkage of the cell membrane (plasmolysis)." },
+  { id: 19, question: "Which bacterial structure is highly resistant to desiccation and can survive for years?", options: ["Flagella", "Spores", "Pili", "Capsules"], correct: 1, rationale: "Spores are resistant to desiccation (drying) and may survive for years." },
+  { id: 20, question: "Photosynthetic bacteria utilize which source for energy?", options: ["Chemical compounds", "Light", "Organic oxidation", "Fermentation"], correct: 1, rationale: "Photosynthetic bacteria use light as their energy source for synthesizing organic compounds." },
+  { id: 21, question: "During which phase of the growth curve do bacteria adapt to a new environment?", options: ["Log phase", "Stationary phase", "Lag phase", "Decline phase"], correct: 2, rationale: "The Lag phase is the time required for adaptation to a new environment, characterized by little or no increase in number." },
+  { id: 22, question: "Which phase of bacterial growth is characterized by exponential increase in cell numbers?", options: ["Lag phase", "Log phase", "Stationary phase", "Death phase"], correct: 1, rationale: "The Log (Exponential) phase is when cells begin to divide and their number increases exponentially with time." },
+  { id: 23, question: "In the stationary phase, the number of cells produced is equal to what?", options: ["The number of cells dying", "The total nutrient content", "The volume of the medium", "The number of spores formed"], correct: 0, rationale: "In the Stationary phase, the population stabilizes because the number of cells produced equals the number of cells dying." },
+  { id: 24, question: "What is the primary cause of the decline phase in bacterial growth?", options: ["Adaptation to the medium", "Rapid binary fission", "Nutritional exhaustion and toxin accumulation", "Formation of resistant spores"], correct: 2, rationale: "The Death or Decline phase is caused by more nutritional exhaustion and toxin accumulation, leading to unfavorable conditions." },
+  { id: 25, question: "Clinically, the incubation period of a disease corresponds to which growth phase?", options: ["Lag phase", "Log phase", "Stationary phase", "Decline phase"], correct: 0, rationale: "The clinical significance of the Lag phase corresponds to the incubation period of a disease." },
+  { id: 26, question: "Bacteria are most susceptible to adverse environmental factors during which phase?", options: ["Lag phase", "Log phase", "Stationary phase", "Decline phase"], correct: 1, rationale: "Cells are most susceptible to adverse environmental factors during the Log (Exponential) phase." },
+  { id: 27, question: "Aerobic bacteria obtain their energy primarily through which process?", options: ["Fermentation", "Oxidation", "Reduction", "Hydrolysis"], correct: 1, rationale: "Aerobic bacteria obtain their energy by oxidation involving O2 as the ultimate hydrogen acceptor." },
+  { id: 28, question: "What is the clinical significance of the log phase?", options: ["Convalescence period", "Incubation period", "Appearance of symptoms and signs", "Latent infection"], correct: 2, rationale: "The clinical significance of the Log phase is when symptoms and signs appear." },
+  { id: 29, question: "Hypotonic solutions typically cause water to move in which direction regarding the cell?", options: ["Out of the cell", "Into the cell", "No net movement", "Into the nucleus only"], correct: 1, rationale: "Hypotonic solutions have low osmotic pressure which causes water to enter the cell, potentially causing lysis." },
+  { id: 30, question: "What percentage of bacterial dry weight is nitrogen?", options: ["4%", "14%", "50%", "80%"], correct: 1, rationale: "Nitrogen sources make up 14% of dry cell weight." },
+  { id: 31, question: "True or False: Microbial growth refers to an increase in the size of the individual cell.", options: ["True", "False"], correct: 1, rationale: "Microbial growth refers to an increase in the number of cells, not the size of the individual cell." },
+  { id: 32, question: "True or False: Autotrophic bacteria are the most common cause of human diseases.", options: ["True", "False"], correct: 1, rationale: "Autotrophs have no medical importance; it is Heterotrophs (which depend on organic compounds) that include all pathogens." },
+  { id: 33, question: "True or False: Active transport requires metabolic energy to function.", options: ["True", "False"], correct: 0, rationale: "Active transport requires the cell to utilize metabolic energy to transport substances against a concentration gradient." },
+  { id: 34, question: "True or False: Psychrophilic bacteria grow best at temperatures above 40°C.", options: ["True", "False"], correct: 1, rationale: "Psychrophilic bacteria are cold-loving and grow best below 20°C." },
+  { id: 35, question: "True or False: Aerotolerant anaerobes use oxygen for growth but can survive without it.", options: ["True", "False"], correct: 1, rationale: "Aerotolerant anaerobes are anaerobic; they tolerate exposure to O2 but do not use it for growth." },
+  { id: 36, question: "True or False: Most pathogenic bacteria grow best in acidic conditions.", options: ["True", "False"], correct: 1, rationale: "The majority of pathogenic bacteria grow best at neutral or slightly alkaline pH (7.2-7.6)." },
+  { id: 37, question: "True or False: Drying is lethal to most vegetative bacterial cells.", options: ["True", "False"], correct: 0, rationale: "Water is an essential ingredient of bacterial protoplasm, so drying is lethal to cells (though spores are resistant)." },
+  { id: 38, question: "True or False: During the lag phase, there is intense metabolic activity.", options: ["True", "False"], correct: 0, rationale: "The lag phase is a phase of intense metabolic activity and enzyme synthesis, even though cell number does not increase." },
+  { id: 39, question: "True or False: The decline phase represents the period of convalescence clinically.", options: ["True", "False"], correct: 0, rationale: "The clinical significance of the death or decline phase is the phase of convalescence." },
+  { id: 40, question: "True or False: Facilitated diffusion moves substances against their concentration gradient.", options: ["True", "False"], correct: 1, rationale: "Facilitated diffusion involves a concentration gradient where the substance is higher outside; moving against the gradient requires active transport." }
+]
+            },
+            "healthcare": {
+                title: "Health Care Associated Infections (HAI)",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-hospital",
+                color: "text-red-600",
+                bg: "bg-red-50",
+                data: [
+  { id: 1, question: "What is the minimum time after admission for an infection to be classified as a healthcare-associated infection?", options: ["More than 12 hours", "More than 24 hours", "More than 48 hours", "More than 72 hours"], correct: 2, rationale: "Infections that appear more than 48 hours after admission are classified as hospital-acquired infections." },
+  { id: 2, question: "Which type of transmission involves mosquitoes transmitting malaria?", options: ["Direct contact transmission", "Airborne transmission", "Vector borne transmission", "Common vehicle transmission"], correct: 2, rationale: "Arthropod borne or vector transmission occurs when vectors such as mosquitoes act as carriers for diseases like malaria." },
+  { id: 3, question: "Healthcare-associated infections can occur up to how many days after a patient is discharged?", options: ["Up to 1 day", "Up to 3 days", "Up to 7 days", "Up to 14 days"], correct: 1, rationale: "Characteristics of HAI include infections occurring up to 3 days after discharge." },
+  { id: 4, question: "True or False: Airborne droplets are heavy and fall to the ground quickly.", options: ["True", "False"], correct: 1, rationale: "This is False. Droplet transmission involves heavy particles that fall, while airborne transmission involves small nuclei that can remain widely dispersed by air currents." },
+  { id: 5, question: "Which of the following is considered an endogenous source of infection?", options: ["Contaminated medical devices", "Healthcare personnel", "Patient normal flora", "Other patients in the room"], correct: 2, rationale: "Endogenous infections are caused by opportunistic pathogens that come from a patient's own normal flora." },
+  { id: 6, question: "What is the particle size characteristic of airborne transmission?", options: ["5 microns or smaller", "Greater than 5 microns", "Exactly 10 microns", "Visible to the naked eye"], correct: 0, rationale: "Airborne transmission occurs by dissemination of airborne droplet nuclei that are 5 microns or smaller in size." },
+  { id: 7, question: "Which link in the chain of infection refers to the place where a pathogen lives and grows?", options: ["Portal of exit", "Reservoir host", "Susceptible host", "Portal of entry"], correct: 1, rationale: "The reservoir host is the place where the pathogen must live and grow, such as the human body, water, or food." },
+  { id: 8, question: "How long after an operation can a surgical site infection typically occur to be considered an HAI?", options: ["Up to 10 days", "Up to 20 days", "Up to 30 days", "Up to 60 days"], correct: 2, rationale: "For an HAI, the infection usually occurs up to 30 days after an operation." },
+  { id: 9, question: "True or False: Community-acquired infections are present or incubating at the time of hospital admission.", options: ["True", "False"], correct: 0, rationale: "This is True. A community-acquired infection is defined as being present or incubating at the time of admission." },
+  { id: 10, question: "Which of the following is an example of indirect contact transmission?", options: ["Turning a patient in bed", "Bathing a patient", "Using contaminated gloves", "Sneezing on a patient"], correct: 2, rationale: "Indirect contact involves contact with a contaminated intermediate object, such as contaminated gloves that are not changed between patients." },
+  { id: 11, question: "What distinguishes community-acquired infections regarding diagnosis timing?", options: ["Diagnosed after 72 hours of admission", "Diagnosed within 48 hours of admission", "Diagnosed after discharge only", "Diagnosed only in surgical centers"], correct: 1, rationale: "Community-acquired infections are diagnosed within 48 hours of admission to a hospital without prior healthcare contact." },
+  { id: 12, question: "Which factor is an impairment of local host defense?", options: ["Diabetes mellitus", "Renal transplant", "Malignancy", "Burn wounds"], correct: 3, rationale: "Burn wounds, ulcers, and surgical wounds are listed as impairments of local host defense." },
+  { id: 13, question: "True or False: Microorganisms causing nosocomial infections typically exhibit a high degree of drug resistance.", options: ["True", "False"], correct: 0, rationale: "This is True. They exhibit a high degree of drug resistance due to widespread and frequent use of antimicrobial agents in hospitals." },
+  { id: 14, question: "Which portal of exit is associated with organisms of the intestinal tract?", options: ["Saliva", "Stools", "Droplets", "Cervical secretions"], correct: 1, rationale: "Organisms of the intestinal tract exit through stools." },
+  { id: 15, question: "What is a common vehicle for transmission of pathogens infecting the gastrointestinal tract?", options: ["Mosquitoes", "Contaminated food", "Airborne nuclei", "Needle injuries"], correct: 1, rationale: "Pathogens that infect the gastrointestinal tract can be transmitted by contaminating food or water." },
+  { id: 16, question: "Which individual is defined as a susceptible host?", options: ["Someone with high immunity", "Someone harboring a pathogen without symptoms", "Someone with inadequate resistance to a pathogen", "Someone who transmits disease via insects"], correct: 2, rationale: "A susceptible host is an individual who does not have adequate resistance to the invading pathogen." },
+  { id: 17, question: "True or False: Nosocomial infections are strictly limited to the hospital environment and cannot spread to the community.", options: ["True", "False"], correct: 1, rationale: "This is False. Organisms causing nosocomial infections can be transmitted to the community through discharged patients, staff, and visitors." },
+  { id: 18, question: "Which of the following is an example of blood-borne transmission?", options: ["Eating contaminated food", "Inhaling droplet nuclei", "Needle stick injuries", "Touching bed linens"], correct: 2, rationale: "Blood-borne transmission occurs through blood transfusion or wounds/needle injuries (e.g., HBV)." },
+  { id: 19, question: "What is the primary characteristic of microorganisms causing nosocomial infections regarding pathogenicity?", options: ["Usually high pathogenicity", "Usually low pathogenicity", "Always non-pathogenic", "Unable to cause infection"], correct: 1, rationale: "Microorganisms causing nosocomial infections are usually of low pathogenicity but can cause serious infections in immunocompromised patients." },
+  { id: 20, question: "Which transmission mode involves large particles that succumb to gravity?", options: ["Airborne transmission", "Droplet transmission", "Vector transmission", "Contact transmission"], correct: 1, rationale: "Droplet transmission involves large droplets (>5 microns) that act under gravity and travel short distances." },
+  { id: 21, question: "True or False: A carrier is a person who shows severe signs of disease while transmitting infection.", options: ["True", "False"], correct: 1, rationale: "This is False. Carriers are humans who can transmit infection but show no signs of the disease." },
+  { id: 22, question: "Which of the following is a general host defense impairment?", options: ["Surgical wound", "Traumatic wound", "Diabetes", "Skin ulcer"], correct: 2, rationale: "Impairment of general host defense includes conditions like diabetes, malignancy, and renal transplants." },
+  { id: 23, question: "What is the most effective strategy to prevent disease transmission in healthcare settings?", options: ["Increasing antibiotic use", "Interrupting the mode of transmission", "Shortening hospital stays", "Using only disposable equipment"], correct: 1, rationale: "Effective infection prevention strategies prevent disease transmission by interrupting one or more links in the chain of infection, particularly the mode of transmission." },
+  { id: 24, question: "True or False: Exogenous cross-infections come from sources within the patient's own body.", options: ["True", "False"], correct: 1, rationale: "This is False. Exogenous cross-infections come from sources outside the patient's own body." },
+  { id: 25, question: "Which infection site is associated with indwelling catheters?", options: ["Lower respiratory infection", "Surgical site infection", "Urinary tract infection", "Gastrointestinal infection"], correct: 2, rationale: "Urinary tract infections are associated with indwelling urinary catheters or instrumentation." },
+  { id: 26, question: "What happens to the cost of healthcare due to HAIs?", options: ["It decreases significantly", "It remains unchanged", "It increases for patients and hospitals", "It is covered entirely by government"], correct: 2, rationale: "HAIs increase the costs to patients and hospitals due to increased length of stay, extra investigations, and extra use of drugs." },
+  { id: 27, question: "True or False: HAIs can be caused by occupational infections among facility staff.", options: ["True", "False"], correct: 0, rationale: "This is True. The definition of HAIs also includes occupational infections among the staff of the facility." },
+  { id: 28, question: "Which represents a portal of entry?", options: ["Feces", "Respiratory secretions", "Breaks in the skin", "Urine"], correct: 2, rationale: "Common ports of entry are the mouth, respiratory tract, and breaks in the skin." },
+  { id: 29, question: "Which organisms travel short distances and land within 1 to 2 meters?", options: ["Airborne nuclei", "Droplet particles", "Waterborne pathogens", "Vector borne pathogens"], correct: 1, rationale: "Droplet particles travel short distances, usually landing within 1 to 2 meters." },
+  { id: 30, question: "True or False: Endogenous infections can be caused by a change in normal habitat of the flora during invasive procedures.", options: ["True", "False"], correct: 0, rationale: "This is True. Endogenous infections may be due to the course of invasive procedures which cause a change of normal habitat." },
+  { id: 31, question: "Which of the following is considered an invasive device that predisposes to infection?", options: ["Bed sheets", "Blood pressure cuff", "Urinary cannula", "Examination gloves"], correct: 2, rationale: "Insertion of devices such as cannulas and urinary catheters are predisposing factors." },
+  { id: 32, question: "What does VAP stand for in the context of HAIs?", options: ["Viral Associated Pneumonia", "Ventilator Associated Pneumonia", "Venous Access Procedure", "Variable Airborne Pathogen"], correct: 1, rationale: "VAP stands for Ventilator-associated Pneumonia." },
+  { id: 33, question: "True or False: HIV can be transmitted through sexual contact.", options: ["True", "False"], correct: 0, rationale: "This is True. Sexual transmission is listed as a method for Syphilis and HIV." },
+  { id: 34, question: "Which term describes infections people get while receiving health care for another condition?", options: ["Community acquired infections", "Genetic disorders", "Health care associated infections", "Chronic lifestyle diseases"], correct: 2, rationale: "Health care-associated infections (HAIs) are infections people get while they're receiving health care for another condition." },
+  { id: 35, question: "What is the typical impact of HAIs on hospital stay length?", options: ["Shortens hospital stay", "Prolongs hospital stay", "Has no effect on stay", "Mandates immediate discharge"], correct: 1, rationale: "Impacts of HAIs include prolonged hospital stay." },
+  { id: 36, question: "True or False: Direct contact requires an intermediate contaminated object.", options: ["True", "False"], correct: 1, rationale: "This is False. Direct contact is person-to-person with actual physical contact. Indirect contact uses an intermediate object." },
+  { id: 37, question: "Which portal of exit involves semen or cervical secretions?", options: ["Respiratory organisms", "Genital pathogens", "Intestinal organisms", "Skin pathogens"], correct: 1, rationale: "Genital pathogens exit through semen or cervical secretions." },
+  { id: 38, question: "What defines the 'Infectious Agent' link in the chain of infection?", options: ["The location where the germ lives", "The presence of a pathogen like bacteria", "The entry point into the host", "The method of travel"], correct: 1, rationale: "The infectious agent link requires that a pathogen (bacteria, fungi, viruses) must be present." },
+  { id: 39, question: "Which activity is an example of generating droplets?", options: ["Touching a door knob", "Eating cooked food", "Suction of respiratory secretions", "Needle puncture"], correct: 2, rationale: "Large droplets are generated from infected persons during procedures such as suction of respiratory secretions or sneezing." },
+  { id: 40, question: "What does CLABSI stand for?", options: ["Central Line Associated Bloodstream Infection", "Catheter Linked Arterial Bacterial System", "Clinical Laboratory Associated Blood Source", "Common Lung And Bronchial Site Infection"], correct: 0, rationale: "CLABSI stands for Central Line-associated Bloodstream Infection." }
+]
+            },
+            "pathogenesis": {
+                title: "Microbial Pathogenesis",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-biohazard",
+                color: "text-orange-600",
+                bg: "bg-orange-50",
+                data: [
+  { id: 1, question: "What is the primary definition of virulence?", options: ["A quantitative measure of the ability to cause disease", "The ability of a host to resist infection", "The general ability of an organism to cause disease", "The relationship between a host and a pathogen"], correct: 0, rationale: "Virulence is described as a quantitative measure of pathogenicity, often measured by the number of organisms required to cause disease." },
+  { id: 2, question: "Which type of symbiosis involves one organism benefiting while the host is neither benefited nor harmed?", options: ["Commensalism", "Mutualism", "Parasitism", "Opportunism"], correct: 0, rationale: "Commensalism is an association where only the microorganism benefits, and the host is unaffected." },
+  { id: 3, question: "Which term describes the resident flora of the skin and mucous membranes in healthy individuals?", options: ["Normal microbial flora", "Obligate pathogens", "Transient invaders", "Latent microbiota"], correct: 0, rationale: "Normal microbial flora denotes the population of microorganisms that inhabit the skin and mucous membranes of healthy normal persons." },
+  { id: 4, question: "Which of the following sites is considered sterile in a healthy human body?", options: ["Spleen", "Skin", "Mouth", "Large intestine"], correct: 0, rationale: "Internal organs like the spleen, liver, pancreas, bladder, CSF, and blood are sterile unless during infection." },
+  { id: 5, question: "What is a key benefit provided by normal flora in the intestine?", options: ["Synthesis of Vitamin K and B12", "Production of digestive enzymes for protein", "Elimination of all transient bacteria", "Direct destruction of host immune cells"], correct: 0, rationale: "Normal flora synthesize vitamins, especially Vitamin K and B12 in the intestine." },
+  { id: 6, question: "When do opportunistic pathogens typically cause disease?", options: ["When host immunity is lowered", "When they are in their normal habitat", "When the host is perfectly healthy", "When they interact with mutualistic bacteria"], correct: 0, rationale: "Opportunistic pathogens cause infection usually when the host defenses are compromised." },
+  { id: 7, question: "Which pathogen type causes disease in a normal healthy host without predisposing conditions?", options: ["Primary pathogen", "Opportunistic pathogen", "Conditional pathogen", "Transient flora"], correct: 0, rationale: "Primary or obligate pathogens cause disease in the normal healthy host and do not require predisposing conditions." },
+  { id: 8, question: "What distinguishes exotoxins from endotoxins?", options: ["Exotoxins are proteins secreted by bacteria", "Exotoxins are lipid portions of the cell wall", "Exotoxins are only released upon cell lysis", "Exotoxins are composed primarily of lipopolysaccharides"], correct: 0, rationale: "Exotoxins are potent toxic substances (proteins) formed and secreted by certain species of bacteria." },
+  { id: 9, question: "What is the chemical nature of endotoxins?", options: ["Lipopolysaccharides", "Nucleic acids", "Polypeptides", "Peptidoglycans"], correct: 0, rationale: "Endotoxins are complex bacterial toxins composed of protein, lipid, and polysaccharide (LPS)." },
+  { id: 10, question: "Which stage of infectious disease is characterized by nonspecific symptoms?", options: ["Prodromal phase", "Incubation period", "Phase of illness", "Recovery period"], correct: 0, rationale: "The prodromal phase is preceded by nonspecific symptoms before the characteristic signs appear." },
+  { id: 11, question: "True or False: A fetus is born with a fully developed normal microbial flora.", options: ["True", "False"], correct: 1, rationale: "A fetus is sterile when born; the newborn starts acquiring normal flora from the mother and environment after birth." },
+  { id: 12, question: "What defines a latent disease?", options: ["The organism exists in tissues without symptoms", "The disease develops rapidly and ends quickly", "The disease persists for a long period of years", "The organism is completely eliminated from the body"], correct: 0, rationale: "In latent disease, the microbe exists in host tissues without causing symptoms and is never completely eliminated." },
+  { id: 13, question: "Which term refers to an infection confined to a specific small area?", options: ["Local infection", "Systemic infection", "Generalized infection", "Mixed infection"], correct: 0, rationale: "A local infection is confined to a specific small area of the body." },
+  { id: 14, question: "What is a superinfection?", options: ["A new infection developing during an existing one", "An infection caused by multiple organisms", "A chronic infection that lasts for years", "An infection that spreads to the whole body"], correct: 0, rationale: "A superinfection is a secondary infection that develops during or immediately after an existing primary infection." },
+  { id: 15, question: "Which virulence factor helps pathogens attach to the host?", options: ["Fimbria", "Endotoxin", "Exotoxin", "Degradative enzymes"], correct: 0, rationale: "Adherence factors include capsules and fimbria, which allow the pathogen to attach to the host." },
+  { id: 16, question: "True or False: All infections result in disease.", options: ["True", "False"], correct: 1, rationale: "All infections do not invariably result in disease; infection is the invasion/multiplication, while disease involves host damage." },
+  { id: 17, question: "What is the definition of mutualism?", options: ["Both the microorganism and host benefit", "One member benefits and the other is harmed", "Only the microorganism benefits", "Neither the host nor the microbe benefits"], correct: 0, rationale: "Mutualism describes a situation where both the microorganisms and host species live together with mutual benefit." },
+  { id: 18, question: "Which of the following is a mechanical host defense factor?", options: ["Peristalsis", "Fatty acids", "Antibody production", "pH levels"], correct: 0, rationale: "Mechanical and physical factors include peristalsis, hair, cilia, urinary flushing, and mucus." },
+  { id: 19, question: "What characterizes transient flora?", options: ["It does not establish itself permanently", "It constantly lives in or on the body", "It restores itself quickly when disturbed", "It is always pathogenic to the host"], correct: 0, rationale: "Transient flora inhabits the skin or mucous membranes for hours or weeks but does not establish itself permanently." },
+  { id: 20, question: "True or False: Endotoxins are released only when the bacterial cell lyses.", options: ["True", "False"], correct: 0, rationale: "Endotoxin is a complex bacterial toxin that is released only upon lysis of the cell." },
+  { id: 21, question: "Which phase comes immediately after the incubation period in the stages of disease?", options: ["Prodromal phase", "Recovery period", "Phase of illness", "Decline phase"], correct: 0, rationale: "The incubation period is followed by the prodromal phase (if present) or the phase of illness." },
+  { id: 22, question: "What is colonization?", options: ["Presence of an organism without tissue invasion", "Invasion and multiplication in host tissues", "Damage or injury to the host functions", "Systemic spread of bacteria in blood"], correct: 0, rationale: "Colonization is the presence of an organism on a body surface with no tissue invasion and not causing disease." },
+  { id: 23, question: "Which factor acts as a biological barrier against pathogens?", options: ["Indigenous competitive flora", "Skin secretions", "Mucosal membranes", "Fatty acids"], correct: 0, rationale: "Indigenous competitive flora (microbial antagonism) acts as a barrier by competing for nutrients and space." },
+  { id: 24, question: "What defines an acute disease?", options: ["Develops rapidly and runs its course quickly", "Develops slowly and persists for years", "Remains in the body without symptoms", "Caused by multiple organisms simultaneously"], correct: 0, rationale: "Acute disease develops rapidly and runs its course quickly." },
+  { id: 25, question: "True or False: Normal flora can become pathogenic if displaced to a different tissue.", options: ["True", "False"], correct: 0, rationale: "Normal flora may act as pathogens in different tissues when displaced from their usual normal habitat (e.g., gut flora causing UTI)." },
+  { id: 26, question: "What is the incubation period?", options: ["Time between entry of agent and onset of symptoms", "Time during which symptoms resolve", "Period of most severe signs and symptoms", "Phase where nonspecific symptoms occur"], correct: 0, rationale: "Incubation period denotes the time interval between the entry of the infective agent and the onset of clinical manifestations." },
+  { id: 27, question: "Which of the following is a specific host immune response?", options: ["B-lymphocytes and antibody production", "Sweat and fatty acids", "Cilia and peristalsis", "Microbial antagonism"], correct: 0, rationale: "Host specific immune response involves B-lymphocytes and antibody production." },
+  { id: 28, question: "True or False: Parasitism is a relationship where both members benefit.", options: ["True", "False"], correct: 1, rationale: "Parasitism is a relationship in which one member benefits and the other is harmed." },
+  { id: 29, question: "What describes a chronic carrier?", options: ["An individual with no symptoms who can transmit pathogens", "A patient showing severe symptoms for months", "A person currently in the acute phase of illness", "A host that has completely cleared the organism"], correct: 0, rationale: "Chronic carriers have recovered and no longer have symptoms, but they may still transmit pathogens to others." },
+  { id: 30, question: "Which term describes a generalized infection affecting most of the body?", options: ["Systemic infection", "Local infection", "Latent infection", "Primary infection"], correct: 0, rationale: "Systemic infection is a generalized infection that affects most of the body." },
+  { id: 31, question: "True or False: Resident flora consists of microorganisms that permanently inhabit the body.", options: ["True", "False"], correct: 0, rationale: "Resident flora consists of relatively fixed types of microorganisms that constantly live in or on our bodies." },
+  { id: 32, question: "How do pathogens typically begin the infection process?", options: ["Accessing a vulnerable host via transmission", "Releasing endotoxins immediately", "Evading the immune system before entry", "Multiplying in the external environment"], correct: 0, rationale: "The first stage of the infection process is access to a vulnerable host via transmission." },
+  { id: 33, question: "What defines a mixed infection?", options: ["Caused by several organisms at the same time", "Occurs after a primary infection", "Affects the whole body system", "Remains latent in the tissue"], correct: 0, rationale: "Mixed infection is caused by several organisms at the same time." },
+  { id: 34, question: "True or False: Pathogenicity is a quantitative measure of virulence.", options: ["True", "False"], correct: 1, rationale: "Virulence is the quantitative measure of pathogenicity, not the other way around." },
+  { id: 35, question: "Which vitamin is synthesized by the normal flora in the intestine?", options: ["Vitamin B12", "Vitamin C", "Vitamin D", "Vitamin A"], correct: 0, rationale: "Normal flora synthesizes vitamins especially Vitamin K and B12 in the intestine." },
+  { id: 36, question: "True or False: Exotoxins are part of the gram-negative cell wall.", options: ["True", "False"], correct: 1, rationale: "Endotoxins are part of the cell wall (LPS), while exotoxins are proteins secreted by bacteria." },
+  { id: 37, question: "What is an example of a conditional pathogen?", options: ["Gut commensal invading the peritoneal cavity", "Flu virus infecting the respiratory tract", "Skin flora remaining on the skin surface", "Bacteria helping with digestion"], correct: 0, rationale: "A conditional pathogen causes disease if certain conditions are met, such as a gut commensal invading the peritoneal cavity." },
+  { id: 38, question: "True or False: Disease is damage to the host that impairs function.", options: ["True", "False"], correct: 0, rationale: "Disease is defined as damage or injury to the host that impairs host function." },
+  { id: 39, question: "Which of the following is NOT a phase of infectious disease?", options: ["Colonization phase", "Incubation period", "Phase of illness", "Recovery period"], correct: 0, rationale: "Colonization is a state of microbial presence, not a sequential stage of the clinical disease progression like Incubation or Illness." },
+  { id: 40, question: "True or False: The skin is a site for resident normal flora.", options: ["True", "False"], correct: 0, rationale: "Resident normal flora is found in sites exposed to the outside world, like the skin." }
+]
+            },
+            "intro": {
+                title: "Introduction to Medical Microbiology",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-book-medical",
+                color: "text-indigo-600",
+                bg: "bg-indigo-50",
+                data: [
+  { id: 1, question: "What is the primary definition of microbiology?", options: ["The study of large animals", "The study of microorganisms", "The study of human anatomy", "The study of plant genetics"], correct: 1, rationale: "Microbiology is defined explicitly in the text as the study of microorganisms." },
+  { id: 2, question: "Which term describes microorganisms that cause disease?", options: ["Beneficial", "Pathogenic", "Probiotic", "Symbiotic"], correct: 1, rationale: "Microorganisms that cause disease are said to be pathogenic." },
+  { id: 3, question: "What is the approximate size limit below which objects cannot be seen by the naked eye?", options: ["0.1 mm", "1.0 mm", "0.5 cm", "10 mm"], correct: 0, rationale: "Microorganisms are too small to be seen by the naked eye, specifically less than 0.1mm." },
+  { id: 4, question: "Which scientific division is dedicated to the study of fungi?", options: ["Bacteriology", "Virology", "Mycology", "Parasitology"], correct: 2, rationale: "Mycology is the division of microbiology that studies fungi." },
+  { id: 5, question: "What is a defining characteristic of prokaryotic cells?", options: ["They have a well-defined nucleus", "They lack a nucleus", "They contain mitochondria", "They divide by mitosis"], correct: 1, rationale: "Prokaryotic cells are defined by the lack of a nucleus and nuclear membrane." },
+  { id: 6, question: "Which microorganisms are considered acellular?", options: ["Bacteria", "Fungi", "Protozoa", "Viruses"], correct: 3, rationale: "Viruses are described as acellular or non-cellular infectious agents." },
+  { id: 7, question: "What is the protein coat enclosing the genetic material of a virus called?", options: ["Cell wall", "Capsid", "Membrane", "Cytoplasm"], correct: 1, rationale: "Viruses consist of genetic material enclosed in a protein coat called a capsid." },
+  { id: 8, question: "According to Koch’s postulates, where must the suspected pathogen be absent?", options: ["In diseased animals", "In healthy animals", "In the laboratory", "In pure culture"], correct: 1, rationale: "The first postulate states the organism should not be present in healthy animals." },
+  { id: 9, question: "How do bacteria primarily reproduce?", options: ["Mitosis", "Meiosis", "Binary fission", "Sexual reproduction"], correct: 2, rationale: "Prokaryotic cells, such as bacteria, divide by binary fission." },
+  { id: 10, question: "Which structure is present in eukaryotic cells but absent in prokaryotic cells?", options: ["Cell membrane", "Cytoplasm", "Nuclear membrane", "Genetic material"], correct: 2, rationale: "Prokaryotes lack a nuclear membrane, whereas eukaryotes have a nucleus bounded by a nuclear membrane." },
+  { id: 11, question: "What is the genetic material arrangement in prokaryotic cells?", options: ["Single circular chromosome", "Paired linear chromosomes", "Multiple linear chromosomes", "Chromosomes inside a nucleus"], correct: 0, rationale: "Prokaryotic cells have a single, circular chromosome." },
+  { id: 12, question: "Which theory established that microorganisms cause diseases?", options: ["Cell Theory", "Germ Theory of Disease", "Evolutionary Theory", "Genetic Theory"], correct: 1, rationale: "The Germ Theory of Disease states that microorganisms, primarily bacteria and viruses, cause diseases." },
+  { id: 13, question: "What is the third step of Koch’s postulates?", options: ["Isolate the organism in pure culture", "Re-isolate the organism from the experimental host", "Observe the organism in the diseased animal", "Inject the isolated organism into a healthy host to cause disease"], correct: 3, rationale: "The third postulate requires that the isolated organism must cause the disease when inoculated into a healthy susceptible animal." },
+  { id: 14, question: "Which group of microorganisms includes yeasts and molds?", options: ["Bacteria", "Viruses", "Fungi", "Protozoa"], correct: 2, rationale: "Fungi are eukaryotic organisms that include yeasts and molds." },
+  { id: 15, question: "Where are protozoa commonly found according to the text?", options: ["Air and space", "Water and soil", "Dry desert sand", " sterile environments"], correct: 1, rationale: "Protozoa are often found in water and soil." },
+  { id: 16, question: "What type of treatment is specifically mentioned for bacterial infections?", options: ["Antivirals", "Antibiotics", "Antifungals", "Vaccines only"], correct: 1, rationale: "The text specifically notes that bacteria are treated with antibiotics." },
+  { id: 17, question: "Which of the following describes the reproduction of eukaryotic cells?", options: ["Binary fission only", "Mitosis and meiosis", "Spontaneous generation", "Budding only"], correct: 1, rationale: "Eukaryotic cells divide by mitosis (and meiosis is mentioned in the comparison table)." },
+  { id: 18, question: "Which microorganism is the smallest infectious agent mentioned?", options: ["Bacteria", "Fungi", "Protozoa", "Viruses"], correct: 3, rationale: "Viruses are described as one of the smallest infectious agents." },
+  { id: 19, question: "Why is microbiology important for nursing practice regarding samples?", options: ["To create new medicines", "To ensure proper collection for diagnosis", "To perform surgery", "To manufacture vaccines"], correct: 1, rationale: "It helps nurses know the importance of proper collection of patient samples for diagnosis." },
+  { id: 20, question: "Which organelle is responsible for containing genetic material in eukaryotes?", options: ["Ribosome", "Nucleus", "Mitochondria", "Golgi body"], correct: 1, rationale: "In eukaryotes, the defined nucleus encloses their genetic material." },
+  { id: 21, question: "What is the shape of the DNA molecules in eukaryotic cells?", options: ["Single circular", "Single linear", "Paired linear", "Double circular"], correct: 2, rationale: "Eukaryotic cells have one or more paired, linear chromosomes." },
+  { id: 22, question: "Which classification includes algae and protozoa?", options: ["Prokaryotes", "Eukaryotes", "Viruses", "Prions"], correct: 1, rationale: "Eukaryotic microorganisms include protozoa, algae, fungi, plants, and animals." },
+  { id: 23, question: "What is a requirement for the culture used in Koch’s second postulate?", options: ["It must be a mixed culture", "It must be a pure culture", "It must be grown inside a host", "It must be frozen"], correct: 1, rationale: "The organism must be cultivated in a pure culture away from the diseased animal." },
+  { id: 24, question: "Which field studies the structure and classification of bacteria?", options: ["Virology", "Mycology", "Bacteriology", "Immunology"], correct: 2, rationale: "Bacteriology is the study of bacteria." },
+  { id: 25, question: "What distinguishes the nucleolus in prokaryotes versus eukaryotes?", options: ["It is present in prokaryotes only", "It is present in eukaryotes only", "It is present in both", "It is absent in both"], correct: 1, rationale: "The text states that in prokaryotes, there is no nucleolus, while in eukaryotes, the nucleolus is present." },
+  { id: 26, question: "Which of the following is a shape classification for bacteria?", options: ["Cuboid", "Pyramidal", "Cocci", "Linear"], correct: 2, rationale: "Bacteria have diverse shapes including cocci, bacilli, and spirilla." },
+  { id: 27, question: "What must be done in the fourth step of Koch’s postulates?", options: ["Treat the animal", "Re-isolate the organism", "Destroy the organism", "Vaccinate the animal"], correct: 1, rationale: "The organism must be re-isolated from the experimental animals and shown to be the same as the original." },
+  { id: 28, question: "Which organisms are described as complex with a cellular structure?", options: ["Viruses", "Prions", "Fungi", "Viroids"], correct: 2, rationale: "Fungi are described as having a complex cellular structure." },
+  { id: 29, question: "What allows nurses to prevent disease transmission?", options: ["Understanding microbiology", "Knowing surgery techniques", "Prescribing drugs", "Manufacturing equipment"], correct: 0, rationale: "Understanding microbiology allows nurses to properly care for patients and prevent disease transmission." },
+  { id: 30, question: "Which type of microorganism contains only nucleic acid surrounded by a protein coat?", options: ["Bacteria", "Virus", "Fungus", "Protozoan"], correct: 1, rationale: "Viruses have only nucleic acid surrounded by a protein coat." },
+  { id: 31, question: "Bacteria are classified as eukaryotic organisms.", options: ["True", "False"], correct: 1, rationale: "Bacteria are classified as prokaryotic microorganisms." },
+  { id: 32, question: "Viruses can live and grow independently without a living host.", options: ["True", "False"], correct: 1, rationale: "Viruses must live and grow in living cells of other organisms; they are not independent." },
+  { id: 33, question: "Prokaryotic cells contain membrane-bound organelles.", options: ["True", "False"], correct: 1, rationale: "Prokaryotic cells lack membrane-bound organelles." },
+  { id: 34, question: "Microorganisms can be beneficial as well as harmful.", options: ["True", "False"], correct: 0, rationale: "The text states that microorganisms can be beneficial or harmful." },
+  { id: 35, question: "All microorganisms are unicellular.", options: ["True", "False"], correct: 1, rationale: "The text says 'Most' are unicellular, but fungi (molds) and others can be complex/multicellular." },
+  { id: 36, question: "The cell theory states that the cell is the basic unit of life.", options: ["True", "False"], correct: 0, rationale: "Cell Theory states microorganisms are composed of cells and the cell is the basic unit of life." },
+  { id: 37, question: "Bacteria have a single, circular chromosome.", options: ["True", "False"], correct: 0, rationale: "Prokaryotes (bacteria) are described as having a single, circular chromosome." },
+  { id: 38, question: "Fungi are capable of causing opportunistic infections like Thrush.", options: ["True", "False"], correct: 0, rationale: "The text mentions fungi cause a range of diseases including Thrush and many are opportunistic." },
+  { id: 39, question: "A defined nucleus is a characteristic of prokaryotic cells.", options: ["True", "False"], correct: 1, rationale: "Prokaryotic cells have no defined nucleus." },
+  { id: 40, question: "Understanding microbiology helps nurses understand the effects of vaccines.", options: ["True", "False"], correct: 0, rationale: "The text lists understanding how vaccines are used for disease prevention as an importance of microbiology in nursing." }
+]
+            },
+            "agents": {
+                title: "Antimicrobial Agents",
+                author: "جروب تمريض دمنهور",
+                icon: "fa-pills",
+                color: "text-pink-600",
+                bg: "bg-pink-50",
+                data: [
+  { id: 1, question: "What is the primary definition of an antibiotic?", options: ["Synthetic compounds made in a laboratory", "Natural compounds produced by microorganisms", "Chemical agents that kill cancer cells only", "Drugs capable of curing viral infections"], correct: 1, rationale: "Antibiotics are defined as natural chemical compounds produced by microorganisms that kill or inhibit the growth of another microorganism." },
+  { id: 2, question: "Which term describes agents that kill or inhibit the growth of any living cell including cancer?", options: ["Antimicrobial agents", "Biochemical agents", "Chemotherapeutic agents", "Antiparasitic agents"], correct: 2, rationale: "Chemotherapeutic agents are chemicals that kill or inhibit the growth of any living cell, a definition that includes drugs active against cancer cells." },
+  { id: 3, question: "Vancomycin is an example of which type of antibiotic based on its spectrum?", options: ["Narrow spectrum antibiotic", "Broad spectrum antibiotic", "Extended spectrum antibiotic", "Universal spectrum antibiotic"], correct: 0, rationale: "Vancomycin is classified as a narrow-spectrum antibiotic because it targets mostly Gram-positive bacteria." },
+  { id: 4, question: "What is the mechanism of action for Penicillins?", options: ["Inhibition of protein synthesis", "Disruption of cell membrane", "Inhibition of cell wall synthesis", "Inhibition of nucleic acid synthesis"], correct: 2, rationale: "Penicillins work by inhibiting the production of peptidoglycan which is an essential structural component of the bacterial cell wall." },
+  { id: 5, question: "Which of the following drugs acts by inhibiting protein synthesis?", options: ["Vancomycin", "Polymyxin", "Erythromycin", "Quinolones"], correct: 2, rationale: "Erythromycin acts by inhibiting protein synthesis by targeting the bacterial ribosome." },
+  { id: 6, question: "Bacteriostatic agents are characterized by their ability to do what?", options: ["Kill bacteria directly", "Inhibit bacterial growth", "Destroy bacterial spores", "Lyse bacterial membranes"], correct: 1, rationale: "Bacteriostatic agents inhibit the growth of bacteria but do not kill them directly." },
+  { id: 7, question: "What does a high therapeutic index indicate about a drug?", options: ["The drug has a low margin of safety", "The drug is safer for the patient", "The toxic dose is very close to the therapeutic dose", "The drug requires frequent monitoring due to toxicity"], correct: 1, rationale: "A higher therapeutic index indicates a safer drug because the gap between the effective dose and the toxic dose is larger." },
+  { id: 8, question: "Superinfection primarily occurs due to which complication of antibiotic therapy?", options: ["Suppression of normal flora", "Development of allergic reactions", "Direct toxicity to the liver", "Induction of drug resistance"], correct: 0, rationale: "Superinfection occurs when normal flora is killed, allowing other pathogens (like Candida albicans) to grow to high numbers." },
+  { id: 9, question: "Which interaction occurs when the combined effect of two drugs is greater than the sum of their individual effects?", options: ["Additive interaction", "Antagonistic interaction", "Synergistic interaction", "Indifference interaction"], correct: 2, rationale: "Synergism is when the combined effect of drugs is greater than the sum of their individual effects." },
+  { id: 10, question: "Polymyxins exert their antimicrobial effect through which mechanism?", options: ["Inhibition of metabolic pathways", "Disruption of the cell membrane", "Inhibition of DNA replication", "Inhibition of cell wall synthesis"], correct: 1, rationale: "Polymyxins work by increasing the permeability of the bacterial cell membrane causing leakage of cellular contents." },
+  { id: 11, question: "Which antibiotic class is considered broad-spectrum?", options: ["Vancomycin", "Bacitracin", "Tetracyclines", "Polymyxins"], correct: 2, rationale: "Tetracyclines are broad-spectrum antibiotics effective against a wide range of bacteria including both Gram-positive and Gram-negative types." },
+  { id: 12, question: "What is the primary target of Quinolones?", options: ["Ribosomal 30S subunit", "Peptidoglycan layers", "Folic acid synthesis", "DNA gyrase enzyme"], correct: 3, rationale: "Quinolones interfere with bacterial enzymes needed for producing DNA, specifically inhibiting DNA gyrase." },
+  { id: 13, question: "Which organism is often responsible for superinfections like thrush?", options: ["Staphylococcus aureus", "Candida albicans", "Escherichia coli", "Streptococcus pneumoniae"], correct: 1, rationale: "Candida albicans is an example of an organism that can overgrow and cause superinfection when normal flora is suppressed." },
+  { id: 14, question: "Selective toxicity is achieved by exploiting differences between what?", options: ["Gram positive and Gram negative bacteria", "Pathogen structure and host structure", "Aerobic and anaerobic environments", "Young cells and old cells"], correct: 1, rationale: "Selective toxicity exploits differences in cellular structure or metabolic processes between the pathogen and the host." },
+  { id: 15, question: "Sulfonamides function by inhibiting which specific process?", options: ["Cell wall synthesis", "Protein translation", "Folate synthesis", "RNA transcription"], correct: 2, rationale: "Sulfonamides block pathways and inhibit metabolism, specifically targeting folate synthesis." },
+  { id: 16, question: "What defines a semi-synthetic antibiotic?", options: ["Created entirely in a laboratory", "Extracted directly from fungi without change", "Chemically modified version of a natural antibiotic", "Derived from plant extracts only"], correct: 2, rationale: "Semi-synthetic antibiotics are chemically modified versions of natural antibiotics designed to improve effectiveness or reduce toxicity." },
+  { id: 17, question: "Which organs are particularly susceptible to the toxic effects of antimicrobials?", options: ["Heart and Lungs", "Kidneys and Liver", "Brain and Spinal Cord", "Stomach and Intestines"], correct: 1, rationale: "The kidneys and liver are particularly susceptible to toxic effects as they filter and process medications." },
+  { id: 18, question: "Antagonistic drug interaction results in what outcome?", options: ["Effect equals the sum of individual drugs", "Effect is greater than the sum of individual drugs", "Effect is less than the most active drug alone", "Effect causes immediate hypersensitivity"], correct: 2, rationale: "In an antagonistic interaction, the effect of the drug combination is less than the effect of the most active drug alone." },
+  { id: 19, question: "Rifampin acts by inhibiting which enzyme?", options: ["DNA gyrase", "RNA polymerase", "Peptidyl transferase", "Beta-lactamase"], correct: 1, rationale: "Rifampin interferes with nucleic acid synthesis by inhibiting RNA Polymerase." },
+  { id: 20, question: "Which characteristic is essential for an ideal antibiotic regarding the host?", options: ["High toxicity to host tissues", "Inability to dissolve in fluids", "Selective toxicity", "Ability to induce allergic reactions"], correct: 2, rationale: "An ideal antibiotic should possess selective toxicity, being lethal to microorganisms but not to host cells." },
+  { id: 21, question: "Chloramphenicol binds to which bacterial structure?", options: ["30S ribosomal subunit", "50S ribosomal subunit", "Cell wall peptidoglycan", "Outer cell membrane"], correct: 1, rationale: "Chloramphenicol inhibits protein synthesis by targeting the 50S subunit of the ribosome." },
+  { id: 22, question: "Which term includes agents acting against bacteria, fungi, viruses, and protozoa?", options: ["Antibiotics", "Antimicrobials", "Anthelminthics", "Antifungals"], correct: 1, rationale: "Antimicrobials is a wider term that includes all agents acting against all microorganisms (bacteria, fungi, viruses, protozoa)." },
+  { id: 23, question: "What is the therapeutic index formula?", options: ["Therapeutic dose divided by Toxic dose", "Toxic dose divided by Therapeutic dose", "Lethal dose minus Effective dose", "Effective dose multiplied by Toxic dose"], correct: 1, rationale: "The therapeutic index (TI) is the ratio of toxic dose to therapeutic dose." },
+  { id: 24, question: "Why is Penicillin non-toxic to human cells?", options: ["Humans have thick cell walls", "Penicillin is rapidly excreted", "Human cells lack cell walls", "Penicillin does not enter human cells"], correct: 2, rationale: "Penicillin targets cell wall synthesis. Since human cells do not have cell walls, Penicillin is not toxic to humans." },
+  { id: 25, question: "What is a reason for using combinations of antimicrobial drugs?", options: ["To increase the toxicity of the drugs", "To encourage the emergence of resistance", "To treat mixed polymicrobial infections", "To shorten the shelf-life of the drugs"], correct: 2, rationale: "Combinations are used to treat mixed polymicrobial infections, prevent resistance, increase effectiveness, or lessen toxicity." },
+  { id: 26, question: "Aminoglycosides work by targeting which cellular process?", options: ["Cell wall synthesis", "Protein synthesis", "Folic acid metabolism", "Cell membrane stability"], correct: 1, rationale: "Aminoglycosides are classified under antibiotics that inhibit protein synthesis (specifically via the 30S subunit)." },
+  { id: 27, question: "Trimethoprim is often grouped with Sulfonamides because they both inhibit what?", options: ["Cell wall formation", "Protein translation", "Folate synthesis", "DNA replication"], correct: 2, rationale: "Trimethoprim and Sulfonamides both block pathways related to folate synthesis." },
+  { id: 28, question: "Which of the following is a synthetic antibiotic origin?", options: ["Produced by fungi", "Created entirely in the laboratory", "Modified from a natural source", "Extracted from bacteria"], correct: 1, rationale: "Synthetic antibiotics are created entirely in the laboratory and have no natural microbial origin." },
+  { id: 29, question: "An ideal antibacterial agent should have which stability characteristic?", options: ["Rapid degradation in the blood", "Instability in tissue fluids", "Maintenance of constant therapeutic concentration", "Quick conversion to toxic metabolites"], correct: 2, rationale: "An ideal agent requires stability to maintain a constant, therapeutic concentration in blood and tissue fluids." },
+  { id: 30, question: "Which drug class targets the 30S ribosomal subunit?", options: ["Macrolides", "Chloramphenicol", "Tetracyclines", "Cephalosporins"], correct: 2, rationale: "Tetracyclines (and Aminoglycosides) target the 30S subunit to inhibit protein synthesis." },
+  { id: 31, question: "Antibiotics are effective against viruses.", options: ["True", "False"], correct: 1, rationale: "Antibiotics are mainly active against bacteria and do not cure infections caused by viruses." },
+  { id: 32, question: "Bactericidal agents kill bacteria directly.", options: ["True", "False"], correct: 0, rationale: "Bactericidal agents are defined as those that kill bacteria directly." },
+  { id: 33, question: "A narrow therapeutic index implies a safer drug.", options: ["True", "False"], correct: 1, rationale: "A narrow or low therapeutic index means a smaller margin of safety, making the drug less safe." },
+  { id: 34, question: "All antibiotics are chemotherapeutic agents.", options: ["True", "False"], correct: 0, rationale: "All antibiotics are chemotherapeutic agents, but not vice versa (chemotherapeutic is a broader term)." },
+  { id: 35, question: "Penicillins and Cephalosporins both inhibit cell wall synthesis.", options: ["True", "False"], correct: 0, rationale: "Both Penicillins and Cephalosporins belong to the Beta-lactam group which inhibits bacterial cell wall synthesis." },
+  { id: 36, question: "Antimicrobial resistance is less likely to occur when drugs are combined.", options: ["True", "False"], correct: 0, rationale: "One of the reasons to use combinations is to prevent or minimize the emergence of drug resistance." },
+  { id: 37, question: "Polymyxins are primarily effective by inhibiting protein synthesis.", options: ["True", "False"], correct: 1, rationale: "Polymyxins work by disrupting the cell membrane, not by inhibiting protein synthesis." },
+  { id: 38, question: "Additive interaction means the combined effect equals the sum of individual effects.", options: ["True", "False"], correct: 0, rationale: "Additive (Indifference) is defined as the combined effect being equal to the sum of the individual effects." },
+  { id: 39, question: "Broad-spectrum antibiotics target a limited range of bacteria.", options: ["True", "False"], correct: 1, rationale: "Broad-spectrum antibiotics are effective against a wide range of bacteria, unlike narrow-spectrum antibiotics." },
+  { id: 40, question: "An ideal antibiotic should have a reasonable cost and long shelf-life.", options: ["True", "False"], correct: 0, rationale: "Reasonable cost and long shelf-life are listed as characteristics of an ideal antibacterial agent." }
+]
+            }
+        };
+
+        // --- APP STATE ---
+        let currentQuizKey = null;
+        let currentQuestions = [];
+        let score = 0;
+        let answeredCount = 0;
+        let isDark = false;
+
+        // --- DOM ELEMENTS ---
+        const appContainer = document.getElementById('app-container');
+
+        // --- FUNCTIONS ---
+
+        function toggleTheme() {
+            isDark = !isDark;
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            const nav = document.querySelector('nav');
+            const footer = document.querySelector('footer');
+
+            if (isDark) {
+                body.classList.replace('bg-slate-50', 'bg-slate-900');
+                body.classList.replace('text-slate-800', 'text-slate-100');
+                nav.classList.replace('bg-white', 'bg-slate-800');
+                nav.classList.replace('border-slate-200', 'border-slate-700');
+                footer.classList.replace('bg-white', 'bg-slate-800');
+                footer.classList.replace('border-slate-200', 'border-slate-700');
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                body.classList.replace('bg-slate-900', 'bg-slate-50');
+                body.classList.replace('text-slate-100', 'text-slate-800');
+                nav.classList.replace('bg-slate-800', 'bg-white');
+                nav.classList.replace('border-slate-700', 'border-slate-200');
+                footer.classList.replace('bg-slate-800', 'bg-white');
+                footer.classList.replace('border-slate-700', 'border-slate-200');
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+            // Re-render to apply card styles if needed
+            if (!currentQuizKey) renderHome();
+            else renderQuiz();
+        }
+
+        function showHome() {
+            currentQuizKey = null;
+            renderHome();
+            window.scrollTo(0,0);
+        }
+
+        function startQuiz(key) {
+            currentQuizKey = key;
+            // Shuffle questions
+            const originalData = quizzes[key].data;
+            // Create a deep copy and shuffle
+            currentQuestions = originalData.map(q => {
+                // Shuffle options
+                const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+                for (let i = opts.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [opts[i], opts[j]] = [opts[j], opts[i]];
+                }
+                return { 
+                    ...q, 
+                    options: opts.map(o => o.text), 
+                    correct: opts.findIndex(o => o.isCorrect) 
+                };
+            });
+            
+            // Shuffle question order
+            for (let i = currentQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentQuestions[i], currentQuestions[j]] = [currentQuestions[j], currentQuestions[i]];
+            }
+
+            score = 0;
+            answeredCount = 0;
+            renderQuiz();
+            window.scrollTo(0,0);
+        }
+
+        function renderHome() {
+            const cardClass = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+            const textClass = isDark ? "text-slate-200" : "text-slate-600";
+            
+            let html = `
+                <div class="text-center mb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-4">اختر موضوع الاختبار</h2>
+                    <p class="${textClass}">مجموعة شاملة من اختبارات الميكروبيولوجي لمراجعة معلوماتك</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
+            `;
+
+            for (const [key, quiz] of Object.entries(quizzes)) {
+                html += `
+                    <div onclick="startQuiz('${key}')" class="card-hover cursor-pointer rounded-2xl p-6 border ${cardClass} transition-all duration-300 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-24 h-24 ${quiz.bg} rounded-bl-full opacity-50 transition-transform group-hover:scale-110"></div>
+                        <div class="relative z-10">
+                            <div class="w-12 h-12 rounded-xl ${quiz.bg} ${quiz.color} flex items-center justify-center text-2xl mb-4 shadow-sm">
+                                <i class="fas ${quiz.icon}"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-2 ltr-text text-left">${quiz.title}</h3>
+                            <div class="flex items-center justify-between mt-4">
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-500'}">
+                                    <i class="fas fa-list-ol me-1"></i> ${quiz.data.length} Questions
+                                </span>
+                                <span class="text-xs text-slate-400 flex items-center gap-1">
+                                    <i class="fas fa-user-edit"></i> ${quiz.author.split(' ')[0]}..
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            appContainer.innerHTML = html;
+        }
+
+        function renderQuiz() {
+            const quizInfo = quizzes[currentQuizKey];
+            const cardBg = isDark ? "bg-slate-800" : "bg-white";
+            const borderColor = isDark ? "border-slate-700" : "border-slate-200";
+            const textColor = isDark ? "text-slate-300" : "text-slate-600";
+            
+            let html = `
+                <div class="max-w-3xl mx-auto fade-in mb-8">
+                    <div class="${cardBg} rounded-2xl shadow-sm p-6 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+                        <h1 class="text-2xl font-bold mb-2 ltr-text" dir="auto">${quizInfo.title}</h1>
+                        <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-xs mt-2">
+                            <i class="fas fa-check-circle"></i> "${quizInfo.author}"
+                        </div>
+                    </div>
+                    
+                    <div id="questions-list">
+                        ${currentQuestions.map((q, index) => renderQuestionCard(q, index, cardBg, borderColor, textColor)).join('')}
+                    </div>
+
+                    <div id="result-summary" class="hidden ${cardBg} rounded-2xl shadow-lg p-8 text-center mt-8 border ${borderColor}">
+                        <h2 class="text-2xl font-bold mb-4">Exam Completed!</h2>
+                        <div class="text-5xl font-bold text-blue-600 mb-2">
+                            <span id="score-display">0</span> <span class="text-2xl text-slate-400">/ ${currentQuestions.length}</span>
+                        </div>
+                        <p id="score-message" class="text-lg mb-6 text-slate-500"></p>
+                        <div class="flex justify-center gap-4">
+                            <button onclick="startQuiz('${currentQuizKey}')" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg">
+                                <i class="fas fa-redo me-2"></i> إعادة الاختبار
+                            </button>
+                            <button onclick="showHome()" class="bg-slate-200 text-slate-700 px-6 py-3 rounded-xl hover:bg-slate-300 transition shadow-lg">
+                                <i class="fas fa-home me-2"></i> القائمة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            appContainer.innerHTML = html;
+        }
+
+        function renderQuestionCard(q, index, cardBg, borderColor, textColor) {
+            const isTF = q.options.length === 2;
+            return `
+                <div class="card ${cardBg} rounded-xl p-6 mb-6 border ${borderColor} shadow-sm transition-all" id="card-${index}">
+                    <div class="flex justify-between items-center mb-4 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'} pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Q ${index + 1}</span>
+                        ${isTF ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="${isDark ? 'text-slate-100' : 'text-slate-800'} font-bold mb-6 text-lg leading-relaxed ltr-text text-left">${q.question}</h3>
+                    <div class="grid gap-3 ${isTF ? 'grid-cols-2' : 'grid-cols-1'}">
+                        ${q.options.map((opt, i) => `
+                            <button onclick="checkAnswer(${index}, ${i})" 
+                                class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border ${isDark ? 'border-slate-600 hover:bg-slate-700' : 'border-slate-200 hover:bg-blue-50'} focus:outline-none flex items-center justify-between group transition-all ltr-text">
+                                <span class="font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}">${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 fade-in text-left ltr-text">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong class="font-bold">Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = currentQuestions[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            
+            // Prevent multiple clicks
+            if (!feedback.classList.contains('hidden')) return;
+            
+            feedback.classList.remove('hidden');
+            
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-blue-50', 'hover:bg-slate-700'); // Remove hover effects
+                
+                if (i === q.correct) {
+                    btn.classList.add('correct-answer');
+                    btn.innerHTML += '<i class="fas fa-check float-right mt-1"></i>';
+                } else if (i === optIndex) {
+                    btn.classList.add('wrong-answer');
+                    btn.innerHTML += '<i class="fas fa-times float-right mt-1"></i>';
+                } else {
+                    btn.classList.add('opacity-50');
+                }
+            });
+
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+
+            // Auto scroll to explanation if needed, but usually strictly better to stay put or scroll slightly
+            // const card = document.getElementById(`card-${qIndex}`);
+            // card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            if (answeredCount === currentQuestions.length) {
+                const summary = document.getElementById('result-summary');
+                summary.classList.remove('hidden');
+                document.getElementById('score-display').innerText = score;
+                
+                const percentage = (score / currentQuestions.length) * 100;
+                const msg = document.getElementById('score-message');
+                if (percentage >= 90) msg.innerText = "Excellent! Outstanding performance! 🌟";
+                else if (percentage >= 75) msg.innerText = "Great Job! You know your stuff. 👍";
+                else if (percentage >= 50) msg.innerText = "Good effort, but review the rationales. 📚";
+                else msg.innerText = "Keep studying and try again! 💪";
+
+                setTimeout(() => summary.scrollIntoView({ behavior: 'smooth' }), 500);
+            }
+        };
+
+        // Initialize
+        renderHome();
+
+    </script>
+</body>
+</html>

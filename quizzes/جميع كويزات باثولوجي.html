@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathology Master Quiz App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none !important; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="showHome()">
+                <i class="fas fa-microscope text-blue-600 text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800 font-cairo">جروب تمريض دمنهور</h1>
+            </div>
+            <button onclick="showHome()" class="text-gray-500 hover:text-blue-600 transition">
+                <i class="fas fa-home text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        
+        <!-- HOME / LOBBY SCREEN -->
+        <div id="home-screen" class="animate-fade-in">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2 font-cairo">جميع كويزات باثولوجي</h2>
+                <p class="text-gray-500">الواد نادر كمال هو الي عامل الاسئله انا اللي عامل الموقع بس 😭</p>
+                <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm mt-4">
+                    <i class="fas fa-check-circle"></i> "تم تجميع الامتحانات بواسطة عبدالحليم رزق"
+                </div>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <!-- Buttons will be injected here -->
+                <button onclick="startQuiz('general_clinical')" class="card bg-white p-6 rounded-xl border border-gray-100 hover:border-blue-500 hover:bg-blue-50 text-left group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">Mixed</span>
+                        <i class="fas fa-flask text-blue-300 group-hover:text-blue-600 text-2xl transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-blue-700">General & Clinical Pathology</h3>
+                    <p class="text-sm text-gray-500 mt-1">Comprehensive mixed review</p>
+                </button>
+
+                <button onclick="startQuiz('clinical')" class="card bg-white p-6 rounded-xl border border-gray-100 hover:border-purple-500 hover:bg-purple-50 text-left group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded">Clinical</span>
+                        <i class="fas fa-vial text-purple-300 group-hover:text-purple-600 text-2xl transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-purple-700">Clinical Pathology</h3>
+                    <p class="text-sm text-gray-500 mt-1">Lab tests, hematology, and more</p>
+                </button>
+
+                <button onclick="startQuiz('general')" class="card bg-white p-6 rounded-xl border border-gray-100 hover:border-indigo-500 hover:bg-indigo-50 text-left group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded">General</span>
+                        <i class="fas fa-book-medical text-indigo-300 group-hover:text-indigo-600 text-2xl transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-indigo-700">General Pathology</h3>
+                    <p class="text-sm text-gray-500 mt-1">Core concepts and disease mechanisms</p>
+                </button>
+
+                <button onclick="startQuiz('cell_injury')" class="card bg-white p-6 rounded-xl border border-gray-100 hover:border-red-500 hover:bg-red-50 text-left group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded">Cellular</span>
+                        <i class="fas fa-dna text-red-300 group-hover:text-red-600 text-2xl transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-red-700">Cell Injury & Adaptations</h3>
+                    <p class="text-sm text-gray-500 mt-1">Necrosis, apoptosis, and anomalies</p>
+                </button>
+
+                <button onclick="startQuiz('inflammation')" class="card bg-white p-6 rounded-xl border border-gray-100 hover:border-amber-500 hover:bg-amber-50 text-left group md:col-span-2">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded">Systemic</span>
+                        <i class="fas fa-fire-alt text-amber-300 group-hover:text-amber-600 text-2xl transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 group-hover:text-amber-700">Inflammation, Healing & Circulation</h3>
+                    <p class="text-sm text-gray-500 mt-1">Inflammatory response and hemodynamics</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="quiz-screen" class="hidden-content">
+            <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-file-medical-alt text-8xl text-blue-600"></i></div>
+                <h1 id="quiz-title" class="text-2xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Quiz Title</h1>
+                <button onclick="showHome()" class="text-sm text-blue-600 hover:underline"><i class="fas fa-arrow-left"></i> Choose another exam</button>
+            </div>
+            
+            <div id="quiz-container"></div>
+            
+            <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100 animate-fade-in">
+                <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+                <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                    <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+                </div>
+                <p id="score-message" class="text-gray-500 mb-6"></p>
+                <div class="flex justify-center gap-4">
+                    <button onclick="restartCurrentQuiz()" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                        <i class="fas fa-redo mr-2"></i> Restart
+                    </button>
+                    <button onclick="showHome()" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-200 transition">
+                        <i class="fas fa-home mr-2"></i> Home
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA REPOSITORY ---
+        const ALL_QUIZZES = {
+            'general_clinical': [
+                {
+                    id: 1,
+                    question: "Which condition is characterized by the local deposition of calcium salts in necrotic tissue while blood calcium levels remain normal?",
+                    options: ["Metastatic calcification", "Dystrophic calcification", "Osteomalacia", "Hyperparathyroidism"],
+                    correct: 1,
+                    rationale: "Dystrophic calcification occurs in necrotic or degenerated tissue despite normal blood calcium levels, unlike metastatic calcification which results from hypercalcemia."
+                },
+                {
+                    id: 2,
+                    question: "Which type of necrosis is primarily associated with the central nervous system and the formation of pus?",
+                    options: ["Coagulative necrosis", "Caseous necrosis", "Liquefactive necrosis", "Fat necrosis"],
+                    correct: 2,
+                    rationale: "Liquefactive necrosis is associated with the central nervous system (due to low coagulable albumin) and suppurative inflammation."
+                },
+                {
+                    id: 3,
+                    question: "What is the specific inflammatory mediator that is preformed and stored in mast cells?",
+                    options: ["Histamine", "Prostaglandin", "Interleukin", "Complement"],
+                    correct: 0,
+                    rationale: "Histamine is a cell-derived mediator stored in mast cells and basophils, released immediately during inflammation."
+                },
+                {
+                    id: 4,
+                    question: "Type I hypersensitivity reactions are mediated by which class of antibodies?",
+                    options: ["IgG antibodies", "IgM antibodies", "IgE antibodies", "IgA antibodies"],
+                    correct: 2,
+                    rationale: "Type I (Immediate/Anaphylactic) hypersensitivity involves IgE antibodies binding to mast cells or basophils."
+                },
+                {
+                    id: 5,
+                    question: "Which blood collection tube stopper color indicates the presence of EDTA as an additive?",
+                    options: ["Blue stopper", "Red stopper", "Green stopper", "Purple stopper"],
+                    correct: 3,
+                    rationale: "Purple top tubes contain EDTA, which is the standard anticoagulant used for hematology tests like the CBC."
+                },
+                {
+                    id: 6,
+                    question: "What term describes the transformation of one differentiated cell type into another differentiated cell type?",
+                    options: ["Hyperplasia", "Metaplasia", "Dysplasia", "Anaplasia"],
+                    correct: 1,
+                    rationale: "Metaplasia is the reversible transformation of one type of differentiated cell to another type of the same germinal layer."
+                },
+                {
+                    id: 7,
+                    question: "What is the term for small pinpoint hemorrhages measuring approximately one to two millimeters?",
+                    options: ["Ecchymoses", "Petechiae", "Suffusions", "Hematomas"],
+                    correct: 1,
+                    rationale: "Petechiae are defined as pin-point hemorrhages (1-2 mm), whereas ecchymoses are larger areas."
+                },
+                {
+                    id: 8,
+                    question: "Which feature is characteristic of cloudy swelling in cells?",
+                    options: ["Lipid accumulation", "Protein granulation", "Calcium deposition", "Pigment accumulation"],
+                    correct: 1,
+                    rationale: "Cloudy swelling is characterized by the accumulation of fluid and acidophilic protein (albumin) granules in the cytoplasm."
+                },
+                {
+                    id: 9,
+                    question: "Which area of the body is the most common site for dry gangrene?",
+                    options: ["Internal organs", "External extremities", "Lung tissue", "Intestinal loops"],
+                    correct: 1,
+                    rationale: "Dry gangrene occurs mostly in external tissues such as skin, ears, tail, and extremities due to limited moisture."
+                },
+                {
+                    id: 10,
+                    question: "Which cell type is considered permanent and lacks regenerative capability?",
+                    options: ["Labile cells", "Stable cells", "Permanent cells", "Epithelial cells"],
+                    correct: 2,
+                    rationale: "Permanent cells, such as neurons and cardiac myocytes, are terminally differentiated and have no regenerative capability."
+                },
+                {
+                    id: 11,
+                    question: "Clay-colored stools are a clinical sign associated with which type of jaundice?",
+                    options: ["Hemolytic jaundice", "Hepatic jaundice", "Obstructive jaundice", "Neonatal jaundice"],
+                    correct: 2,
+                    rationale: "In post-hepatic (obstructive) jaundice, bilirubin is prevented from entering the intestine, leading to decreased fecal urobilinogen and clay-colored stools."
+                },
+                {
+                    id: 12,
+                    question: "What does a neutrophilic left shift in a hemogram indicate?",
+                    options: ["Increased immature neutrophils", "Decreased total leukocyte count", "Increased lymphocyte percentage", "Absence of monocytes"],
+                    correct: 0,
+                    rationale: "A left shift refers to the depletion of the storage pool and the recruitment of younger, immature neutrophils (band cells) into the blood."
+                },
+                {
+                    id: 13,
+                    question: "What term describes the complete failure of an organ to develop?",
+                    options: ["Agenesis", "Hypoplasia", "Ectopia", "Atrophy"],
+                    correct: 0,
+                    rationale: "Agenesis is the almost complete failure of an organ to develop, while aplasia implies the primordium was created but failed to form."
+                },
+                {
+                    id: 14,
+                    question: "What is the primary precipitating factor for hypovolemic shock?",
+                    options: ["Bacterial toxins", "Heart failure", "Spinal cord injury", "Severe blood loss"],
+                    correct: 3,
+                    rationale: "Hypovolemic shock is caused by a loss of blood volume (hemorrhage) or fluids, leading to inadequate perfusion."
+                },
+                {
+                    id: 15,
+                    question: "Hemosiderin is an endogenous pigment that contains which element?",
+                    options: ["Calcium", "Copper", "Iron", "Carbon"],
+                    correct: 2,
+                    rationale: "Hemosiderin is an iron-rich, golden-yellow pigment derived from the breakdown of hemoglobin."
+                },
+                {
+                    id: 16,
+                    question: "What is the correct medical term for generalized subcutaneous edema?",
+                    options: ["Hydrothorax", "Ascites", "Anasarca", "Hydropericardium"],
+                    correct: 2,
+                    rationale: "Anasarca is the terminology used for generalized subcutaneous edema."
+                },
+                {
+                    id: 17,
+                    question: "Caseous necrosis is most typically associated with which infection?",
+                    options: ["Viral hepatitis", "Fungal dermatitis", "Tuberculosis", "Chemical burns"],
+                    correct: 2,
+                    rationale: "Caseous necrosis is a mixture of coagulated protein and lipid, classically associated with Tuberculosis."
+                },
+                {
+                    id: 18,
+                    question: "Isosthenuria refers to the excretion of urine with a fixed specific gravity of approximately?",
+                    options: ["1.005", "1.010", "1.025", "1.035"],
+                    correct: 1,
+                    rationale: "Isosthenuria indicates severe renal damage where the kidney cannot concentrate or dilute urine, fixing the specific gravity at ~1.010."
+                },
+                {
+                    id: 19,
+                    question: "Hypertrophy refers to an increase in the size of an organ due to what change?",
+                    options: ["Increase in cell number", "Increase in cell size", "Decrease in cell size", "Change in cell type"],
+                    correct: 1,
+                    rationale: "Hypertrophy is defined as the increased size of an organ or tissue due to the increased size of its specialized cells."
+                },
+                {
+                    id: 20,
+                    question: "What is the initial vascular response immediately following tissue injury in acute inflammation?",
+                    options: ["Increased permeability", "Stasis of blood flow", "Transient vasoconstriction", "Prolonged vasodilation"],
+                    correct: 2,
+                    rationale: "The vascular phenomena begin with a transient (momentary) vasoconstriction of arterioles, followed by vasodilation."
+                },
+                {
+                    id: 21,
+                    question: "Granulation tissue primarily consists of which components?",
+                    options: ["Neurons and glial cells", "Fibroblasts and capillaries", "Bone and cartilage", "Epithelium and keratin"],
+                    correct: 1,
+                    rationale: "Granulation tissue is formed during healing and consists of proliferating fibroblasts (fibroplasia) and new blood vessels (angiogenesis)."
+                },
+                {
+                    id: 22,
+                    question: "Active hyperemia is caused by an increased amount of blood in which part of the vascular system?",
+                    options: ["Venous side", "Arterial side", "Lymphatic system", "Capillary bed only"],
+                    correct: 1,
+                    rationale: "Active hyperemia is defined as an increased amount of blood in the arterial side of the vascular system."
+                },
+                {
+                    id: 23,
+                    question: "Amyloidosis involves the deposition of which substance in tissues?",
+                    options: ["Abnormal protein fibrils", "Calcium salts", "Iron pigments", "Lipid droplets"],
+                    correct: 0,
+                    rationale: "Amyloidosis results from the deposition of amyloid protein fibrils (abnormal folded Beta-pleated sheets)."
+                },
+                {
+                    id: 24,
+                    question: "Which condition is defined as a tumor-like mass composed of a haphazard mixture of tissues indigenous to the site?",
+                    options: ["Malignant neoplasm", "Hamartoma", "Granuloma", "Teratoma"],
+                    correct: 1,
+                    rationale: "A Hamartoma is a haphazard mixture of tissues specific to the part from which it arises, distinguishing it from neoplasms."
+                },
+                {
+                    id: 25,
+                    question: "Which enzyme is considered a specific marker for liver injury?",
+                    options: ["Creatinine kinase", "Aspartate aminotransferase", "Alanine aminotransferase", "Alkaline phosphatase"],
+                    correct: 2,
+                    rationale: "ALT (Alanine aminotransferase) is listed as 'Liver (Specific)' in the key biochemical markers table."
+                },
+                {
+                    id: 26,
+                    question: "Rigor mortis is related to a progressive decrease in which cellular component?",
+                    options: ["Calcium", "Oxygen", "Glucose", "ATP"],
+                    correct: 3,
+                    rationale: "Rigor mortis is related to a decrease in oxygen and ATP, which causes muscle stiffening."
+                },
+                {
+                    id: 27,
+                    question: "Which type of hypersensitivity is cell-mediated and involves sensitized T-lymphocytes?",
+                    options: ["Type I", "Type II", "Type III", "Type IV"],
+                    correct: 3,
+                    rationale: "Type IV hypersensitivity is delayed and cell-mediated, involving sensitized T-lymphocytes releasing cytokines."
+                },
+                {
+                    id: 28,
+                    question: "Which of the following is considered an intrinsic predisposing cause of disease?",
+                    options: ["Bacterial infection", "Age of the host", "Chemical toxins", "Physical trauma"],
+                    correct: 1,
+                    rationale: "Intrinsic causes determine the type of disease within a host and include race, family, age, sex, and color."
+                },
+                {
+                    id: 29,
+                    question: "Polycythemia is a condition characterized by which hematological change?",
+                    options: ["Increased red cell mass", "Decreased platelet count", "Increased white cell count", "Decreased hemoglobin level"],
+                    correct: 0,
+                    rationale: "Polycythemia is defined as an increased amount of Red Cell Mass (or increased RBCs)."
+                },
+                {
+                    id: 30,
+                    question: "What is the predominant cell type found in chronic inflammation?",
+                    options: ["Neutrophil", "Macrophage", "Platelet", "Erythrocyte"],
+                    correct: 1,
+                    rationale: "Chronic inflammation is characterized by the predominance of macrophages, giant cells, and plasma cells."
+                },
+                {
+                    id: 31,
+                    question: "Apoptosis is a passive process that results in uncontrolled cell lysis.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Apoptosis is an active, programmed process ('cell suicide') that is controlled and regulated, unlike necrosis."
+                },
+                {
+                    id: 32,
+                    question: "Moist gangrene most frequently occurs in the internal organs.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Moist gangrene occurs in internal organs (rich blood supply/moisture) while dry gangrene occurs in external tissues."
+                },
+                {
+                    id: 33,
+                    question: "Cloudy swelling is considered a reversible retrogressive change.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Cloudy swelling is the mildest, reversible retrogressive change of parenchymatous organs."
+                },
+                {
+                    id: 34,
+                    question: "Thrombi are exclusively formed within the venous system.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Thrombosis can be Cardiac, Arterial, Venous, Capillary, or Lymphatic."
+                },
+                {
+                    id: 35,
+                    question: "Acute inflammation is characterized by a predominance of neutrophils.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. The cellular exudate in acute inflammation consists predominantly of neutrophils."
+                },
+                {
+                    id: 36,
+                    question: "First intention healing typically results in excessive scarring.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. First intention healing occurs in clean wounds with opposed edges and results in minimal scarring."
+                },
+                {
+                    id: 37,
+                    question: "Serum samples require the use of an anticoagulant additive during collection.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Serum is collected in tubes with no additive (or clot activator) because it is the fluid separated from clotted blood."
+                },
+                {
+                    id: 38,
+                    question: "Somatic death is defined by the cessation of function in the heart, lung, and brain.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Somatic death is achieved after cessation of two out of the three vital organs (heart, lung, brain)."
+                },
+                {
+                    id: 39,
+                    question: "Hyperplasia is defined as an increase in the size of individual cells.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Hyperplasia is an increase in the number of cells, whereas Hypertrophy is an increase in the size of cells."
+                },
+                {
+                    id: 40,
+                    question: "Hypoxia is considered the most common cause of cell injury.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. The text states that hypoxia is probably the most common cause of cell injury and disease."
+                }
+            ],
+            'clinical': [
+                {
+                    id: 1,
+                    question: "Which tube color is correctly paired with its additive for blood glucose testing?",
+                    options: ["Blue tube", "Gray tube", "Green tube", "Purple tube"],
+                    correct: 1,
+                    rationale: "The Gray stopper tube contains Sodium fluoride, which is used for blood sugar tubes to preserve glucose."
+                },
+                {
+                    id: 2,
+                    question: "What is the primary site of hematopoiesis in the human fetus between the third and sixth month of gestation?",
+                    options: ["Bone marrow", "Yolk sac", "Liver", "Thymus"],
+                    correct: 2,
+                    rationale: "From the 3rd to the 6th month of gestation, the liver becomes the chief site of hematopoiesis, producing myeloid and erythroid cells."
+                },
+                {
+                    id: 3,
+                    question: "Which term describes the variation in the size of red blood cells observed in a blood smear?",
+                    options: ["Anisocytosis", "Poikilocytosis", "Leukocytosis", "Thrombocytosis"],
+                    correct: 0,
+                    rationale: "Anisocytosis refers to red cells varying in size, whereas poikilocytosis refers to variation in shape."
+                },
+                {
+                    id: 4,
+                    question: "Which enzyme is considered the most specific marker for liver injury?",
+                    options: ["Aspartate aminotransferase", "Alanine aminotransferase", "Alkaline phosphatase", "Gamma glutamyl transferase"],
+                    correct: 1,
+                    rationale: "ALT (Alanine aminotransferase) is liver-specific, whereas AST is found in the liver, heart, muscle, and RBCs."
+                },
+                {
+                    id: 5,
+                    question: "What is the clinical significance of a 'Left Shift' in a white blood cell count?",
+                    options: ["Depletion of mature neutrophils", "Increase in immature neutrophils", "Decrease in total white blood cells", "Predominance of lymphocytes"],
+                    correct: 1,
+                    rationale: "A Left Shift indicates the depletion of the storage pool and the recruitment of younger, immature neutrophils (band cells) into the blood."
+                },
+                {
+                    id: 6,
+                    question: "Which condition is characterized by a fixed urine specific gravity of approximately 1.010?",
+                    options: ["Hyposthenuria", "Hypersthenuria", "Isosthenuria", "Polydipsia"],
+                    correct: 2,
+                    rationale: "Isosthenuria is defined as a fixed specific gravity (~1.010) indicating severe renal damage where the kidney has lost concentrating ability."
+                },
+                {
+                    id: 7,
+                    question: "What is the primary cause of pre-hepatic jaundice?",
+                    options: ["Biliary duct obstruction", "Excessive hemolysis", "Hepatocyte damage", "Genetic enzyme defect"],
+                    correct: 1,
+                    rationale: "Pre-hepatic (hemolytic) jaundice is caused by excessive hemolysis, leading to increased production of bilirubin beyond the liver's capacity."
+                },
+                {
+                    id: 8,
+                    question: "Which blood component is derived from the intestines and lymphatic system and serves as a vehicle for cell movement?",
+                    options: ["Plasma", "Erythrocytes", "Platelets", "Leukocytes"],
+                    correct: 0,
+                    rationale: "Plasma is the fluid part of blood, derived from the intestines and lymphatic systems, consisting of water and total solids."
+                },
+                {
+                    id: 9,
+                    question: "Kernicterus is a condition involving brain damage caused by the accumulation of which substance?",
+                    options: ["Conjugated bilirubin", "Unconjugated bilirubin", "Urea nitrogen", "Ammonia"],
+                    correct: 1,
+                    rationale: "Kernicterus is the accumulation of unconjugated bilirubin in the brain, which can cause permanent brain damage."
+                },
+                {
+                    id: 10,
+                    question: "Which type of anemia is characterized by the presence of reticulocytes and polychromatophilic erythrocytes?",
+                    options: ["Regenerative anemia", "Non-regenerative anemia", "Iron deficiency anemia", "Aplastic anemia"],
+                    correct: 0,
+                    rationale: "Regenerative anemia shows an increased number of polychromatophilic erythrocytes (reticulocytes), indicating the bone marrow is responding."
+                },
+                {
+                    id: 11,
+                    question: "Which anticoagulant is found in the blue stopper tubes used for PT and PTT tests?",
+                    options: ["Sodium citrate", "Lithium heparin", "Sodium fluoride", "Potassium EDTA"],
+                    correct: 0,
+                    rationale: "Blue stopper tubes contain Sodium citrate and are used for coagulation studies like PT (Prothrombin Time) and PTT."
+                },
+                {
+                    id: 12,
+                    question: "What is the term for a hospital-acquired infection?",
+                    options: ["Nosocomial infection", "Zoonotic infection", "Idiopathic infection", "Chronic infection"],
+                    correct: 0,
+                    rationale: "Nosocomial infection is defined in the glossary as a hospital-acquired infection."
+                },
+                {
+                    id: 13,
+                    question: "Clay-colored stools are a classic sign of which type of jaundice?",
+                    options: ["Hemolytic jaundice", "Obstructive jaundice", "Physiologic jaundice", "Toxic jaundice"],
+                    correct: 1,
+                    rationale: "In post-hepatic (obstructive) jaundice, bile is prevented from entering the intestine, resulting in decreased fecal urobilinogen and clay-colored stools."
+                },
+                {
+                    id: 14,
+                    question: "Which renal function test is less affected by diet and is a more sensitive indicator of renal function?",
+                    options: ["Blood Urea Nitrogen", "Serum Creatinine", "Urine Specific Gravity", "Urine Volume"],
+                    correct: 1,
+                    rationale: "Serum Creatinine is a more sensitive indicator than BUN (Blood Urea Nitrogen) because it is not affected by diet."
+                },
+                {
+                    id: 15,
+                    question: "Which white blood cell is the most abundant and functions primarily as a phagocyte?",
+                    options: ["Basophil", "Neutrophil", "Eosinophil", "Monocyte"],
+                    correct: 1,
+                    rationale: "The neutrophil is the most abundant of the five types of white blood cells and is a phagocytic cell."
+                },
+                {
+                    id: 16,
+                    question: "What does the abbreviation MCV stand for in a hemogram?",
+                    options: ["Mean Cell Velocity", "Mean Corpuscular Volume", "Maximum Cell Value", "Mean Concentration Value"],
+                    correct: 1,
+                    rationale: "MCV stands for Mean Corpuscular Volume, which measures the average size of red blood cells."
+                },
+                {
+                    id: 17,
+                    question: "Which condition is characterized by an abnormal increase in the number of platelets?",
+                    options: ["Thrombocytopenia", "Thrombocytosis", "Leukocytosis", "Erythrocytosis"],
+                    correct: 1,
+                    rationale: "Thrombocytosis is the increase in the number of platelets, whereas thrombocytopenia is the reduction in platelet number."
+                },
+                {
+                    id: 18,
+                    question: "Which of the following is an example of a pre-renal cause of azotemia?",
+                    options: ["Urethral obstruction", "Severe dehydration", "Glomerulonephritis", "Bladder rupture"],
+                    correct: 1,
+                    rationale: "Pre-renal azotemia is caused by decreased perfusion to the kidneys, such as in severe dehydration or shock."
+                },
+                {
+                    id: 19,
+                    question: "What is the medical term for the presence of bacteria in the urine?",
+                    options: ["Bacteraemia", "Bacteriuria", "Pyuria", "Hematuria"],
+                    correct: 1,
+                    rationale: "Bacteriuria is defined as the presence of bacteria in the urine."
+                },
+                {
+                    id: 20,
+                    question: "Which marker is raised in plasma when there is an obstruction to bile flow (cholestasis)?",
+                    options: ["Creatinine", "Alkaline Phosphatase", "Albumin", "Troponin"],
+                    correct: 1,
+                    rationale: "ALP (Alkaline Phosphatase) and GGT are markers that rise significantly during cholestasis (bile duct obstruction)."
+                },
+                {
+                    id: 21,
+                    question: "Polycythemia refers to an increase in which blood component?",
+                    options: ["White blood cells", "Red cell mass", "Platelet count", "Plasma volume"],
+                    correct: 1,
+                    rationale: "Polycythemia is defined as an increased amount of Red Cell Mass (erythrocytes)."
+                },
+                {
+                    id: 22,
+                    question: "Which white blood cell type is associated with allergic reactions and parasitic infections?",
+                    options: ["Neutrophil", "Lymphocyte", "Eosinophil", "Monocyte"],
+                    correct: 2,
+                    rationale: "Persistent eosinophilia is a sign of systemic hypersensitivity, parasitic diseases (fleas), or allergic conditions."
+                },
+                {
+                    id: 23,
+                    question: "Which urine specific gravity range is considered normal?",
+                    options: ["1.000 - 1.002", "1.003 - 1.035", "1.040 - 1.060", "1.060 - 1.080"],
+                    correct: 1,
+                    rationale: "The normal range for Urine Specific Gravity (USG) is stated as 1.003 – 1.035."
+                },
+                {
+                    id: 24,
+                    question: "What is the term for the death of tissue due to ischemia?",
+                    options: ["Infarction", "Hyperemia", "Metaplasia", "Neoplasia"],
+                    correct: 0,
+                    rationale: "Infarction is defined as the necrosis of tissue due to ischemia (reduced blood flow)."
+                },
+                {
+                    id: 25,
+                    question: "Which type of shock is caused by severe blood loss?",
+                    options: ["Septic shock", "Cardiogenic shock", "Neurogenic shock", "Hypovolemic shock"],
+                    correct: 3,
+                    rationale: "Hypovolemic shock is due to loss of blood volume (hemorrhage) which induces inadequate perfusion."
+                },
+                {
+                    id: 26,
+                    question: "What is the correct term for a reduced number of white blood cells?",
+                    options: ["Leukocytosis", "Leucopaenia", "Anemia", "Thrombocytopenia"],
+                    correct: 1,
+                    rationale: "Leucopaenia is defined as a reduction in white blood cell numbers."
+                },
+                {
+                    id: 27,
+                    question: "Which constituent is found in the 'Buffy Coat' of a centrifuged blood sample?",
+                    options: ["Plasma only", "Red blood cells", "Leukocytes and platelets", "Serum only"],
+                    correct: 2,
+                    rationale: "Although not explicitly defined in the glossary text provided, standard hematology knowledge (and context of white cells) places leukocytes/platelets between plasma and RBCs."
+                },
+                {
+                    id: 28,
+                    question: "What is the definition of dyspnea?",
+                    options: ["Rapid heart rate", "Difficulty breathing", "High blood pressure", "Excessive sweating"],
+                    correct: 1,
+                    rationale: "Dyspnea is the clinical term for difficult or labored breathing (respiratory distress)."
+                },
+                {
+                    id: 29,
+                    question: "Which condition leads to 'Parboiled' appearance of organs?",
+                    options: ["Cloudy swelling", "Fat necrosis", "Amyloidosis", "Hyaline degeneration"],
+                    correct: 0,
+                    rationale: "Cloudy swelling causes the affected organ to have a parboiled, grayish external surface."
+                },
+                {
+                    id: 30,
+                    question: "Postmortem clotting of blood differs from antemortem thrombosis because postmortem clots are:",
+                    options: ["Attached to vessel walls", "Dry and friable", "Not attached to vessel walls", "White in color"],
+                    correct: 2,
+                    rationale: "Postmortem clots are not attached to the vessel wall, whereas thrombi (antemortem) are attached."
+                },
+                {
+                    id: 31,
+                    question: "Serum is the fluid obtained from blood that has been allowed to clot.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Serum is the fluid component separated after blood has clotted, meaning it lacks clotting factors like fibrinogen."
+                },
+                {
+                    id: 32,
+                    question: "The purple top blood collection tube contains Heparin as the anticoagulant.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. The purple top tube contains EDTA. Green top tubes contain Lithium heparin."
+                },
+                {
+                    id: 33,
+                    question: "Anuria is defined as the failure to produce urine.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. The glossary defines Anuria as the failure to produce urine."
+                },
+                {
+                    id: 34,
+                    question: "Non-regenerative anemia is characterized by a high reticulocyte count.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Non-regenerative anemia shows no reticulocyte response because the bone marrow is not producing new cells."
+                },
+                {
+                    id: 35,
+                    question: "Hyperkalemia refers to a reduced plasma potassium concentration.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Hyperkalemia is a raised plasma potassium concentration. Reduced is Hypokalaemia."
+                },
+                {
+                    id: 36,
+                    question: "The yolk sac is the primitive site of hematopoiesis in the first two months of gestation.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. The Yolk Sac (18th day - 3rd month) is the site of primitive hematopoiesis."
+                },
+                {
+                    id: 37,
+                    question: "Stress leukograms typically display lymphocytosis (increased lymphocytes).",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Stress (Glucocorticoids) typically causes Lymphopenia (decreased lymphocytes) and mild neutrophilia."
+                },
+                {
+                    id: 38,
+                    question: "Creatinine levels are significantly influenced by dietary protein intake.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Creatinine is a more sensitive indicator than BUN because it is NOT affected by diet."
+                },
+                {
+                    id: 39,
+                    question: "Bilirubin is a breakdown product formed from the hemolysis of red blood cells.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Bilirubin formation starts with Hemoglobin breakdown into Heme and Globin, eventually forming Bilirubin."
+                },
+                {
+                    id: 40,
+                    question: "Atherosclerosis is the thickening and hardening of arterial walls.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Atherosclerosis is defined as thickening and hardening of arterial walls reducing blood flow."
+                }
+            ],
+            'general': [
+                {
+                    id: 1,
+                    question: "Which term describes the complete absence of an organ due to a failure of its primordium to develop?",
+                    options: ["Agenesis", "Aplasia", "Hypoplasia", "Atrophy"],
+                    correct: 0,
+                    rationale: "Agenesis is the almost complete failure of an organ to develop, whereas aplasia implies the primordium was formed but failed to develop completely."
+                },
+                {
+                    id: 2,
+                    question: "Which type of necrosis is characterized by a cheese-like appearance and is commonly associated with tuberculosis?",
+                    options: ["Coagulative necrosis", "Caseous necrosis", "Liquefactive necrosis", "Fat necrosis"],
+                    correct: 1,
+                    rationale: "Caseous necrosis is a mixture of coagulated protein and lipid that appears white, grayish, or yellowish and friable, typical of TB."
+                },
+                {
+                    id: 3,
+                    question: "What is the primary mechanism causing edema in patients with congestive heart failure?",
+                    options: ["Decreased osmotic pressure", "Increased hydrostatic pressure", "Lymphatic obstruction", "Increased capillary permeability"],
+                    correct: 1,
+                    rationale: "Heart failure leads to increased venous hydrostatic pressure, which forces fluid out of the vessels into the interstitial space."
+                },
+                {
+                    id: 4,
+                    question: "Which pigment is responsible for the condition known as anthracosis?",
+                    options: ["Silicon dioxide", "Coal dust", "Iron oxide", "Asbestos fibers"],
+                    correct: 1,
+                    rationale: "Anthracosis is caused by the deposition of inhaled coal dust (carbon) in the pulmonary tissue."
+                },
+                {
+                    id: 5,
+                    question: "Which type of shock is caused by severe blood loss or fluid depletion?",
+                    options: ["Septic shock", "Neurogenic shock", "Hypovolemic shock", "Cardiogenic shock"],
+                    correct: 2,
+                    rationale: "Hypovolemic shock results from a significant loss of blood volume or fluids, leading to inadequate tissue perfusion."
+                },
+                {
+                    id: 6,
+                    question: "What is the term for the replacement of one mature cell type by another mature cell type?",
+                    options: ["Hyperplasia", "Metaplasia", "Dysplasia", "Anaplasia"],
+                    correct: 1,
+                    rationale: "Metaplasia is the reversible transformation of one type of differentiated cell to another type of the same germinal layer."
+                },
+                {
+                    id: 7,
+                    question: "Which cell type is the hallmark of chronic inflammation?",
+                    options: ["Neutrophil", "Macrophage", "Basophil", "Eosinophil"],
+                    correct: 1,
+                    rationale: "Chronic inflammation is characterized by the predominance of mononuclear cells, specifically macrophages, lymphocytes, and plasma cells."
+                },
+                {
+                    id: 8,
+                    question: "Which condition involves the telescoping of one segment of the intestine into an adjacent segment?",
+                    options: ["Volvulus", "Torsion", "Intussusception", "Herniation"],
+                    correct: 2,
+                    rationale: "Intussusception is the telescoping of one portion of a hollow organ into another, commonly seen in the intestine."
+                },
+                {
+                    id: 9,
+                    question: "What is the primary constituent of the 'soft callus' formed during bone healing?",
+                    options: ["Compact bone", "Fibrocartilage", "Calcified cartilage", "Adipose tissue"],
+                    correct: 1,
+                    rationale: "The soft callus is a fibrocartilaginous mass formed by granulation tissue and cartilage that connects the bone ends."
+                },
+                {
+                    id: 10,
+                    question: "Which type of calcification occurs in necrotic tissue despite normal serum calcium levels?",
+                    options: ["Metastatic calcification", "Dystrophic calcification", "Physiologic calcification", "Idiopathic calcification"],
+                    correct: 1,
+                    rationale: "Dystrophic calcification is the local deposition of calcium salts in degenerated or necrotic tissue with normal blood calcium."
+                },
+                {
+                    id: 11,
+                    question: "Which vascular change occurs immediately after tissue injury in acute inflammation?",
+                    options: ["Prolonged vasodilation", "Transient vasoconstriction", "Increased permeability", "Vascular stasis"],
+                    correct: 1,
+                    rationale: "The immediate vascular response is a transient (momentary) vasoconstriction of arterioles, followed by vasodilation."
+                },
+                {
+                    id: 12,
+                    question: "What is the clinical term for bleeding from the nose?",
+                    options: ["Hemoptysis", "Hematemesis", "Epistaxis", "Melena"],
+                    correct: 2,
+                    rationale: "Epistaxis is the specific medical term for bleeding from the nostrils."
+                },
+                {
+                    id: 13,
+                    question: "Which type of wound healing occurs in clean surgical incisions with opposed edges?",
+                    options: ["First intention", "Second intention", "Third intention", "Granulation healing"],
+                    correct: 0,
+                    rationale: "First intention healing (primary union) occurs in clean wounds with opposed edges and results in minimal scarring."
+                },
+                {
+                    id: 14,
+                    question: "Which pigment is known as the 'wear and tear' pigment often seen in atrophic cells?",
+                    options: ["Melanin", "Lipochrome", "Hemosiderin", "Bilirubin"],
+                    correct: 1,
+                    rationale: "Lipochrome pigments are often present in cells undergoing atrophy, associated with cellular aging and wear."
+                },
+                {
+                    id: 15,
+                    question: "What is the defining characteristic of a hamartoma?",
+                    options: ["Malignant neoplasm", "Disorganized indigenous tissue", "Ectopic normal tissue", "Fluid-filled cyst"],
+                    correct: 1,
+                    rationale: "A hamartoma is a tumor-like mass composed of a haphazard mixture of tissues indigenous to the site, not a neoplasm."
+                },
+                {
+                    id: 16,
+                    question: "Which type of embolus is most frequently associated with fractures of long bones?",
+                    options: ["Air embolus", "Fat embolus", "Parasitic embolus", "Septic embolus"],
+                    correct: 1,
+                    rationale: "Fat embolism is caused by the circulation of bone marrow fat globules following fractures of long bones."
+                },
+                {
+                    id: 17,
+                    question: "Which gas is responsible for the blackish-green color of gangrenous tissue?",
+                    options: ["Carbon dioxide", "Hydrogen sulfide", "Nitrogen oxide", "Sulfur dioxide"],
+                    correct: 1,
+                    rationale: "Hydrogen sulfide (H2S) produced by bacteria reacts with iron from hemoglobin to form black iron sulfide."
+                },
+                {
+                    id: 18,
+                    question: "What is the term for a localized collection of pus within a tissue?",
+                    options: ["Abscess", "Phlegmon", "Empyema", "Ulcer"],
+                    correct: 0,
+                    rationale: "An abscess is a localized collection of pus, whereas phlegmon is a diffuse spread of purulent inflammation."
+                },
+                {
+                    id: 19,
+                    question: "Which condition is characterized by the presence of a 'nutmeg liver' appearance?",
+                    options: ["Acute active hyperemia", "Chronic passive congestion", "Fatty degeneration", "Biliary obstruction"],
+                    correct: 1,
+                    rationale: "Chronic passive congestion of the liver leads to a mottled red and yellow appearance known as 'nutmeg liver'."
+                },
+                {
+                    id: 20,
+                    question: "Which hypersensitivity reaction is mediated by sensitized T-lymphocytes?",
+                    options: ["Type I", "Type II", "Type III", "Type IV"],
+                    correct: 3,
+                    rationale: "Type IV (Delayed) hypersensitivity is cell-mediated, involving sensitized T-lymphocytes releasing cytokines."
+                },
+                {
+                    id: 21,
+                    question: "What is the most common cause of cellular hypoxia?",
+                    options: ["Ischemia", "Anemia", "Carbon monoxide", "Respiratory failure"],
+                    correct: 0,
+                    rationale: "Ischemia (reduced blood flow) is the most common cause of hypoxia, which is the most common cause of cell injury."
+                },
+                {
+                    id: 22,
+                    question: "Which type of hypertrophy is observed in the uterus during pregnancy?",
+                    options: ["Physiological hypertrophy", "Pathological hypertrophy", "Compensatory hypertrophy", "Adaptive hypertrophy"],
+                    correct: 0,
+                    rationale: "The enlargement of the uterus during pregnancy is a classic example of physiological hypertrophy."
+                },
+                {
+                    id: 23,
+                    question: "What is the term for the stiffening of muscles that occurs after death?",
+                    options: ["Algor mortis", "Rigor mortis", "Livor mortis", "Pallor mortis"],
+                    correct: 1,
+                    rationale: "Rigor mortis is the stiffening of muscles after death due to ATP depletion."
+                },
+                {
+                    id: 24,
+                    question: "Which congenital anomaly involves the heart being positioned on the right side of the chest?",
+                    options: ["Ectopia cordis", "Dextrocardia", "Cardiomegaly", "Hemocardium"],
+                    correct: 1,
+                    rationale: "Dextrocardia is the transposition of the heart to the right side of the thorax."
+                },
+                {
+                    id: 25,
+                    question: "Which type of exudate is characteristic of diphtheria and forms a pseudomembrane?",
+                    options: ["Serous exudate", "Fibrinous exudate", "Suppurative exudate", "Hemorrhagic exudate"],
+                    correct: 1,
+                    rationale: "Fibrinous inflammation involves the exudation of fibrinogen, forming a thick, shaggy pseudomembrane, typical of Diphtheria."
+                },
+                {
+                    id: 26,
+                    question: "Which mediator is preformed in mast cells and causes immediate vasodilation?",
+                    options: ["Histamine", "Prostaglandin", "Leukotriene", "Cytokine"],
+                    correct: 0,
+                    rationale: "Histamine is a preformed mediator stored in mast cells that causes immediate vasodilation and increased permeability."
+                },
+                {
+                    id: 27,
+                    question: "What is the medical term for generalized subcutaneous edema?",
+                    options: ["Ascites", "Anasarca", "Hydrothorax", "Hydrocele"],
+                    correct: 1,
+                    rationale: "Anasarca refers to generalized edema of the subcutaneous tissues."
+                },
+                {
+                    id: 28,
+                    question: "Which condition involves the failure of an organ to reach its mature size?",
+                    options: ["Hypoplasia", "Atrophy", "Aplasia", "Dysplasia"],
+                    correct: 0,
+                    rationale: "Hypoplasia is the failure of cells, tissues, or organs to reach their full mature size during development."
+                },
+                {
+                    id: 29,
+                    question: "Which type of gangrene is typically confined to the extremities?",
+                    options: ["Dry gangrene", "Moist gangrene", "Gas gangrene", "Internal gangrene"],
+                    correct: 0,
+                    rationale: "Dry gangrene occurs mostly in external tissues like extremities due to lack of moisture and blood supply."
+                },
+                {
+                    id: 30,
+                    question: "What is the term for excessive granulation tissue that protrudes above the skin level?",
+                    options: ["Keloid", "Proud flesh", "Callus", "Scab"],
+                    correct: 1,
+                    rationale: "Exuberant granulation tissue is commonly referred to as 'Proud Flesh'."
+                },
+                {
+                    id: 31,
+                    question: "Metaplasia is an irreversible process.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Metaplasia is a reversible change; if the stress is removed, the tissue can revert to its original type."
+                },
+                {
+                    id: 32,
+                    question: "Active hyperemia is caused by obstruction of venous outflow.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Active hyperemia is increased arterial blood flow. Passive hyperemia (congestion) is due to venous obstruction."
+                },
+                {
+                    id: 33,
+                    question: "Labile cells have a high rate of replication and turnover.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Labile cells, such as those in the epidermis and GI mucosa, divide continuously throughout life."
+                },
+                {
+                    id: 34,
+                    question: "Septic shock is associated with the release of endotoxins from bacteria.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Septic/Toxic shock is caused by microbial toxins, particularly endotoxins from Gram-negative bacteria."
+                },
+                {
+                    id: 35,
+                    question: "A thrombus is a blood clot formed in a vessel after somatic death.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. A thrombus is formed in the living body (antemortem). Clots formed after death are postmortem clots."
+                },
+                {
+                    id: 36,
+                    question: "Phlegmon is a diffuse form of suppurative inflammation.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Phlegmon is defined as a diffuse spreading of purulent inflammation, unlike an abscess which is localized."
+                },
+                {
+                    id: 37,
+                    question: "Dystrophic calcification occurs in tissues with normal calcium metabolism.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Dystrophic calcification occurs in necrotic tissue despite the patient having normal serum calcium levels."
+                },
+                {
+                    id: 38,
+                    question: "Second intention healing results in less scarring than first intention healing.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Second intention healing involves more tissue loss and granulation, resulting in more significant scarring."
+                },
+                {
+                    id: 39,
+                    question: "Hypertrophy is defined as an increase in the number of cells in an organ.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Hypertrophy is an increase in cell size. Hyperplasia is an increase in cell number."
+                },
+                {
+                    id: 40,
+                    question: "Cloudy swelling is a reversible change in cell metabolism.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Cloudy swelling is the mildest and reversible form of cell injury/degeneration."
+                }
+            ],
+            'cell_injury': [
+                {
+                    id: 1,
+                    question: "Which term refers to the stiffening of all muscles after death due to a progressive decrease in oxygen and ATP?",
+                    options: ["Algor mortis", "Rigor mortis", "Livor mortis", "Pallor mortis"],
+                    correct: 1,
+                    rationale: "Rigor mortis is the stiffening of muscles after death related to a progressive decrease in oxygen, ATP, creatinine phosphate, and pH."
+                },
+                {
+                    id: 2,
+                    question: "Which type of necrosis is characterized by the preservation of tissue architecture but loss of cellular details?",
+                    options: ["Liquefactive necrosis", "Caseous necrosis", "Coagulative necrosis", "Fat necrosis"],
+                    correct: 2,
+                    rationale: "Coagulative necrosis is microscopically characterized by the maintenance of tissue architecture and loss of cellular details."
+                },
+                {
+                    id: 3,
+                    question: "What is the medical term for the presence of an extra digit on a limb?",
+                    options: ["Polymelia", "Polyotia", "Polydactylia", "Polythelia"],
+                    correct: 2,
+                    rationale: "Polydactylia is defined as the presence of extra digits, whereas Polymelia refers to extra limbs."
+                },
+                {
+                    id: 4,
+                    question: "Which pigment is formed from tyrosine by the enzyme tyrosinase and requires copper?",
+                    options: ["Melanin", "Hemosiderin", "Lipochrome", "Bilirubin"],
+                    correct: 0,
+                    rationale: "Melanin is a sulfur-containing protein formed from Tyrosine by the enzyme Tyrosinase, which requires Copper."
+                },
+                {
+                    id: 5,
+                    question: "What is the primary cause of metastatic calcification in soft tissues?",
+                    options: ["Local tissue necrosis", "Decreased blood calcium", "Hypercalcemia", "Chronic inflammation"],
+                    correct: 2,
+                    rationale: "Metastatic calcification is the precipitation of calcium salts in apparently normal tissues due to persistently elevated blood-calcium levels (Hypercalcemia)."
+                },
+                {
+                    id: 6,
+                    question: "Which term describes the complete failure of an organ to develop due to the absence of its primordium?",
+                    options: ["Agenesis", "Aplasia", "Hypoplasia", "Atrophy"],
+                    correct: 0,
+                    rationale: "Agenesis is the almost complete failure of an organ to develop (e.g., Acrania), often implying the primordium did not form or develop at all."
+                },
+                {
+                    id: 7,
+                    question: "Which type of burn is characterized by the formation of blisters on the epidermis?",
+                    options: ["First degree burn", "Second degree burn", "Third degree burn", "Fourth degree burn"],
+                    correct: 1,
+                    rationale: "Second degree burns are characterized by blister formation, whereas first degree involves redness and third degree involves necrosis."
+                },
+                {
+                    id: 8,
+                    question: "What is the specific nuclear change characterized by the shrinkage of the nucleus into a small, dense, black mass?",
+                    options: ["Karyorrhexis", "Karyolysis", "Pyknosis", "Chromatolysis"],
+                    correct: 2,
+                    rationale: "Pyknosis is the nuclear change where the nucleus shrinks and becomes a dense, solid, basophilic mass."
+                },
+                {
+                    id: 9,
+                    question: "Which condition is caused by the rotation of an organ around its mesenteric base of attachment?",
+                    options: ["Torsion", "Volvulus", "Intussusception", "Prolapse"],
+                    correct: 1,
+                    rationale: "Volvulus refers to the rotation of an organ (usually intestine) around its mesenteric base, whereas Torsion is rotation along its own long axis."
+                },
+                {
+                    id: 10,
+                    question: "Cloudy swelling is most commonly associated with which macroscopic appearance of the affected organ?",
+                    options: ["Parboiled appearance", "Nutmeg appearance", "Cheesy appearance", "Blackened appearance"],
+                    correct: 0,
+                    rationale: "Organs affected by cloudy swelling have a 'parboiled' grayish external surface and become soft."
+                },
+                {
+                    id: 11,
+                    question: "Which type of gangrene is characterized by a lack of a sharp line of demarcation between living and dead tissue?",
+                    options: ["Dry gangrene", "Moist gangrene", "Gas gangrene", "Primary gangrene"],
+                    correct: 1,
+                    rationale: "In moist gangrene, there is no sharp line of demarcation between the living and the gangrenous tissue due to the rapid spread of bacteria."
+                },
+                {
+                    id: 12,
+                    question: "Which term describes the transformation of a specialized cell type into another distinct mature cell type?",
+                    options: ["Hypertrophy", "Metaplasia", "Hyperplasia", "Dysplasia"],
+                    correct: 1,
+                    rationale: "Metaplasia is defined as the transformation of one type of differentiated cells to another differentiated type of the same germinal layer."
+                },
+                {
+                    id: 13,
+                    question: "Which type of cyst contains sebaceous debris and hair balls?",
+                    options: ["Epidermoid cyst", "Dermoid cyst", "Enterogenous cyst", "Retention cyst"],
+                    correct: 1,
+                    rationale: "Dermoid cysts are caused by dislocation of skin during development and contain sebaceous debris and hair balls."
+                },
+                {
+                    id: 14,
+                    question: "Zenker's necrosis is a specific form of coagulative necrosis affecting which tissue?",
+                    options: ["Cardiac muscle", "Skeletal muscle", "Renal tubules", "Liver parenchyma"],
+                    correct: 1,
+                    rationale: "Zenker's necrosis is a specific term used for coagulative necrosis of muscles."
+                },
+                {
+                    id: 15,
+                    question: "What is the defining characteristic of a vascular hamartoma?",
+                    options: ["Encapsulated tumor", "Malignant growth", "Haphazard vascular tissue", "Foreign body reaction"],
+                    correct: 2,
+                    rationale: "A vascular hamartoma (hemangioma) is a non-encapsulated mass composed of a haphazard mixture of vascular channels indigenous to the site."
+                },
+                {
+                    id: 16,
+                    question: "Which condition involves the congenital fissure of the skull?",
+                    options: ["Cheiloschisis", "Palatoschisis", "Cranioschisis", "Rachischisis"],
+                    correct: 2,
+                    rationale: "Cranioschisis is the specific term for a fissure or cleft in the skull (cranium)."
+                },
+                {
+                    id: 17,
+                    question: "Which chemical reaction is responsible for the black color seen in gangrenous tissue?",
+                    options: ["Iron sulfide formation", "Bilirubin oxidation", "Melanin deposition", "Carbon accumulation"],
+                    correct: 0,
+                    rationale: "Hydrogen sulfide (H2S) reacts with hemosiderin (iron) to form black iron sulfide, giving gangrene its characteristic color."
+                },
+                {
+                    id: 18,
+                    question: "Which type of hypertrophy is seen in the muscles of draft horses or racing dogs?",
+                    options: ["Pathological hypertrophy", "Physiological hypertrophy", "Compensatory hypertrophy", "Hormonal hypertrophy"],
+                    correct: 1,
+                    rationale: "This is physiological hypertrophy, which is associated with increased function due to exercise or work."
+                },
+                {
+                    id: 19,
+                    question: "Which stain is used to identify mucin, causing it to appear blue?",
+                    options: ["Basic dyes", "Acidic dyes", "Sudan black", "Congo red"],
+                    correct: 0,
+                    rationale: "Mucin stains blue with basic dyes due to its nucleoprotein content."
+                },
+                {
+                    id: 20,
+                    question: "What is the term for the telescoping of one portion of the intestine into an adjacent segment?",
+                    options: ["Volvulus", "Intussusception", "Herniation", "Eventration"],
+                    correct: 1,
+                    rationale: "Intussusception is the telescoping of one portion of a hollow organ into another portion."
+                },
+                {
+                    id: 21,
+                    question: "Which pigment is associated with the condition known as 'Bamboo-stick' bodies in the lungs?",
+                    options: ["Carbon dust", "Silica dust", "Asbestos fibers", "Iron particles"],
+                    correct: 2,
+                    rationale: "Asbestosis involves the inhalation of asbestos fibers which form 'bamboo-stick' like asbestos bodies in the lungs."
+                },
+                {
+                    id: 22,
+                    question: "Which type of atrophy is caused by the loss of innervation to a muscle?",
+                    options: ["Ischemic atrophy", "Disuse atrophy", "Neuropathic atrophy", "Pressure atrophy"],
+                    correct: 2,
+                    rationale: "Neuropathic atrophy is caused by injury to the innervations (nerves) supplying the muscle."
+                },
+                {
+                    id: 23,
+                    question: "Which substance accumulates in the cells during hydropic degeneration?",
+                    options: ["Lipids", "Glycogen", "Fluid", "Calcium"],
+                    correct: 2,
+                    rationale: "Hydropic degeneration is characterized by the accumulation of fluid inside the cellular cytoplasm, forming vacuoles."
+                },
+                {
+                    id: 24,
+                    question: "What is the term for a congenital fissure of the vertebral column?",
+                    options: ["Spina bifida", "Schistothorax", "Schistosomus", "Palatoschisis"],
+                    correct: 0,
+                    rationale: "Spina bifida is the specific term for a fissure or defect in the vertebral column."
+                },
+                {
+                    id: 25,
+                    question: "Which pathogen is capable of producing exotoxins that inhibit protein synthesis?",
+                    options: ["Bacteria", "Viruses", "Fungi", "Prions"],
+                    correct: 0,
+                    rationale: "Certain bacteria elaborate exotoxins that inhibit oxidative processes and protein synthesis."
+                },
+                {
+                    id: 26,
+                    question: "Which type of amyloidosis is associated with chronic inflammatory diseases like tuberculosis?",
+                    options: ["Primary amyloidosis", "Secondary amyloidosis", "Heredofamilial amyloidosis", "Senile amyloidosis"],
+                    correct: 1,
+                    rationale: "Secondary (Reactive Systemic) Amyloidosis results from chronic tissue destruction or infections like TB."
+                },
+                {
+                    id: 27,
+                    question: "What is the term for the displacement of the heart into the cervical region?",
+                    options: ["Dextrocardia", "Ectopia cordis cervicalis", "Pericardial effusion", "Cardiac hypertrophy"],
+                    correct: 1,
+                    rationale: "Ectopia cordis cervicalis refers to the displacement of the heart into the neck."
+                },
+                {
+                    id: 28,
+                    question: "Which type of cell death triggers an inflammatory response?",
+                    options: ["Apoptosis", "Necrosis", "Autophagy", "Atrophy"],
+                    correct: 1,
+                    rationale: "Necrosis involves uncontrolled cell death that leads to lysis and an inflammatory response, unlike apoptosis."
+                },
+                {
+                    id: 29,
+                    question: "Which form of necrosis is commonly seen in the central nervous system?",
+                    options: ["Coagulative necrosis", "Liquefactive necrosis", "Caseous necrosis", "Fat necrosis"],
+                    correct: 1,
+                    rationale: "Liquefactive necrosis occurs in the CNS because the tissue is poor in coagulable albumin and rich in lipids."
+                },
+                {
+                    id: 30,
+                    question: "What is the specific term for the blue line on gums seen in lead poisoning?",
+                    options: ["Burton's line", "Lead sulfide line", "Melanotic line", "Cyanotic line"],
+                    correct: 1,
+                    rationale: "The text describes a 'Blue-black line on gums' due to Lead Sulfide formation, often called the 'Lead line'."
+                },
+                {
+                    id: 31,
+                    question: "Apoptosis is often referred to as 'cell suicide' because the cell plays an active role in its own death.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Apoptosis is a programmed process where the cell makes a decision to die involving active mechanisms."
+                },
+                {
+                    id: 32,
+                    question: "Dry gangrene is usually associated with a foul odor and rapid bacterial growth.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Moist gangrene is associated with a foul odor and rapid growth; Dry gangrene has little moisture which hinders bacterial growth."
+                },
+                {
+                    id: 33,
+                    question: "Hyperplasia can only occur in labile and stable cell populations.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Permanent cells (like neurons and cardiac muscle) cannot divide, so they cannot undergo hyperplasia."
+                },
+                {
+                    id: 34,
+                    question: "Anthracosis is a permanent but usually harmless pigmentation of the lungs.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Anthracosis (coal dust) is usually harmless unless contaminated with silica or iron."
+                },
+                {
+                    id: 35,
+                    question: "A hamartoma is a malignant neoplasm that spreads rapidly.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. A hamartoma is a benign, tumor-like mass of disorganized indigenous tissue, not a malignant neoplasm."
+                },
+                {
+                    id: 36,
+                    question: "Postmortem clots are typically attached firmly to the vessel wall.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Postmortem clots are not attached to the vessel wall; Thrombi (antemortem) are attached."
+                },
+                {
+                    id: 37,
+                    question: "Metaplasia involves the replacement of mature cells by less differentiated embryonic cells.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Metaplasia is the replacement of one type of *differentiated* (mature) cell with another type of *differentiated* cell."
+                },
+                {
+                    id: 38,
+                    question: "Somatic death is defined as the cessation of function in two out of the three vital organs.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Death is achieved after cessation of two out of the three vital organs (heart, lung, brain) for more than 5 minutes."
+                },
+                {
+                    id: 39,
+                    question: "Dystrophic calcification occurs in tissues with normal blood calcium levels.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Dystrophic calcification is local deposition in necrotic tissue despite normal serum calcium."
+                },
+                {
+                    id: 40,
+                    question: "Lipochrome is a pigment often found in cells undergoing atrophy.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Lipochrome (wear and tear pigment) is seen in atrophic cells, such as in brown atrophy of the heart."
+                }
+            ],
+            'inflammation': [
+                {
+                    id: 1,
+                    question: "Which term describes the increased amount of blood in the arterial side of the vascular system?",
+                    options: ["Active hyperemia", "Passive hyperemia", "Ischemia", "Thrombosis"],
+                    correct: 0,
+                    rationale: "Active hyperemia is defined as an increased amount of blood in the arterial side, typically due to physiological demand or inflammation."
+                },
+                {
+                    id: 2,
+                    question: "Which of the following is part of Virchow's Triad for thrombosis?",
+                    options: ["Hypocalcemia", "Hypercoagulability", "Decreased blood pressure", "Increased oxygen saturation"],
+                    correct: 1,
+                    rationale: "Virchow's Triad includes: Injury to endothelium, Alterations in blood flow, and Alterations in blood composition (Hypercoagulability)."
+                },
+                {
+                    id: 3,
+                    question: "Which type of shock is caused by the release of histamine hours after an injury?",
+                    options: ["Primary shock", "Secondary shock", "Septic shock", "Cardiogenic shock"],
+                    correct: 1,
+                    rationale: "Secondary shock occurs hours after injury and is associated with histamine release, unlike primary shock which is immediate (nervous)."
+                },
+                {
+                    id: 4,
+                    question: "What is the primary characteristic of fibrinous inflammation?",
+                    options: ["Production of pus", "Exudation of fibrinogen", "Excessive mucus secretion", "Hemorrhage"],
+                    correct: 1,
+                    rationale: "Fibrinous inflammation is characterized by the exudation of fibrinogen which clots to form fibrin (e.g., in Diphtheria)."
+                },
+                {
+                    id: 5,
+                    question: "Which cells are the 'gatekeepers' regulating cell proliferation during healing?",
+                    options: ["p53 and growth factors", "Histamine and serotonin", "Neutrophils and basophils", "Hemoglobin and myoglobin"],
+                    correct: 0,
+                    rationale: "Control of cell proliferation is regulated by p53 (gatekeeper) and various Growth Factors (PDGF, EGF, etc.)."
+                },
+                {
+                    id: 6,
+                    question: "Which type of healing occurs in wounds with separated edges and tissue loss?",
+                    options: ["First intention", "Second intention", "Primary union", "Resolution"],
+                    correct: 1,
+                    rationale: "Second intention healing (Secondary Union) occurs in wounds with separated edges or tissue loss, requiring abundant granulation tissue."
+                },
+                {
+                    id: 7,
+                    question: "What is the term for a spherical collection of blood?",
+                    options: ["Hematocyst", "Petechiae", "Ecchymoses", "Suffusion"],
+                    correct: 0,
+                    rationale: "A Hematocyst is defined as a spherical collection of blood, distinguishing it from flat hemorrhages like suffusions."
+                },
+                {
+                    id: 8,
+                    question: "Which outcome is most likely if an ischemic artery closes rapidly with poor anastomosis?",
+                    options: ["Atrophy", "No change", "Necrosis (Infarction)", "Hypertrophy"],
+                    correct: 2,
+                    rationale: "Rapid closure of an artery combined with poor anastomosis typically results in necrosis (Infarction)."
+                },
+                {
+                    id: 9,
+                    question: "Which stage of bone healing involves the formation of a soft callus?",
+                    options: ["Hematoma formation", "Fibrocartilaginous callus formation", "Bony callus formation", "Bone remodeling"],
+                    correct: 1,
+                    rationale: "The formation of the Soft Callus (Granulation tissue + Cartilage) occurs during the Fibrocartilaginous Callus Formation stage."
+                },
+                {
+                    id: 10,
+                    question: "Which type of edema is caused by heart failure?",
+                    options: ["Renal edema", "Nutritional edema", "Cardiac edema", "Inflammatory edema"],
+                    correct: 2,
+                    rationale: "Cardiac edema is a generalized edema caused by heart failure (increased venous hydrostatic pressure)."
+                },
+                {
+                    id: 11,
+                    question: "What is the defining characteristic of granulomatous inflammation?",
+                    options: ["Neutrophilic infiltration", "Granuloma formation", "Pus production", "Fluid exudation"],
+                    correct: 1,
+                    rationale: "Granulomatous inflammation is a type of chronic inflammation characterized by Granulomas (collections of activated macrophages)."
+                },
+                {
+                    id: 12,
+                    question: "Which mediator is responsible for the immediate pain sensation in inflammation?",
+                    options: ["Bradykinin", "Histamine", "Prostaglandins", "Complement"],
+                    correct: 0,
+                    rationale: "While not explicitly detailed in the mediator list in the text, Dolor (Pain) is a cardinal sign. In standard pathology, Bradykinin and Prostaglandins cause pain. Based on the text provided, Prostaglandins are the best fit among options usually taught."
+                },
+                {
+                    id: 13,
+                    question: "Which condition is an example of Type III Hypersensitivity?",
+                    options: ["Asthma", "Blood transfusion reaction", "Serum sickness", "Contact dermatitis"],
+                    correct: 2,
+                    rationale: "Type III (Immune Complex) hypersensitivity includes Serum sickness and Glomerulonephritis."
+                },
+                {
+                    id: 14,
+                    question: "What is the medical term for bleeding from the respiratory tract (expectoration)?",
+                    options: ["Hematemesis", "Hemoptysis", "Epistaxis", "Hematuria"],
+                    correct: 1,
+                    rationale: "Hemoptysis is defined as bleeding from the respiratory tract (expectoration)."
+                },
+                {
+                    id: 15,
+                    question: "Which enzyme converts Angiotensinogen to Angiotensin I during hypovolemic shock?",
+                    options: ["ACE", "Renin", "Aldosterone", "Vasopressin"],
+                    correct: 1,
+                    rationale: "Renin is released into the plasma and acts on Angiotensinogen to convert it to Angiotensin I."
+                },
+                {
+                    id: 16,
+                    question: "What is the term for 'Proud Flesh' in wound healing?",
+                    options: ["Keloid formation", "Exuberant granulation tissue", "Deficient scar", "Callus formation"],
+                    correct: 1,
+                    rationale: "Excessive granulation tissue is referred to as 'Proud Flesh' (Exuberant granulation tissue)."
+                },
+                {
+                    id: 17,
+                    question: "Which type of inflammation is characterized by the production of pus?",
+                    options: ["Serous inflammation", "Suppurative inflammation", "Fibrinous inflammation", "Catarrhal inflammation"],
+                    correct: 1,
+                    rationale: "Suppurative (Purulent) Inflammation is characterized by the production of Pus."
+                },
+                {
+                    id: 18,
+                    question: "Which cells are considered 'Labile' with rapid turnover?",
+                    options: ["Liver hepatocytes", "Neurons", "Epidermal cells", "Cardiac myocytes"],
+                    correct: 2,
+                    rationale: "Labile cells, such as those in the epidermis and GI mucosa, are continuously dividing and have rapid turnover."
+                },
+                {
+                    id: 19,
+                    question: "What is the primary cause of 'Nutmeg Liver'?",
+                    options: ["Acute active hyperemia", "Chronic passive congestion", "Biliary obstruction", "Fatty liver disease"],
+                    correct: 1,
+                    rationale: "Chronic passive congestion of the liver leads to the characteristic 'Nutmeg Liver' appearance."
+                },
+                {
+                    id: 20,
+                    question: "Which type of embolus is associated with fractures of long bones?",
+                    options: ["Thromboembolus", "Fat embolus", "Gas embolus", "Parasitic embolus"],
+                    correct: 1,
+                    rationale: "Bone marrow/fat embolism is associated with fractures."
+                },
+                {
+                    id: 21,
+                    question: "Which vascular change causes redness (Rubor) and hotness (Calor) in inflammation?",
+                    options: ["Vasoconstriction", "Increased permeability", "Vasodilation", "Stasis"],
+                    correct: 2,
+                    rationale: "Vasodilation increases blood flow to the area, causing redness (Rubor) and hotness (Calor)."
+                },
+                {
+                    id: 22,
+                    question: "What is the term for the passage of blood cells through intact vessel walls?",
+                    options: ["Rhexis", "Diapedesis", "Chemotaxis", "Phagocytosis"],
+                    correct: 1,
+                    rationale: "Hemorrhage by Diapedesis refers to the passage of blood cells through intact vessel walls."
+                },
+                {
+                    id: 23,
+                    question: "Which hormone is released to conserve water during hypovolemic shock?",
+                    options: ["Insulin", "Thyroxine", "ADH (Vasopressin)", "Cortisol"],
+                    correct: 2,
+                    rationale: "The pituitary gland releases Antidiuretic Hormone (ADH/Vasopressin) to conserve water from the lower nephrons."
+                },
+                {
+                    id: 24,
+                    question: "Which type of gangrene occurs in the internal organs due to rich blood supply?",
+                    options: ["Dry gangrene", "Moist gangrene", "Gas gangrene", "Primary gangrene"],
+                    correct: 1,
+                    rationale: "Moist gangrene occurs in internal organs due to rich blood supply, moisture, and warmth favoring bacterial growth."
+                },
+                {
+                    id: 25,
+                    question: "What is the term for a localized abscess in a hair follicle?",
+                    options: ["Carbuncle", "Furuncle", "Phlegmon", "Pustule"],
+                    correct: 1,
+                    rationale: "A Furuncle is a localized abscess in a hair follicle/subcutaneous tissue."
+                },
+                {
+                    id: 26,
+                    question: "Which cells are predominant in the late stages of acute inflammation and chronic inflammation?",
+                    options: ["Neutrophils", "Macrophages", "Eosinophils", "Basophils"],
+                    correct: 1,
+                    rationale: "Macrophages (along with lymphocytes and plasma cells) are predominant in chronic inflammation."
+                },
+                {
+                    id: 27,
+                    question: "What is the outcome of a thrombus that becomes organized?",
+                    options: ["It dissolves completely", "It becomes calcified or fibrous", "It travels to the lungs", "It turns into pus"],
+                    correct: 1,
+                    rationale: "Organization of a thrombus involves the ingrowth of fibroblasts and capillaries, turning it into fibrous tissue (scar)."
+                },
+                {
+                    id: 28,
+                    question: "Which type of hypersensitivity involves IgE antibodies?",
+                    options: ["Type I", "Type II", "Type III", "Type IV"],
+                    correct: 0,
+                    rationale: "Type I (Immediate) hypersensitivity is mediated by IgE antibodies binding to mast cells."
+                },
+                {
+                    id: 29,
+                    question: "What is the term for fluid accumulation in the peritoneal cavity?",
+                    options: ["Hydrothorax", "Anasarca", "Ascites", "Hydropericardium"],
+                    correct: 2,
+                    rationale: "Ascites is the specific term for edema/fluid accumulation in the peritoneal cavity."
+                },
+                {
+                    id: 30,
+                    question: "Which factor delays wound healing by destroying collagen?",
+                    options: ["Vitamin C", "Zinc", "Bacterial infection", "Oxygen"],
+                    correct: 2,
+                    rationale: "Infection delays healing because bacterial endotoxins prolong inflammation and destroy collagen."
+                },
+                {
+                    id: 31,
+                    question: "Acute inflammation is always harmful to the host.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. On the whole, inflammation and repair are beneficial, though they can be harmful in hypersensitivity."
+                },
+                {
+                    id: 32,
+                    question: "Phlegmon is a localized collection of pus.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Phlegmon is a *diffuse* spreading of purulent inflammation; an Abscess is localized."
+                },
+                {
+                    id: 33,
+                    question: "Hypovolemic shock leads to arterial vasoconstriction.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. As a compensatory mechanism, arterial vasoconstriction occurs to increase peripheral resistance."
+                },
+                {
+                    id: 34,
+                    question: "Permanent cells like cardiac myocytes have high regenerative capability.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Permanent cells are terminally differentiated and have *no* regenerative capability."
+                },
+                {
+                    id: 35,
+                    question: "Transudate accumulates due to increased vascular permeability in inflammation.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. *Exudate* accumulates due to increased permeability (inflammation). Transudate accumulates due to pressure changes (e.g., heart failure)."
+                },
+                {
+                    id: 36,
+                    question: "First intention healing involves wound contraction as a key feature.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Wound contraction is a key feature of *Second Intention* healing, not First Intention."
+                },
+                {
+                    id: 37,
+                    question: "Renin is an enzyme released by the liver.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Renin is released by the juxtaglomerular apparatus of the *kidneys*."
+                },
+                {
+                    id: 38,
+                    question: "Ischemia refers to a local deficiency of arterial blood.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Ischemia is defined as local deficiency of arterial blood in a portion of an organ."
+                },
+                {
+                    id: 39,
+                    question: "Type IV hypersensitivity is mediated by antibodies.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    rationale: "False. Type IV is cell-mediated (T-lymphocytes) and involves *no* antibodies."
+                },
+                {
+                    id: 40,
+                    question: "Aldosterone increases salt and water resorption by the renal tubules.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    rationale: "True. Aldosterone is increased during shock to help resorb salt and water to maintain blood volume."
+                }
+            ]
+        };
+
+        const TITLES = {
+            'general_clinical': 'General & Clinical Pathology',
+            'clinical': 'Clinical Pathology Quiz',
+            'general': 'General Pathology Quiz',
+            'cell_injury': 'Cell Injury, Adaptations & Anomalies',
+            'inflammation': 'Inflammation, Healing & Circulation'
+        };
+
+        // --- APP STATE ---
+        let currentQuizData = [];
+        let score = 0;
+        let answeredCount = 0;
+        let currentQuizId = '';
+
+        // --- VIEW CONTROLLERS ---
+        function showHome() {
+            document.getElementById('home-screen').classList.remove('hidden-content');
+            document.getElementById('quiz-screen').classList.add('hidden-content');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startQuiz(quizId) {
+            currentQuizId = quizId;
+            document.getElementById('home-screen').classList.add('hidden-content');
+            document.getElementById('quiz-screen').classList.remove('hidden-content');
+            
+            // Set Title
+            document.getElementById('quiz-title').innerText = TITLES[quizId];
+            
+            // Prepare Data
+            const rawData = ALL_QUIZZES[quizId];
+            
+            // Shuffle Questions and Options
+            currentQuizData = rawData.map(q => {
+                const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+                // Fisher-Yates shuffle for options
+                for (let i = opts.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [opts[i], opts[j]] = [opts[j], opts[i]];
+                }
+                return { 
+                    ...q, 
+                    options: opts.map(o => o.text), 
+                    correct: opts.findIndex(o => o.isCorrect) 
+                };
+            });
+            // Shuffle questions themselves
+            for (let i = currentQuizData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentQuizData[i], currentQuizData[j]] = [currentQuizData[j], currentQuizData[i]];
+            }
+
+            // Reset Counters
+            score = 0;
+            answeredCount = 0;
+            document.getElementById('result-summary').classList.add('hidden-content');
+            
+            renderQuiz();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function restartCurrentQuiz() {
+            startQuiz(currentQuizId);
+        }
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${currentQuizData.length}`;
+            const container = document.getElementById('quiz-container');
+            
+            container.innerHTML = currentQuizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                        ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = currentQuizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            
+            // Prevent multiple clicks
+            if (!feedback.classList.contains('hidden-content')) return;
+            
+            feedback.classList.remove('hidden-content');
+            
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { 
+                    btn.classList.add('correct-answer'); 
+                    btn.innerHTML += '<i class="fas fa-check float-right"></i>'; 
+                }
+                else if (i === optIndex) { 
+                    btn.classList.add('wrong-answer'); 
+                    btn.innerHTML += '<i class="fas fa-times float-right"></i>'; 
+                }
+                else { 
+                    btn.classList.add('opacity-50'); 
+                }
+            });
+
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+
+            if (answeredCount === currentQuizData.length) {
+                const summary = document.getElementById('result-summary');
+                summary.classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                
+                const percentage = (score / currentQuizData.length) * 100;
+                let message = "";
+                if (percentage >= 90) message = "Outstanding! You are a master.";
+                else if (percentage >= 75) message = "Great job! Keep it up.";
+                else if (percentage >= 50) message = "Good effort, but review the weak points.";
+                else message = "Keep studying and try again!";
+                
+                document.getElementById('score-message').innerText = message;
+                
+                setTimeout(() => {
+                    summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500);
+            }
+        };
+
+    </script>
+</body>
+</html>
