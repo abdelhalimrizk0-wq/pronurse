@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Therapeutic Nutrition For Chronic Diseases</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 50 QUESTIONS HERE) ---
+        const rawQuizData = [
+            { id: 1, question: "What is the recommended daily protein intake for a patient undergoing hemodialysis?", options: ["Zero point six to zero point eight grams", "Zero point eight to one point zero grams", "One point zero to one point two grams", "One point two to one point five grams"], correct: 2, rationale: "Protein requirements increase significantly (1.0-1.2 g/kg of ideal body weight) due to protein losses during hemodialysis." },
+            { id: 2, question: "Soaking and boiling vegetables is an effective strategy to reduce their potassium content for renal patients.", options: ["True", "False"], correct: 0, rationale: "Patients should be taught how to leach potassium from some vegetables like potatoes by soaking and boiling." },
+            { id: 3, question: "Which type of diet is most commonly prescribed for patients recovering from dental surgery?", options: ["High fiber diet prescription", "Gluten free diet prescription", "Renal specific diet prescription", "Soft food diet prescription"], correct: 3, rationale: "A soft diet includes easy-to-chew and easy-to-digest foods, often prescribed after dental surgery or for digestive issues." },
+            { id: 4, question: "How many daily servings of whole grains are recommended in the standard DASH diet plan?", options: ["Two to three daily servings", "Four to five daily servings", "Six to eight daily servings", "Nine to eleven daily servings"], correct: 2, rationale: "The DASH diet recommends 6-8 servings of grains daily, with a strong focus on whole grains." },
+            { id: 5, question: "What is the maximum recommended percentage of total daily calories from saturated fat for individuals with diabetes?", options: ["Five percent of total calories", "Seven percent of total calories", "Ten percent of total calories", "Fifteen percent of total calories"], correct: 1, rationale: "Total fat intake should be 25-35% of daily calories, with saturated fat strictly limited to less than 7%." },
+            { id: 6, question: "Fluid restriction is highly recommended for all patients with hepatic ascites regardless of serum sodium levels.", options: ["True", "False"], correct: 1, rationale: "Fluid restriction is generally not recommended unless serum sodium levels are very low (hyponatremia)." },
+            { id: 7, question: "What is the general daily energy requirement recommended for patients with liver disease per kilogram of ideal body weight?", options: ["Fifteen to twenty kilocalories", "Twenty to twenty five kilocalories", "Twenty five to forty kilocalories", "Forty to fifty kilocalories"], correct: 2, rationale: "Generally, 25-40 kcal/kg of ideal body weight per day is recommended depending on disease severity." },
+            { id: 8, question: "What percentage of the body calcium is stored within the bones and teeth?", options: ["Eighty percent of body calcium", "Ninety percent of body calcium", "Ninety five percent of body calcium", "Ninety nine percent of body calcium"], correct: 3, rationale: "Calcium is the most abundant mineral in the body, with 99% stored safely in bones and teeth." },
+            { id: 9, question: "The Dietary Approaches to Stop Hypertension eating plan encourages a high intake of dietary sodium to maintain fluid balance.", options: ["True", "False"], correct: 1, rationale: "The DASH diet aims for reduced sodium intake, typically 2,300 mg/day or ideally 1,500 mg/day for intensive reduction." },
+            { id: 10, question: "What percentage of total daily calories should generally be derived from protein for an individual with diabetes?", options: ["Ten to fifteen percent", "Fifteen to twenty percent", "Twenty to thirty percent", "Thirty to forty percent"], correct: 1, rationale: "Protein intake should generally be 15-20% of total daily calories for diabetic patients." },
+            { id: 11, question: "How is the daily fluid allowance typically calculated for a dialysis patient?", options: ["Urine output plus five hundred to one thousand milliliters", "Urine output plus one thousand to fifteen hundred milliliters", "Urine output plus fifteen hundred to two thousand milliliters", "Urine output plus two thousand to twenty five hundred milliliters"], correct: 0, rationale: "For dialysis patients, the fluid allowance is typically calculated as urine output plus 500-1000 mL/day." },
+            { id: 12, question: "Why is a late evening snack highly beneficial for patients with chronic liver disease?", options: ["It prevents nocturnal hypoglycemia", "It reduces fluid accumulation", "It decreases ammonia production", "It promotes bile secretion"], correct: 0, rationale: "A late-evening snack prevents prolonged fasting, which can exacerbate muscle breakdown and lead to nocturnal hypoglycemia." },
+            { id: 13, question: "Vitamin K plays a crucial role in the synthesis of proteins required for optimal bone mineralization.", options: ["True", "False"], correct: 0, rationale: "Vitamin K is found in green leafy vegetables and is actively involved in the synthesis of proteins important for bone mineralization." },
+            { id: 14, question: "What is the primary goal of nutrient correction in therapeutic nutrition?", options: ["To promote healthy weight loss", "To cure specific genetic diseases", "To address nutrient deficiencies", "To enhance athletic performance"], correct: 2, rationale: "Therapeutic diets are used directly to correct nutrient deficiencies or imbalances, such as in iron-deficiency anemia." },
+            { id: 15, question: "How many daily servings of fruits are recommended in a standard heart healthy diet?", options: ["Two to three daily servings", "Four to five daily servings", "Six to seven daily servings", "Eight to nine daily servings"], correct: 1, rationale: "A heart-healthy diet recommends consuming a wide variety of fruits and vegetables daily, aiming for 4-5 servings of each." },
+            { id: 16, question: "According to the specific diabetic diet chart provided what is the total daily carbohydrate allocation?", options: ["One hundred fifty grams", "Two hundred grams", "Two hundred fifty grams", "Three hundred grams"], correct: 2, rationale: "The visual chart data strictly specifies 250gm of carbohydrates for a 1600 kcal/day diabetic diet." },
+            { id: 17, question: "The DASH diet completely eliminates the consumption of all sweets and added sugars from the daily meal plan.", options: ["True", "False"], correct: 1, rationale: "Sweets and added sugars are limited to 5 servings or less per week, not completely eliminated." },
+            { id: 18, question: "Which fat soluble vitamin is often elevated in chronic kidney disease and should generally not be supplemented?", options: ["Dietary vitamin A", "Dietary vitamin D", "Dietary vitamin E", "Dietary vitamin K"], correct: 0, rationale: "Vitamin A is often naturally elevated in CKD patients and should not be supplemented to prevent severe toxicity." },
+            { id: 19, question: "What is the current dietary recommendation regarding protein intake for patients with hepatic encephalopathy?", options: ["Strict dietary protein restriction", "Adequate dietary protein intake", "Complete dietary protein avoidance", "Intermittent dietary protein fasting"], correct: 1, rationale: "Historically restricted, current medical guidelines emphasize adequate protein intake to prevent sarcopenia and improve patient outcomes." },
+            { id: 20, question: "Which meal planning strategy is most recommended for regulating blood glucose levels and preventing extreme fluctuations?", options: ["Skipping all morning meals", "Eating large infrequent meals", "Maintaining consistent mealtimes", "Consuming calories at night"], correct: 2, rationale: "Consistent mealtimes are strongly encouraged to help regulate blood glucose levels and prevent extreme fluctuations." },
+            { id: 21, question: "Dietary calcium intake in chronic kidney disease is often managed completely independently of phosphorus levels.", options: ["True", "False"], correct: 1, rationale: "Calcium intake is intimately managed in conjunction with phosphorus, specifically considering calcium-containing phosphate binders." },
+            { id: 22, question: "How does high dietary sodium intake primarily affect overall bone health?", options: ["It reduces bone collagen production", "It increases urinary calcium excretion", "It blocks intestinal vitamin absorption", "It impairs osteoblast cellular function"], correct: 1, rationale: "High sodium intake can increase urinary calcium excretion, which directly and negatively impacts long-term bone health." },
+            { id: 23, question: "Which type of dietary fat should be entirely avoided to minimize cardiovascular disease risk?", options: ["Monounsaturated dietary fats", "Polyunsaturated dietary fats", "Saturated animal dietary fats", "Artificial trans dietary fats"], correct: 3, rationale: "Trans fats, often found in partially hydrogenated oils and processed foods, should be avoided entirely for heart health." },
+            { id: 24, question: "Why are medium chain triglycerides highly beneficial for patients experiencing fat malabsorption due to liver disease?", options: ["They stimulate hepatic bile production", "They bypass normal portal circulation", "They absorb without requiring bile salts", "They reduce chronic liver inflammation"], correct: 2, rationale: "MCTs are beneficial as they do not require bile salts for absorption and are directly absorbed into the portal circulation." },
+            { id: 25, question: "Foods with a low glycemic index cause a slower and lower rise in blood glucose compared to high glycemic foods.", options: ["True", "False"], correct: 0, rationale: "Low GI foods cause a slower, more gradual rise in blood glucose compared to the rapid spike from high GI foods." },
+            { id: 26, question: "Which therapeutic dietary modification is strictly essential for managing a patient diagnosed with celiac disease?", options: ["Strict low sodium dietary plan", "Strict gluten free dietary plan", "Strict high fiber dietary plan", "Strict low protein dietary plan"], correct: 1, rationale: "A gluten-free diet strictly excludes all gluten for individuals managing celiac disease or severe gluten sensitivity." },
+            { id: 27, question: "What is the exact total daily calorie count specified in the osteoporosis diet chart provided in the lecture?", options: ["Exactly two thousand calories", "Exactly two thousand five hundred calories", "Exactly two thousand seven hundred thirty calories", "Exactly three thousand calories"], correct: 2, rationale: "The formal osteoporosis diet chart explicitly specifies a daily total of 2730 kcals/day." },
+            { id: 28, question: "How many servings of nuts seeds and legumes are recommended per week on the standard DASH diet?", options: ["One to two weekly servings", "Two to three weekly servings", "Four to five weekly servings", "Six to seven weekly servings"], correct: 2, rationale: "The DASH diet generally recommends incorporating 4-5 servings of nuts, seeds, and legumes per week." },
+            { id: 29, question: "Regular weight bearing exercises are considered strictly essential for building and maintaining optimal bone density.", options: ["True", "False"], correct: 0, rationale: "Regular weight-bearing and muscle-strengthening exercises are absolutely essential for building and maintaining healthy bone density." },
+            { id: 30, question: "What is the typical daily phosphorus restriction threshold for a patient suffering from chronic kidney disease?", options: ["Four hundred to six hundred milligrams", "Eight hundred to one thousand milligrams", "Twelve hundred to fourteen hundred milligrams", "Sixteen hundred to eighteen hundred milligrams"], correct: 1, rationale: "Phosphorus intake is often heavily restricted to 800-1,000 mg/day for CKD patients to prevent severe hyperphosphatemia." },
+            { id: 31, question: "Which specific type of amino acid supplementation may improve nitrogen balance in severe hepatic encephalopathy?", options: ["Aromatic essential amino acids", "Standard essential amino acids", "Branched chain amino acids", "Sulfur containing amino acids"], correct: 2, rationale: "Branched-Chain Amino Acids (BCAAs) supplementation may significantly improve nitrogen balance and reduce circulating ammonia levels." },
+            { id: 32, question: "What is the ideal daily sodium intake goal for most adults aiming to actively lower their blood pressure?", options: ["Exactly one thousand milligrams", "Exactly one thousand five hundred milligrams", "Exactly two thousand milligrams", "Exactly two thousand five hundred milligrams"], correct: 1, rationale: "The recommendation is to reduce sodium intake to less than 2,300 mg/day, ideally aiming for 1,500 mg/day for maximum benefit." },
+            { id: 33, question: "The absolute cornerstone of dietary management for hepatic ascites is a high sodium diet to pull fluids into the vascular space.", options: ["True", "False"], correct: 1, rationale: "A low-sodium diet (typically 2,000 mg/day or less) is the actual cornerstone of ascites management to reduce pathological fluid retention." },
+            { id: 34, question: "What does the medical nutrition therapy concept primarily involve in clinical healthcare settings?", options: ["Administering generic oral medications", "Diagnosing specific surgical conditions", "Assessing overall nutritional status", "Prescribing rigorous physical therapy"], correct: 2, rationale: "MNT fundamentally involves the assessment of nutritional status, clinical diagnosis of nutritional problems, and targeted provision of nutrition care." },
+            { id: 35, question: "What specific dietary modification is often required for diabetic individuals who subsequently develop diabetic nephropathy?", options: ["Substantially increased fat intake", "Carefully adjusted protein intake", "Complete daily carbohydrate elimination", "Strict intravenous fluid restriction"], correct: 1, rationale: "For individuals with complications like diabetic nephropathy, overall daily protein intake may need to be carefully adjusted under medical supervision." },
+            { id: 36, question: "Why is a much lower protein intake recommended for non dialysis dependent chronic kidney disease patients?", options: ["To increase total muscle mass", "To slow overall disease progression", "To improve systemic insulin sensitivity", "To elevate resting blood pressure"], correct: 1, rationale: "A lower protein intake actively reduces the accumulation of toxic nitrogenous waste products and potentially slows kidney disease progression." },
+            { id: 37, question: "Dietary fiber directly helps accelerate glucose absorption leading to a rapid rise in systemic blood sugar levels.", options: ["True", "False"], correct: 1, rationale: "Dietary fiber actually helps slow glucose absorption, actively leading to a much more gradual rise in blood sugar." },
+            { id: 38, question: "How many daily servings of low fat dairy products are explicitly included in the DASH diet plan?", options: ["Exactly one daily serving", "Two to three daily servings", "Four to five daily servings", "Exactly six daily servings"], correct: 1, rationale: "The widely utilized DASH diet specifically includes 2-3 daily servings of low-fat or fat-free dairy products." },
+            { id: 39, question: "How does adequate dietary protein intake contribute most directly and specifically to overall bone health?", options: ["It forms the primary bone matrix", "It replaces depleted calcium stores", "It synthesizes active vitamin molecules", "It blocks destructive osteoclast activity"], correct: 0, rationale: "Protein serves as a major structural component of the bone matrix, making adequate intake critically necessary for lifelong bone health." },
+            { id: 40, question: "What is a primary cardiovascular benefit of incorporating complex carbohydrates and soluble fiber into the daily diet?", options: ["It increases resting blood pressure", "It lowers systemic blood cholesterol", "It promotes rapid blood clotting", "It elevates dangerous blood triglycerides"], correct: 1, rationale: "Adequate dietary fiber heavily helps lower systemic cholesterol and blood pressure, protecting against cellular damage and cardiovascular disease." },
+            { id: 41, question: "Which specific group of dietary foods should be strictly limited in a renal diet due to very high potassium content?", options: ["Fresh apples and sweet berries", "Ripe bananas and fresh avocados", "Processed white rice and plain pasta", "Raw green cabbage and crisp lettuce"], correct: 1, rationale: "High-potassium foods that must be strictly limited include items like bananas, oranges, potatoes, tomatoes, and fresh avocados." },
+            { id: 42, question: "What exact percentage of total caloric intake should carbohydrates typically constitute for stable liver disease patients?", options: ["Twenty to thirty total percent", "Thirty to forty total percent", "Forty to fifty total percent", "Fifty to sixty total percent"], correct: 3, rationale: "Complex carbohydrates should ideally constitute the remaining major portion of the daily caloric intake, typically 50-60%." },
+            { id: 43, question: "What is the maximum daily sodium intake strictly recommended by the Malaysian Dietary Guidelines for the DASH diet?", options: ["Exactly one thousand milligrams", "Exactly one thousand five hundred milligrams", "Exactly two thousand milligrams", "Exactly two thousand four hundred milligrams"], correct: 2, rationale: "The Malaysian Dietary Guidelines (MDG) officially recommend consuming absolutely not more than 2000 mg of sodium per day." },
+            { id: 44, question: "Which dietary mineral plays a vital role in bone formation and directly influences the activities of osteoblasts and osteoclasts?", options: ["Dietary magnesium mineral", "Dietary potassium mineral", "Dietary phosphorus mineral", "Dietary selenium mineral"], correct: 0, rationale: "Magnesium actively plays a profound role in ongoing bone formation and biologically influences the delicate activities of osteoblasts and osteoclasts." },
+            { id: 45, question: "Which specific therapeutic dietary pattern inherently restricts fluid protein sodium potassium and phosphorus intake?", options: ["The standard diabetic diet", "The standard renal diet", "The standard cardiac diet", "The standard hepatic diet"], correct: 1, rationale: "A strict renal diet effectively restricts fluid, protein, sodium, potassium, and phosphorus specifically for patients with advanced kidney disease." },
+            { id: 46, question: "Why are whole grains strictly preferred over refined grains in a comprehensive heart healthy dietary plan?", options: ["They lack essential added vitamins", "They provide less dietary fiber", "They digest much faster overall", "They retain their bran and germ"], correct: 3, rationale: "Whole grains thoroughly retain their bran, germ, and endosperm, providing substantially more vital fiber, B vitamins, and key minerals." },
+            { id: 47, question: "What exact meal frequency is generally recommended to strictly prevent prolonged fasting in severe liver disease patients?", options: ["Exactly two large meals daily", "Exactly three standard meals daily", "Four to six small meals daily", "One very large meal daily"], correct: 2, rationale: "Consuming small frequent meals (4-6 meals per day) and a targeted late-evening snack are highly beneficial to proactively prevent prolonged fasting." },
+            { id: 48, question: "According to the specific diabetic diet chart visually provided in the lecture how much iron is allocated per day?", options: ["Exactly ten milligrams daily", "Exactly fifteen milligrams daily", "Exactly seventeen milligrams daily", "Exactly twenty milligrams daily"], correct: 2, rationale: "The specific Diabetic Diet Chart explicitly visually specifies 17 mg of iron allocation per day." },
+            { id: 49, question: "Which specific daily supplement is frequently required in chronic kidney disease to manage the commonly associated anemia?", options: ["Daily oral calcium supplements", "Daily oral iron supplements", "Daily oral vitamin supplements", "Daily oral potassium supplements"], correct: 1, rationale: "Clinical anemia is extremely common in CKD, making regular direct iron supplementation frequently and medically necessary." },
+            { id: 50, question: "What is the recommended daily intake of vitamin D for adults over the age of seventy to ensure optimal bone health?", options: ["Four hundred international units", "Six hundred international units", "Eight hundred international units", "One thousand international units"], correct: 2, rationale: "The medically recommended daily intake for adults over 70 physically increases to 800 IU (20 mcg) for ideal protection." }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

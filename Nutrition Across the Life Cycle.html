@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Nutrition Across the Life Cycle Quiz</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 50 QUESTIONS HERE) ---
+        const rawQuizData = [
+            { 
+                id: 1, 
+                question: "Colostrum is the primary milk produced during the late stages of breastfeeding to provide high energy density.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Colostrum is the first milk produced soon after delivery, made specifically to protect the newborn from illness and expel the first stool." 
+            },
+            { 
+                id: 2, 
+                question: "Which physiological change characterizes the metabolic rate during the early and middle adulthood phases?", 
+                options: ["It accelerates significantly", "It remains entirely static", "It tends to slow down", "It fluctuates unpredictably"], 
+                correct: 2, 
+                rationale: "Metabolism naturally tends to slow down as individuals age through adulthood, requiring careful weight management." 
+            },
+            { 
+                id: 3, 
+                question: "Which specific nutrient requires careful monitoring in older adults due to naturally impaired intestinal absorption?", 
+                options: ["Vitamin C", "Vitamin B12", "Vitamin E", "Vitamin K"], 
+                correct: 1, 
+                rationale: "Vitamin B12 absorption may be significantly impaired in older adults, requiring dietary focus." 
+            },
+            { 
+                id: 4, 
+                question: "What is the estimated daily caloric requirement for an average ten year old child?", 
+                options: ["One thousand calories", "One thousand four hundred calories", "Two thousand calories", "Two thousand five hundred calories"], 
+                correct: 2, 
+                rationale: "By age ten, the average child requires approximately two thousand calories daily to support growth and activity." 
+            },
+            { 
+                id: 5, 
+                question: "Which micronutrient is prominently highlighted to prevent neural tube defects during fetal development?", 
+                options: ["Dietary iron", "Dietary calcium", "Dietary folate", "Dietary iodine"], 
+                correct: 2, 
+                rationale: "Pregnant women require increased folate specifically to prevent neural tube defects in the developing fetus." 
+            },
+            { 
+                id: 6, 
+                question: "How long can expressed breast milk be safely stored at room temperature before feeding?", 
+                options: ["Four hours", "Eight hours", "Twelve hours", "Twenty four hours"], 
+                correct: 1, 
+                rationale: "Expressed breast milk can be safely kept in clean covered containers at room temperature for up to eight hours." 
+            },
+            { 
+                id: 7, 
+                question: "Peak bone mass is typically achieved during the adolescent years making adequate calcium intake crucial.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "Adolescence is the period when peak bone mass is achieved, demanding optimal calcium and Vitamin D intake." 
+            },
+            { 
+                id: 8, 
+                question: "What is the primary physiological purpose of ensuring an adequate protein intake in the elderly population?", 
+                options: ["To prevent muscle loss", "To enhance night vision", "To increase bone density", "To cure joint stiffness"], 
+                correct: 0, 
+                rationale: "Adequate protein intake is essential in older adulthood to prevent sarcopenia, which is age-related muscle loss." 
+            },
+            { 
+                id: 9, 
+                question: "Which component of breast milk is specifically described as being more nutritious and highly energy dense?", 
+                options: ["Foremilk", "Colostrum", "Hindmilk", "Secretion"], 
+                correct: 2, 
+                rationale: "Hindmilk is more nutritious and energy-dense compared to the thirst-quenching foremilk." 
+            },
+            { 
+                id: 10, 
+                question: "What is the recommended daily milk intake for a growing child between six and twelve years of age?", 
+                options: ["One cup daily", "Two cups daily", "Three cups daily", "Four cups daily"], 
+                correct: 2, 
+                rationale: "Three cups of milk per day are recommended for children from six to twelve years of age." 
+            },
+            { 
+                id: 11, 
+                question: "When should breastfeeding ideally be initiated following the successful birth of a healthy infant?", 
+                options: ["Within thirty minutes", "After sixty minutes", "Within two hours", "After twelve hours"], 
+                correct: 0, 
+                rationale: "Breastfeeding should be initiated within thirty minutes after birth to stimulate milk production and reduce bleeding." 
+            },
+            { 
+                id: 12, 
+                question: "Breastfeeding mothers generally require a much lower energy and fluid intake compared to when they were pregnant.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Lactating mothers have even higher energy and fluid requirements than during pregnancy to adequately support milk production." 
+            },
+            { 
+                id: 13, 
+                question: "What is the estimated daily caloric requirement for an average preschool child at four years of age?", 
+                options: ["One thousand calories", "One thousand four hundred calories", "One thousand eight hundred calories", "Two thousand calories"], 
+                correct: 1, 
+                rationale: "A four year old child needs about one thousand four hundred calories per day." 
+            },
+            { 
+                id: 14, 
+                question: "Which specific nutritional supplement is frequently recommended for exclusively breastfed infants to prevent bone softening?", 
+                options: ["Dietary fiber", "Ascorbic acid", "Vitamin D", "Potassium"], 
+                correct: 2, 
+                rationale: "Vitamin D supplementation is often recommended for breastfed infants to heavily support bone health and development." 
+            },
+            { 
+                id: 15, 
+                question: "What is the minimum recommended daily fluid intake for older adults even when they do not actively feel thirsty?", 
+                options: ["One liter", "Two liters", "Three liters", "Four liters"], 
+                correct: 1, 
+                rationale: "Older adults should drink at least two liters of water a day because their natural thirst drive is greatly reduced." 
+            },
+            { 
+                id: 16, 
+                question: "Which dietary requirement becomes critically elevated for adolescent girls specifically due to regular menstruation?", 
+                options: ["Zinc requirements", "Calcium requirements", "Iron requirements", "Protein requirements"], 
+                correct: 2, 
+                rationale: "Adolescent girls have significantly increased iron requirements due to regular blood loss during menstruation." 
+            },
+            { 
+                id: 17, 
+                question: "Adequate dietary fiber intake is essential during adulthood to help manage blood sugar and cholesterol levels effectively.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "Fiber supports overall digestive health and actively helps manage blood sugar and cholesterol levels during adulthood." 
+            },
+            { 
+                id: 18, 
+                question: "At what specific infant age should nutritious solid foods be introduced alongside continued daily breastfeeding?", 
+                options: ["Around three months", "Around four months", "Around six months", "Around nine months"], 
+                correct: 2, 
+                rationale: "Around six months of age, infants are physiologically ready for the introduction of complementary solid foods." 
+            },
+            { 
+                id: 19, 
+                question: "Which food group is highly recommended for menopausal women to help secure their critically required calcium intake?", 
+                options: ["Refined carbohydrates", "Green leafy vegetables", "Red meat products", "Citrus fruit juices"], 
+                correct: 1, 
+                rationale: "Menopausal women should prominently eat foods rich in calcium such as green leafy vegetables and dairy products." 
+            },
+            { 
+                id: 20, 
+                question: "Why do pregnant women specifically require an increased dietary intake of iron throughout their gestation period?", 
+                options: ["To prevent neural tube defects", "To support increased blood volume", "To enhance digestive health", "To improve immune function"], 
+                correct: 1, 
+                rationale: "Pregnant women need additional iron to support their increased blood volume and optimal fetal development." 
+            },
+            { 
+                id: 21, 
+                question: "Which external factor significantly influences the dietary patterns and eating habits of adolescents during their school years?", 
+                options: ["Peer influence", "Fixed daily routines", "Decreased metabolic rates", "Early childhood memories"], 
+                correct: 0, 
+                rationale: "Peer influence, body image concerns, and mass media greatly impact the dietary choices made in adolescence." 
+            },
+            { 
+                id: 22, 
+                question: "By two years of age, what is the recommended frequency for feeding a growing child solid and family foods?", 
+                options: ["Two times daily", "Three times daily", "Four times daily", "Five times daily"], 
+                correct: 3, 
+                rationale: "The amount and frequency of feeding should gradually increase to five times a day starting from two years of age." 
+            },
+            { 
+                id: 23, 
+                question: "Breastfeeding should be temporarily stopped when introducing complementary solid foods to the developing infant.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Solid foods should always be introduced alongside continued breastfeeding on demand for up to two years." 
+            },
+            { 
+                id: 24, 
+                question: "What is the primary physiological benefit of the newborn infant consuming the foremilk during a routine breastfeeding session?", 
+                options: ["It provides immune cells", "It quenches infant thirst", "It delivers high energy", "It expels dark stool"], 
+                correct: 1, 
+                rationale: "During a feed, the foremilk effectively quenches the baby's thirst, while the subsequent hindmilk provides dense energy." 
+            },
+            { 
+                id: 25, 
+                question: "Which sensory or physical change heavily dictates the need for meals to be highly appetizing for older adults?", 
+                options: ["Enhanced taste buds", "Diminished thirst drive", "Loss of some senses", "Heightened smell perception"], 
+                correct: 2, 
+                rationale: "Meals should be highly nourishing and appetizing since some senses may be lost naturally in older adulthood." 
+            },
+            { 
+                id: 26, 
+                question: "How long is exclusive breastfeeding officially recommended as the absolute sole source of nutrition for a newborn?", 
+                options: ["First three months", "First six months", "First nine months", "First twelve months"], 
+                correct: 1, 
+                rationale: "Exclusive breastfeeding is strongly recommended as the sole source of nutrition for the first six months." 
+            },
+            { 
+                id: 27, 
+                question: "Why is the early initiation of breastfeeding considered highly beneficial for the mother immediately following childbirth?", 
+                options: ["It prevents postnatal mood disorders", "It restores maternal vitamin levels", "It helps reduce postpartum bleeding", "It increases maternal bone density"], 
+                correct: 2, 
+                rationale: "Initiating breastfeeding early safely helps expel the placenta and significantly reduces postpartum bleeding." 
+            },
+            { 
+                id: 28, 
+                question: "Which specific food item is strictly advised against during pregnancy to avoid potential exposure to harmful substances?", 
+                options: ["Cooked legumes", "Pasteurized dairy", "Roasted nuts", "Raw fish"], 
+                correct: 3, 
+                rationale: "Pregnant women should completely avoid harmful substances and foods like raw fish and unpasteurized dairy." 
+            },
+            { 
+                id: 29, 
+                question: "What is a common negative nutritional behavior frequently observed and monitored during the school age period?", 
+                options: ["Excessive protein intake", "Severe fluid retention", "Breakfast skipping", "Extreme sodium depletion"], 
+                correct: 2, 
+                rationale: "Common nutritional concerns during this specific age group heavily include breakfast skipping and increased soft drink consumption." 
+            },
+            { 
+                id: 30, 
+                question: "What is the exact recommended daily caloric intake for an average infant who has reached one year of age?", 
+                options: ["Eight hundred calories", "One thousand calories", "One thousand two hundred calories", "One thousand five hundred calories"], 
+                correct: 1, 
+                rationale: "A one year old child requires exactly one thousand calories per day to properly support optimal physical growth." 
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>
