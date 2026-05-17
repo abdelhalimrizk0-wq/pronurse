@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Lecture 4: Quality Teams</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY ---
+        const rawQuizData = [
+            { 
+                id: 1, 
+                question: "Which specific type of quality team focuses entirely on managing supply chain quality?", 
+                options: ["Supplier Quality", "Process Quality", "Operational Quality", "Product Quality"], 
+                correct: 0, 
+                rationale: "According to the types of quality teams, the Supplier Quality team is specifically responsible for managing supply chain quality." 
+            },
+            { 
+                id: 2, 
+                question: "Depending on the size of the organization, quality teams should consist of a maximum of three members.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Quality teams should consist of at least 5 to 6 members, with representation from different function areas and staff grades." 
+            },
+            { 
+                id: 3, 
+                question: "Which quality methodology utilizes the structural DMAIC framework for continuous process improvement?", 
+                options: ["Six Sigma methodology", "Statistical process control", "Root cause analysis", "Quality management systems"], 
+                correct: 0, 
+                rationale: "Six Sigma utilizes the DMAIC methodology, which stands for Define, Measure, Analyze, Improve, and Control." 
+            },
+            { 
+                id: 4, 
+                question: "What is the designated primary focus of Quality Assurance within an organizational quality team?", 
+                options: ["Preventing defects by improving processes", "Identifying defects through final inspection", "Managing daily cross departmental conflicts", "Overseeing the general corporate strategy"], 
+                correct: 0, 
+                rationale: "Quality Assurance focuses primarily on preventing defects by improving processes and implementing standards." 
+            },
+            { 
+                id: 5, 
+                question: "Front-line staff members are included in quality teams primarily to provide fresh ideas from completely outside the organization.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Front-line staff know daily operations and offer ideas for improvement from within. External consultants contribute fresh ideas from beyond the organization." 
+            },
+            { 
+                id: 6, 
+                question: "Which issue represents a common functional challenge frequently faced by established quality teams?", 
+                options: ["Managing resistance to change within the organization", "Eliminating all required ongoing employee training", "Reducing the overall need for external consultants", "Preventing any interaction with frontline staff members"], 
+                correct: 0, 
+                rationale: "One of the listed challenges faced by quality teams is managing resistance to change within the organization." 
+            },
+            { 
+                id: 7, 
+                question: "How do quality teams most directly contribute to achieving overall corporate cost efficiency?", 
+                options: ["Reducing overall errors and resource waste", "Increasing the prices of standard services", "Bypassing routine regulatory compliance", "Outsourcing the primary healthcare staff"], 
+                correct: 0, 
+                rationale: "Quality teams contribute to cost efficiency because reducing errors and waste directly saves money for the organization." 
+            },
+            { 
+                id: 8, 
+                question: "Teamwork is defined strictly as an individual effort to complete tasks without relying on shared organizational resources.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Teamwork is the collaborative effort of a group to achieve a common goal or to complete a task in the most effective and efficient way." 
+            },
+            { 
+                id: 9, 
+                question: "Which specific analytical technique is formally classified as a method for Root Cause Analysis?", 
+                options: ["Fishbone diagram technique", "Statistical process control", "Compliance management system", "Standardized audit checklist"], 
+                correct: 0, 
+                rationale: "Root Cause Analysis utilizes specific techniques like the 5 Whys or the Fishbone Diagram." 
+            },
+            { 
+                id: 10, 
+                question: "Addressing direct customer feedback is the primary focus and responsibility of which specific quality team?", 
+                options: ["Customer Quality", "Cross-Functional Quality", "Operational Quality", "Compliance and Regulatory"], 
+                correct: 0, 
+                rationale: "The Customer Quality team's primary focus is specifically addressing customer feedback." 
+            },
+            { 
+                id: 11, 
+                question: "A major organizational benefit of the team approach is viewing operational problems as valuable opportunities for improvement.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "One of the benefits of the team approach is that teams take problems as an opportunity and the members support each other." 
+            },
+            { 
+                id: 12, 
+                question: "Which fundamental action is absolutely essential for building a highly effective quality team?", 
+                options: ["Using data driven decision making", "Limiting open departmental communication", "Restricting ongoing professional development", "Assigning vague roles and responsibilities"], 
+                correct: 0, 
+                rationale: "Building an effective quality team requires using data-driven decision-making, alongside defining clear roles, open communication, and ongoing training." 
+            },
+            { 
+                id: 13, 
+                question: "What is the main operational responsibility of Quality Control within the overall quality management framework?", 
+                options: ["Testing products to identify and correct defects", "Preventing defects by implementing new standards", "Driving organizational initiatives like Kaizen", "Ensuring strict environmental legal compliance"], 
+                correct: 0, 
+                rationale: "Quality Control involves testing and inspecting products or services to identify and correct defects." 
+            },
+            { 
+                id: 14, 
+                question: "Continuous Improvement teams are primarily responsible for ensuring all digital software quality.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Continuous Improvement teams drive process improvements. Software Quality teams ensure software quality." 
+            },
+            { 
+                id: 15, 
+                question: "What is the primary expected role of external consultants when serving alongside an internal quality team?", 
+                options: ["Contributing fresh ideas from outside the organization", "Directing the team and setting daily operational goals", "Understanding the intricate details of daily operations", "Providing historical data regarding internal conflicts"], 
+                correct: 0, 
+                rationale: "External consultants are utilized to contribute fresh ideas from beyond the organization." 
+            },
+            { 
+                id: 16, 
+                question: "Which routine activity is recognized as a standard key function of an operational quality team?", 
+                options: ["Conducting audits and inspections to ensure compliance", "Creating initial marketing materials for new services", "Managing the personal finances of frontline staff members", "Designing the physical architectural layout of the facility"], 
+                correct: 0, 
+                rationale: "A key function of a quality team is to conduct audits and inspections to ensure compliance with standards." 
+            },
+            { 
+                id: 17, 
+                question: "Which specific professional skill is considered vital for members actively serving on a dedicated quality team?", 
+                options: ["Strong analytical and problem solving expertise", "Advanced corporate financial accounting certification", "Basic commercial graphic design software knowledge", "Extensive external public relations management background"], 
+                correct: 0, 
+                rationale: "Essential skills and qualities of a quality team include attention to detail, strong analytical skills, and problem-solving expertise." 
+            },
+            { 
+                id: 18, 
+                question: "Driving specific improvement initiatives such as Lean or Kaizen falls directly under which quality role?", 
+                options: ["Continuous Improvement", "Quality Control", "Quality Assurance", "Supplier Quality"], 
+                correct: 0, 
+                rationale: "Continuous Improvement drives initiatives like Lean, Six Sigma, or Kaizen to enhance efficiency and quality." 
+            },
+            { 
+                id: 19, 
+                question: "Which designated quality team specifically focuses its efforts entirely on solving cross-departmental quality issues?", 
+                options: ["Cross-Functional Quality", "Process Quality", "Operational Quality", "Quality Management"], 
+                correct: 0, 
+                rationale: "The Cross-Functional Quality team has a primary focus on solving cross-departmental quality issues." 
+            },
+            { 
+                id: 20, 
+                question: "What is the standard recommended minimum number of members for an established organizational quality team?", 
+                options: ["Five to six members", "Two to three members", "Ten to twelve members", "Fifteen to twenty members"], 
+                correct: 0, 
+                rationale: "Depending on the size of the organization, quality teams should consist of at least 5 to 6 members." 
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

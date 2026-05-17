@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Lecture 2: Quality Evolution</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const rawQuizData = [
+            { 
+                id: 1, 
+                question: "Quality is considered the most expensive method of performing clinical tasks within a healthcare facility.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Quality is not the most expensive way to do things; on the contrary, it is a call for efficiency and cost savings." 
+            },
+            { 
+                id: 2, 
+                question: "According to Crosby, which statement correctly describes the core concept of quality in healthcare?", 
+                options: ["Doing the right thing at the right time", "Doing the fastest procedure with minimum staff", "Using the most expensive medical supplies", "Assigning maximum hours to nursing staff"], 
+                correct: 0, 
+                rationale: "According to Crosby, quality is doing the right thing, at the right time, in the right way, for the right person, and having the best possible results." 
+            },
+            { 
+                id: 3, 
+                question: "Which environmental factor directly reduces the nursing time required for routine patient observation?", 
+                options: ["Open ward structure", "Closed unit layout", "Increased visitor presence", "Complex clinical routines"], 
+                correct: 0, 
+                rationale: "In an open ward unit, all patients are obviously viewed by nurses, requiring less effort and traffic flow than closed wards." 
+            },
+            { 
+                id: 4, 
+                question: "How does a closed medical staff system primarily impact the overall nursing workload?", 
+                options: ["Ensures consistent therapeutic methods", "Increases variety of medical treatments", "Demands detailed daily medical reports", "Requires continuous specialized equipment"], 
+                correct: 0, 
+                rationale: "If the closed system is used, therapeutic methods are more likely to be consistent with fewer varieties of medications and treatments, saving nurses time and effort." 
+            },
+            { 
+                id: 5, 
+                question: "Newly graduated nurses typically work more rapidly with fewer clinical errors than highly experienced nurses.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Experienced nurses are usually more skilled, mature, and work more rapidly with less error than newly graduated nurses." 
+            },
+            { 
+                id: 6, 
+                question: "Which dimension of quality describes the ratio of service outputs to the associated costs of production?", 
+                options: ["Efficiency of service delivery", "Effectiveness of clinical care", "Technical performance metrics", "Continuity of health services"], 
+                correct: 0, 
+                rationale: "Efficiency of service delivery is defined as the ratio of the outputs of services to the associated costs of producing those services." 
+            },
+            { 
+                id: 7, 
+                question: "What is a direct organizational benefit of implementing strict quality management within a healthcare facility?", 
+                options: ["Markets facility to prospective staff", "Increases average patient hospital stay", "Eliminates need for staff training programs", "Removes internal departmental financial audits"], 
+                correct: 0, 
+                rationale: "One of the benefits of quality to the organization is that it markets the organization and prospective staff as an employer of choice." 
+            },
+            { 
+                id: 8, 
+                question: "Quality inspection adds significant value to a clinical service without increasing the basic cost of achievement.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Quality inspection is an expensive method that does not add value but adds to the cost of achieving a basic level of quality." 
+            },
+            { 
+                id: 9, 
+                question: "Which process uses formal statistical methods to regulate clinical services against defined operational standards?", 
+                options: ["Quality control procedures", "Quality inspection processes", "Quality assurance methods", "Quality circle operations"], 
+                correct: 0, 
+                rationale: "Quality control involves operational techniques and activities used to evaluate, monitor, and regulate service based on statistical methods." 
+            },
+            { 
+                id: 10, 
+                question: "What is the initial fundamental step to begin the standard quality assurance process?", 
+                options: ["Setting performance standard", "Determining measurable criteria", "Evaluating clinical performance", "Making continuous improvement plan"], 
+                correct: 0, 
+                rationale: "The steps of quality assurance begin sequentially with: 1) Setting standard, followed by determining criteria, evaluating performance, making plan, and follow up." 
+            },
+            { 
+                id: 11, 
+                question: "What does the letter O stand for in the SIX PROFIT MODEL of continuous quality improvement?", 
+                options: ["Optimal solution based on root causes", "Organized scheduling of nursing staff", "Operational standards for clinical work", "Ongoing monitoring of patient metrics"], 
+                correct: 0, 
+                rationale: "In the SIX PROFIT MODEL, the letter O stands for Optimal solution based on root causes." 
+            },
+            { 
+                id: 12, 
+                question: "Which characteristic is an essential structural requirement for employees forming a standard quality circle?", 
+                options: ["Belong to a homogeneous group", "Represent varying clinical departments", "Hold identical administrative job titles", "Selected by senior healthcare management"], 
+                correct: 0, 
+                rationale: "Quality circles must be a homogeneous group, not an inter-departmental or inter-disciplinary one, though designations may differ." 
+            },
+            { 
+                id: 13, 
+                question: "Quality circles mandate mandatory participation from all middle level executives to solve structural departmental problems.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Quality circle features emphasize voluntary participation with no coercion or pressure on membership." 
+            },
+            { 
+                id: 14, 
+                question: "How often should an established quality circle typically meet to maintain problem solving effectiveness?", 
+                options: ["For about one hour every single week", "For thirty minutes every single day", "For two hours every alternate month", "For five hours during the weekend shift"], 
+                correct: 0, 
+                rationale: "Quality circles should meet for about an hour every week, as regularity is of great importance and long intervals are not recommended." 
+            },
+            { 
+                id: 15, 
+                question: "Which governing entity is responsible for establishing criteria for nursing schools and approving educational training programs?", 
+                options: ["Nursing Care Quality Assurance Commission", "Hospital Internal Quality Control Board", "National Medical Inspection Committee", "Continuous Quality Improvement Council"], 
+                correct: 0, 
+                rationale: "The Nursing Care Quality Assurance Commission duties include approving curricula, establishing criteria for nursing schools, and approving nursing assistant training programs." 
+            },
+            { 
+                id: 16, 
+                question: "What describes the steady delivery of care by the same healthcare provider throughout the entire course of clinical treatment?", 
+                options: ["Continuity of medical services", "Appropriateness of clinical care", "Interpersonal health relations", "Technical operational performance"], 
+                correct: 0, 
+                rationale: "Continuity of services is the delivery of care by the same healthcare provider throughout the course of care and appropriate communication between providers." 
+            },
+            { 
+                id: 17, 
+                question: "The functional method of assigning patient care requires significantly more nursing time compared to the complex case method.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "The functional method is less time-consuming than the case method of assignment." 
+            },
+            { 
+                id: 18, 
+                question: "Which external factor often requires more nurses due to increased confusion and work interruption directly on the clinical ward?", 
+                options: ["Affiliation with a medical school", "Utilization of a central supply department", "Adoption of a closed medical staff system", "Employment of a ward clerical secretary"], 
+                correct: 0, 
+                rationale: "Affiliation with a medical school means medical students and interns spend time in the wards, which generally increases confusion, interruption, and the demand for nurses." 
+            },
+            { 
+                id: 19, 
+                question: "How does the reliable availability of a central supply department positively affect the daily workflow of the nursing staff?", 
+                options: ["Saves time used in preparing clinical instruments", "Increases hours spent on sterilization processes", "Requires more physical walking distance for staff", "Complicates routine patient observation procedures"], 
+                correct: 0, 
+                rationale: "The availability of a central supply department saves nurses' time and effort used in preparing instruments and dressing packets for sterilization themselves." 
+            },
+            { 
+                id: 20, 
+                question: "Clinical work performance generally improves significantly when the overall morale of the assigned working staff is high.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "Work performance is always better when morale is good; low morale leads to dissatisfaction, absenteeism, and negatively affected performance." 
+            },
+            { 
+                id: 21, 
+                question: "Which fundamental aspect is included entirely under the physical infrastructure and comfort dimension of healthcare quality?", 
+                options: ["General cleanliness of the healthcare facility", "Complete trust between provider and client", "Timely continuous referral between providers", "Unrestricted geographic access to treatments"], 
+                correct: 0, 
+                rationale: "Physical infrastructure and comfort include the physical appearance of the facility, cleanliness, comfort, and privacy." 
+            },
+            { 
+                id: 22, 
+                question: "What is the primary ongoing purpose of identifying standard signal events in continuous healthcare quality improvement?", 
+                options: ["Prevent patient care problems", "Punish underperforming medical staff", "Decrease facility accreditation scores", "Limit numbers of new daily admissions"], 
+                correct: 0, 
+                rationale: "Continuous Quality Improvement identifies signal events to guide professionals in preventing patient care problems and improving satisfactory services." 
+            },
+            { 
+                id: 23, 
+                question: "Which management framework explicitly requires total organizational involvement and organizes broad operational strategy around core customer needs?", 
+                options: ["Total Quality Management", "Quality Inspection Process", "Functional Assignment Method", "Basic Quality Assurance"], 
+                correct: 0, 
+                rationale: "Total Quality Management (TQM) characteristics include total organizational involvement and focusing strategy and operations around customer needs." 
+            },
+            { 
+                id: 24, 
+                question: "The specific operational problem tackled by an informal quality circle is chosen and assigned directly by senior top management.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "In Quality Circles, problems are chosen, not given. Members are responsible for identification of a problem." 
+            },
+            { 
+                id: 25, 
+                question: "Which specific functional issue represents a common potential pitfall that can cause a dedicated quality circle to fail entirely?", 
+                options: ["Inadequate visibility of management support", "Frequent rotation of departmental leaders", "Excessive documentation of clinical errors", "Strict enforcement of medical guidelines"], 
+                correct: 0, 
+                rationale: "Inadequate visibility of management support is explicitly listed as one of the pitfalls and problems of quality circles." 
+            },
+            { 
+                id: 26, 
+                question: "What specific analytical action does the letter R represent in the standard SIX PROFIT MODEL of healthcare quality improvement?", 
+                options: ["Root cause identification and analysis", "Routine patient comfort formal evaluation", "Rapid implementation of clinical guidelines", "Regular monitoring of hospital medical supplies"], 
+                correct: 0, 
+                rationale: "In the SIX PROFIT MODEL, R stands for Root cause identification and analysis." 
+            },
+            { 
+                id: 27, 
+                question: "Decreased employee turnover and lower vacancy rates are direct functional benefits of robust quality management for the healthcare staff.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "Benefits of quality to staff include reduced turnover and vacancy rates, higher job satisfaction, and training opportunities." 
+            },
+            { 
+                id: 28, 
+                question: "Which collaborative approach is specifically utilized by informal quality circles for making internal operational team decisions?", 
+                options: ["Decision by mutual consensus", "Decision by strict majority vote", "Decision by senior management", "Decision by random selection"], 
+                correct: 0, 
+                rationale: "A key feature of Quality Circles is that decisions are made by consensus, not by majority." 
+            },
+            { 
+                id: 29, 
+                question: "What exact dimension describes the measurable degree to which desired results of provided clinical care are actually achieved?", 
+                options: ["Effectiveness of clinical care", "Efficiency of service delivery", "Appropriateness of patient care", "Technical operational performance"], 
+                correct: 0, 
+                rationale: "Effectiveness of care is defined as the degree to which desired results (outcomes) of care are achieved." 
+            },
+            { 
+                id: 30, 
+                question: "Which operational strategy practically helps clinical nurses dedicate more uninterrupted time to providing direct focused patient care?", 
+                options: ["Assigning routine desk work to a ward clerk", "Increasing the complexity of medical procedures", "Implementing the individual case method assignment", "Changing from an open design to closed unit ward"], 
+                correct: 0, 
+                rationale: "When a ward clerk or secretary handles telephone communication, directs visitors, and assembles charts, nurses are free for providing direct patient care." 
+            },
+            { 
+                id: 31, 
+                question: "An open medical staff system typically reduces the overall amount of medical equipment and routine supplies needed on a hospital ward.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "An open system requires many more doctors visiting at different times, which requires more nurses' time, effort, and more equipment and supply." 
+            },
+            { 
+                id: 32, 
+                question: "How do entirely fixed nursing schedules and specific single shifts generally affect overall healthcare facility staffing requirements?", 
+                options: ["Require more nurses to cover long shifts", "Reduce total number of medical staff needed", "Eliminate need for temporary night shift workers", "Decrease demand for newly graduated nurses"], 
+                correct: 0, 
+                rationale: "More nurses are needed to cover long shifts or afternoon and night shifts if there are a number of nurses working fixed shifts." 
+            },
+            { 
+                id: 33, 
+                question: "Which specific administrative objective is a recognized primary functional goal of implementing voluntary quality circles in an organization?", 
+                options: ["Promote general cost reduction", "Enforce strict disciplinary actions", "Replace existing management structures", "Increase internal interdepartmental conflicts"], 
+                correct: 0, 
+                rationale: "Objectives of Quality Circles include promoting cost reduction, reducing errors, enhancing quality, and improving productivity." 
+            },
+            { 
+                id: 34, 
+                question: "The formal process of quality assurance involves fundamentally modifying services when the actual level of service falls below defined operational standards.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "Quality assurance is the process of measuring actual service against defined standards and taking positive action to modify services when necessary." 
+            },
+            { 
+                id: 35, 
+                question: "Which conceptual dimension of comprehensive healthcare quality relies heavily upon trust, respect, courtesy, and effective active listening skills?", 
+                options: ["Interpersonal communication relations", "Continuity of medical care services", "Appropriateness of assigned clinical care", "Technical operational nursing performance"], 
+                correct: 0, 
+                rationale: "Interpersonal relations involve trust, respect, confidentiality, courtesy, responsiveness, empathy, and effective listening." 
+            },
+            { 
+                id: 36, 
+                question: "What is the primary regulatory function of the formal Nursing Care Quality Assurance Commission regarding registered professional nurses?", 
+                options: ["Establishing and enforcing licensing mechanisms", "Subsidizing the cost of medical school tuition", "Managing daily hospital nursing staff assignments", "Procuring central supply department medical materials"], 
+                correct: 0, 
+                rationale: "The purpose of the NCQAC includes establishing, monitoring, and enforcing licensing and consistent standards of practice." 
+            },
+            { 
+                id: 37, 
+                question: "Which sequential action is considered a fundamental required step of the structured clinical quality assurance operational process?", 
+                options: ["Determining measurable criteria", "Approving total hospital budget", "Hiring new specialized nursing staff", "Purchasing advanced medical equipment"], 
+                correct: 0, 
+                rationale: "Determining criteria is step 2 in the steps of quality assurance (after setting standard and before evaluating performance)." 
+            },
+            { 
+                id: 38, 
+                question: "Which assignment method is considered highly educational and permits more individualized patient care but ultimately requires significantly more working nurses?", 
+                options: ["Case method of assignment", "Functional method of assignment", "Team method of assignment", "Routine method of assignment"], 
+                correct: 0, 
+                rationale: "The case method is more educational and permits more individualized nursing care, but requires more nurses than the functional method." 
+            },
+            { 
+                id: 39, 
+                question: "What specific concept is defined explicitly as the comprehensive act of overseeing all internal activities needed to maintain a desired level of excellence?", 
+                options: ["General quality management", "Initial quality inspection", "Statistical quality control", "Informal quality circle"], 
+                correct: 0, 
+                rationale: "Quality Management is the act of overseeing all activities and tasks needed to maintain a desired level of excellence." 
+            },
+            { 
+                id: 40, 
+                question: "Which structural physical facility factor significantly reduces the amount of unnecessary walking and routine waiting time for busy working nurses?", 
+                options: ["Location of sinks with running water", "Presence of a medical school affiliation", "Implementation of an open medical staff system", "Utilization of a functional nursing assignment method"], 
+                correct: 0, 
+                rationale: "The number and location of sinks with running water determine the amount of walking and time spent waiting for washing hands and cleaning equipment." 
+            }
+        ];
+
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Lecture 5: Nursing Audit</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 50 QUESTIONS HERE) ---
+        const rawQuizData = [
+            { 
+                id: 1, 
+                question: "What type of nursing audit specifically evaluates patient recovery and overall infection rates?", 
+                options: ["Outcome Audit", "Process Audit", "Structure Audit", "Prospective Audit"], 
+                correct: 0, 
+                rationale: "An Outcome Audit assesses the results of nursing care, such as patient recovery rates and infection rates." 
+            },
+            { 
+                id: 2, 
+                question: "During which exact step of the nursing audit process does the auditor compare nursing practices against established healthcare standards?", 
+                options: ["Data Collection", "Evaluation", "Planning", "Reporting"], 
+                correct: 1, 
+                rationale: "Step 3: Evaluation involves comparing nursing practices and documentation against standards to identify gaps and non-conformities." 
+            },
+            { 
+                id: 3, 
+                question: "The primary purpose of a nursing audit is to punish healthcare staff for documented clinical errors and misjudgments.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "The purpose of a nursing audit is to improve patient outcomes, enhance nursing practices, and ensure adherence to healthcare regulations, not to punish staff." 
+            },
+            { 
+                id: 4, 
+                question: "Which specific tool or technique used in nursing audits involves directly watching clinical routines and practices in real time?", 
+                options: ["Data Analysis", "Chart Reviews", "Observation", "Checklists"], 
+                correct: 2, 
+                rationale: "Observation is the technique of watching nursing practices in real-time." 
+            },
+            { 
+                id: 5, 
+                question: "Which type of clinical audit is conducted before any actual patient care is provided by the nursing staff?", 
+                options: ["Concurrent Audit", "Retrospective Audit", "Prospective Audit", "Structure Audit"], 
+                correct: 2, 
+                rationale: "A Prospective Audit is conducted before care is provided, evaluating care plans and protocols to ensure they meet standards." 
+            },
+            { 
+                id: 6, 
+                question: "Which key skill is strictly required for nursing auditors to effectively maintain professional objectivity and protect patient confidentiality?", 
+                options: ["Analytical Skills", "Ethical Judgment", "Clinical Knowledge", "Communication Skills"], 
+                correct: 1, 
+                rationale: "Ethical Judgment involves maintaining objectivity and confidentiality during the auditing process." 
+            },
+            { 
+                id: 7, 
+                question: "Nursing audits actively promote organizational accountability by holding nurses and healthcare providers responsible for their clinical practices.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "One of the key points of importance for nursing audits is that it promotes accountability by holding nurses and healthcare providers accountable for their practices." 
+            },
+            { 
+                id: 8, 
+                question: "Focusing primarily on physical facility resources such as available hospital staffing and medical equipment describes which type of audit?", 
+                options: ["Structure Audit", "Process Audit", "Outcome Audit", "Concurrent Audit"], 
+                correct: 0, 
+                rationale: "A Structure Audit focuses on the resources and environment, including elements like staffing and equipment." 
+            },
+            { 
+                id: 9, 
+                question: "Implementing corrective actions and monitoring their overall long term effectiveness occurs during which specific phase of the audit process?", 
+                options: ["Planning", "Evaluation", "Follow-Up", "Reporting"], 
+                correct: 2, 
+                rationale: "Step 5: Follow-Up involves implementing corrective actions, monitoring their effectiveness, and conducting follow-up audits." 
+            },
+            { 
+                id: 10, 
+                question: "Which common challenge in nursing audits arises directly because frontline nurses might feel heavily scrutinized or defensive about their daily work?", 
+                options: ["Data Accuracy", "Time Constraints", "Resistance from Staff", "Keeping Up with Standards"], 
+                correct: 2, 
+                rationale: "Resistance from Staff is a challenge where nurses may feel scrutinized or defensive during the audit process." 
+            },
+            { 
+                id: 11, 
+                question: "A retrospective clinical audit is typically conducted while the patient is currently receiving ongoing daily medical care.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "A Retrospective Audit is conducted AFTER patient care has been provided, not while it is ongoing (which would be a Concurrent Audit)." 
+            },
+            { 
+                id: 12, 
+                question: "Which auditing technique focuses specifically on examining documented patient medical files to ensure general completeness and clinical accuracy?", 
+                options: ["Chart Reviews", "Clinical Interviews", "Real-time Observation", "Direct Checklists"], 
+                correct: 0, 
+                rationale: "Chart Reviews involve examining patient records for completeness and accuracy." 
+            },
+            { 
+                id: 13, 
+                question: "Which exact type of nursing audit strictly evaluates the standard clinical nursing practices and daily procedural workflows?", 
+                options: ["Outcome Audit", "Structure Audit", "Process Audit", "Prospective Audit"], 
+                correct: 2, 
+                rationale: "A Process Audit evaluates actual nursing practices and procedures." 
+            },
+            { 
+                id: 14, 
+                question: "Interpreting complex clinical data and accurately identifying significant long term operational trends relies most heavily on which auditor skill?", 
+                options: ["Attention to Detail", "Communication Skills", "Clinical Knowledge", "Analytical Skills"], 
+                correct: 3, 
+                rationale: "Analytical Skills are defined as interpreting data and identifying trends." 
+            },
+            { 
+                id: 15, 
+                question: "Developing a comprehensive audit plan and creating an initial structured checklist are core activities performed during the data collection step.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Developing an audit plan and checklist are activities performed during Step 1: Planning, not Step 2: Data Collection." 
+            },
+            { 
+                id: 16, 
+                question: "How does a standard nursing audit primarily support the overall concept of continuous improvement within a modern healthcare facility?", 
+                options: ["By driving ongoing enhancements in routine nursing care", "By freezing current operational protocols permanently in place", "By eliminating the daily need for ongoing clinical documentation", "By reducing the total number of required licensed healthcare providers"], 
+                correct: 0, 
+                rationale: "Nursing audits support continuous improvement by driving ongoing enhancements in nursing care." 
+            },
+            { 
+                id: 17, 
+                question: "Conducting structured interviews with nursing staff and hospital patients is a crucial component of which formal audit process step?", 
+                options: ["Planning", "Data Collection", "Evaluation", "Follow-Up"], 
+                correct: 1, 
+                rationale: "Step 2: Data Collection includes gathering records and conducting interviews with nursing staff and patients." 
+            },
+            { 
+                id: 18, 
+                question: "Providing real-time operational feedback and allowing for immediate clinical improvements is the primary documented advantage of which audit type?", 
+                options: ["Retrospective Audit", "Prospective Audit", "Concurrent Audit", "Outcome Audit"], 
+                correct: 2, 
+                rationale: "A Concurrent Audit is conducted while patient care is ongoing and provides real-time feedback and immediate improvements." 
+            },
+            { 
+                id: 19, 
+                question: "Conducting thorough and highly comprehensive nursing audits is generally considered a fast operational process that requires minimal dedicated time.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Time Constraints are listed as a major challenge, noting that conducting thorough audits can be very time-consuming." 
+            },
+            { 
+                id: 20, 
+                question: "Including formal recommendations for future clinical improvement is an essential required action of which specific phase of the nursing audit?", 
+                options: ["Reporting", "Data Collection", "Planning", "Evaluation"], 
+                correct: 0, 
+                rationale: "Step 4: Reporting involves documenting findings, preparing an audit report, and including recommendations for improvement." 
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

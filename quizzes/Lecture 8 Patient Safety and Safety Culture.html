@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Lecture 8: Patient Safety and Safety Culture</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY ---
+        const rawQuizData = [
+            { 
+                id: 1, 
+                question: "Which specific patient safety culture aspect focuses on the potential loss of important information during nursing shift changes?", 
+                options: ["Hospital handoff and transitions", "Teamwork across hospital units", "Overall perception of safety", "Organizational learning processes"], 
+                correct: 0, 
+                rationale: "Hospital handoff and transitions deal with situations where important patient care information is often lost when transferring patients or during shift changes." 
+            },
+            { 
+                id: 2, 
+                question: "Surgical asepsis refers to clean techniques such as standard hand washing and using regular antimicrobial agents.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Surgical asepsis refers to sterilization that eliminates all microorganisms. Medical asepsis is the clean technique that includes hand washing and antimicrobial agents." 
+            },
+            { 
+                id: 3, 
+                question: "Which specific issue is strictly categorized as a direct system failure that causes severe health care errors?", 
+                options: ["Disconnected internal reporting systems", "Variations in standard provider training", "Prolonged routine hospital admissions", "Administration of complex medical drugs"], 
+                correct: 0, 
+                rationale: "Disconnected reporting systems within a hospital are categorized under 'System failures'. Training is a human factor, and prolonged stays/complex drugs are medical complexity factors." 
+            },
+            { 
+                id: 4, 
+                question: "What exact word does the letter A represent in the standard patient SAFETY acronym?", 
+                options: ["Alert", "Always", "Assess", "Action"], 
+                correct: 0, 
+                rationale: "In the SAFETY acronym, 'A' stands for 'Alert' (Safe, Alert, For, Every, Task, You do)." 
+            },
+            { 
+                id: 5, 
+                question: "Resuscitation staff are entirely responsible for making the initial identification of unconscious trauma patients until true identity is established.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "For unknown and unconscious patients, identification is made by Resuscitation staff until a unique identification has been made." 
+            },
+            { 
+                id: 6, 
+                question: "Which unit level aspect ensures that clinical staff members do not feel their reported mistakes will be kept permanently in their personal file?", 
+                options: ["Non punitive response to error", "Communication openness within units", "Feedback and communication of safety", "Organizational continuous learning"], 
+                correct: 0, 
+                rationale: "Non-punitive response to error ensures staff do not feel their mistakes are held against them or kept in their file when an event is reported." 
+            },
+            { 
+                id: 7, 
+                question: "Which essential procedure utilizes at least two distinct routes such as checking the patient name and date of birth?", 
+                options: ["Standard patient identification", "Effective healthcare communication", "Correct surgical site verification", "Medication safety administration procedures"], 
+                correct: 0, 
+                rationale: "The method for Patient Identification is to utilize at least two routes, such as the patient's name and date of birth." 
+            },
+            { 
+                id: 8, 
+                question: "Increasing the patient to nurse staffing ratio generally decreases the overall rate of clinical complications.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Under system failures, complications increase as the patient to nurse staffing ratio increases." 
+            },
+            { 
+                id: 9, 
+                question: "Medication errors in the healthcare setting are typically defined as direct operational deviations from what specific element?", 
+                options: ["Written physician orders", "Standard hospital policies", "Pharmacist dispensing protocols", "Nursing administration guidelines"], 
+                correct: 0, 
+                rationale: "Medication errors are typically defined as deviations from a physician's order." 
+            },
+            { 
+                id: 10, 
+                question: "Which safety culture outcome variable measures exactly how often a mistake is caught and corrected before it physically affects the patient?", 
+                options: ["Frequency of events reported", "Overall perception of safety", "Supervisor expectations of safety", "Continuous organizational learning"], 
+                correct: 0, 
+                rationale: "The 'Frequency of events reported' measures how often a mistake is reported when it is made but caught and corrected before affecting the patient." 
+            },
+            { 
+                id: 11, 
+                question: "The prolonged hospital stay of a critical patient is formally classified as a human factor causing health care errors.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Prolonged hospital stay is classified under 'Medical complexity', not 'Human Factors'." 
+            },
+            { 
+                id: 12, 
+                question: "What represents the most frequent category of undesired accidents in hospitals that leads directly to extended hospitalization?", 
+                options: ["Routine patient falls", "Hospital acquired infections", "Wrong site surgical procedures", "Incorrect medication administration"], 
+                correct: 0, 
+                rationale: "Patient falls constitute the most frequent category of undesired incidents/accidents in hospitals that may lead to injury or extended hospitalization." 
+            },
+            { 
+                id: 13, 
+                question: "Which specific clinical practice involves the complete elimination of all present microorganisms through intense sterilization?", 
+                options: ["Standard surgical asepsis", "Routine medical asepsis", "General ward disinfection", "Regular antimicrobial washing"], 
+                correct: 0, 
+                rationale: "Surgical asepsis refers to the practice that eliminates the presence of all microorganisms, which is sterilization." 
+            },
+            { 
+                id: 14, 
+                question: "The simplest definition of a health care error requires that the preventable adverse effect must be visibly evident to the patient.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "The simplest definition of a health care error is a preventable adverse effect of care, WHETHER OR NOT it is evident or harmful to the patient." 
+            },
+            { 
+                id: 15, 
+                question: "Which operational factor is strictly classified as a health care team factor affecting overall patient safety?", 
+                options: ["Routine hospital housekeeping", "Patient cognitive awareness", "Patient sensory perception", "Patient overall mobility status"], 
+                correct: 0, 
+                rationale: "Housekeeping is listed under 'Health Care Team Factors'. Cognitive awareness, sensory perception, and mobility status are 'Patient Factors'." 
+            },
+            { 
+                id: 16, 
+                question: "Staff speaking up freely to question clinical decisions made by authority figures demonstrates which specific safety culture aspect?", 
+                options: ["Communication openness", "Non punitive response", "Continuous improvement", "Supervisor expectation"], 
+                correct: 0, 
+                rationale: "Communication openness involves staff feeling free to speak up or question decisions of those with more authority." 
+            },
+            { 
+                id: 17, 
+                question: "According to the World Health Organization statistics what is the exact worldwide impact rate of medical errors on admitted patients?", 
+                options: ["One in ten patients", "One in twenty patients", "One in fifty patients", "One in hundred patients"], 
+                correct: 0, 
+                rationale: "Medical errors impact 1 in 10 patients worldwide according to the WHO." 
+            },
+            { 
+                id: 18, 
+                question: "What specific professional requirement must nurses possess in addition to scientific knowledge to ensure highly effective patient communication?", 
+                options: ["Interpersonal communication skills", "Independent prescribing authority", "Financial management expertise", "Advanced surgical diagnostic training"], 
+                correct: 0, 
+                rationale: "Nursing practice requires not only scientific knowledge but additional effective interpersonal communication, intellectual, and technical abilities." 
+            },
+            { 
+                id: 19, 
+                question: "Which term completely describes the culmination of group beliefs and behaviors that determine organizational commitment to quality?", 
+                options: ["Patient safety culture", "Medical complexity management", "Standard human factors", "Healthcare system rules"], 
+                correct: 0, 
+                rationale: "Patient Safety Culture is the culmination of individual and group beliefs, values, attitudes, and behaviors that determine the organization's commitment to safety." 
+            },
+            { 
+                id: 20, 
+                question: "Which intrinsic element is specifically categorized as a patient factor that directly affects overall clinical safety on a hospital ward?", 
+                options: ["Sensory perception level", "Incompatible team goals", "Poor communication lines", "Disconnected reporting systems"], 
+                correct: 0, 
+                rationale: "Sensory perception is explicitly listed as one of the 'Patient Factors' affecting patient safety." 
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

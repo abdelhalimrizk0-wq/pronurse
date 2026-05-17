@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Lecture 3: Tools For Quality Improvement</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY ---
+        const rawQuizData = [
+            { 
+                id: 1, 
+                question: "Which quality improvement tool visually represents the exact sequence of actions utilized within a specific service operation?", 
+                options: ["Flow chart", "Pareto diagram", "Scatter plot", "Cause and effect diagram"], 
+                correct: 0, 
+                rationale: "A flow chart shows the sequence of actions in a process that are used for service operation to simplify the system." 
+            },
+            { 
+                id: 2, 
+                question: "What does the letter R specifically represent in the SMART acronym used for developing a healthcare aim statement?", 
+                options: ["Result oriented", "Resource restricted", "Root cause", "Rapid response"], 
+                correct: 0, 
+                rationale: "In the SMART aim statement framework, the letter R stands for Result oriented." 
+            },
+            { 
+                id: 3, 
+                question: "Which behavior is strictly avoided during a standard quality improvement brainstorming group session?", 
+                options: ["Criticizing generated ideas", "Welcoming odd suggestions", "Limiting discussion to clarification", "Introducing random trigger words"], 
+                correct: 0, 
+                rationale: "During brainstorming, participants must avoid criticism of ideas and dominance of particular staff to actively encourage creativity." 
+            },
+            { 
+                id: 4, 
+                question: "The Pareto diagram is based on the fundamental principle that eighty percent of system defects are created by twenty percent of the causes.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "The Pareto diagram leads to support the 80/20 rule, which states that 80% of the problem or defects are created by 20% of causes." 
+            },
+            { 
+                id: 5, 
+                question: "Which graphical analytical tool is primarily utilized to detect and illustrate the relationship between two specific process variables?", 
+                options: ["Scatter plot", "Cause and effect diagram", "Flow chart", "Pareto diagram"], 
+                correct: 0, 
+                rationale: "A scatter plot consists of plotting data to detect the relationship between two variables, such as administering medication and patient satisfaction." 
+            },
+            { 
+                id: 6, 
+                question: "What specific type of objective should a well-crafted quality mission statement identify to stretch a healthcare team?", 
+                options: ["Achievable but difficult", "Easily attainable and simple", "Theoretical and unmeasurable", "Vague and entirely open ended"], 
+                correct: 0, 
+                rationale: "A good aim or mission statement identifies a 'stretch goal' that is achievable but difficult to achieve." 
+            },
+            { 
+                id: 7, 
+                question: "Which diagram helps a quality improvement team determine which of several identified system causes has the greatest overall effect on a problem?", 
+                options: ["Cause and effect diagram", "Brainstorming sequential flow chart", "Variable random scatter plot", "Decreasing priority aim diagram"], 
+                correct: 0, 
+                rationale: "The cause and effect diagram helps systematically list various causes and determine which of several causes has the greatest effect." 
+            },
+            { 
+                id: 8, 
+                question: "Effective quality aim statements should clearly suggest the specific desired clinical solution to the problem being investigated.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Teams must explicitly avoid aim statements that suggest the desired solution to the problem (e.g., suggesting a specific new protocol)." 
+            },
+            { 
+                id: 9, 
+                question: "Who should ideally provide the specialized knowledge used to construct a realistic and accurate operational flow chart?", 
+                options: ["Personnel directly involved in the process", "External financial corporate auditing groups", "Patients actively waiting in the facility", "Upper hospital administration management exclusively"], 
+                correct: 0, 
+                rationale: "The realistic flow chart can be constructed by using the knowledge of the personnel who are directly involved in a particular process." 
+            },
+            { 
+                id: 10, 
+                question: "What is the recommended maximum number of participants for a highly effective and focused problem-solving brainstorming group?", 
+                options: ["Ten people", "Five people", "Fifteen people", "Twenty people"], 
+                correct: 0, 
+                rationale: "The features of brainstorming indicate to use groups of up to 10 people who are directly concerned with the problem or process." 
+            },
+            { 
+                id: 11, 
+                question: "How does a Pareto diagram specifically assist healthcare organizations in managing multiple complex operational issues?", 
+                options: ["By prioritizing problems in decreasing order of importance", "By eliminating the absolute need for clinical investigation", "By mapping the exact physical daily movement of patients", "By generating rapid spontaneous creative staffing solutions"], 
+                correct: 0, 
+                rationale: "The Pareto diagram helps to prioritize problems by arranging them in decreasing order of importance, helping the organization decide the order to address them." 
+            },
+            { 
+                id: 12, 
+                question: "When is the formal quality aim statement typically formulated and formally recorded by the designated improvement team?", 
+                options: ["In the first scheduled team meeting", "After the final clinical problem is solved", "During the middle phase of active research", "Immediately before permanently discharging the patient"], 
+                correct: 0, 
+                rationale: "The aim statement is recorded in the first team meeting to decide exactly what the team plans to do." 
+            },
+            { 
+                id: 13, 
+                question: "Operational flow charts are considered important analytical tools specifically utilized to identify wasted time in a medical service process.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "A flow chart is explicitly important to know time wasted and evaluate the services provided." 
+            },
+            { 
+                id: 14, 
+                question: "What can be intentionally introduced during a formal brainstorming session to rapidly trigger new ideas among participating team members?", 
+                options: ["Randomly selected words", "Strictly monitored time limits", "Individual financial penalties", "Prewritten static aim statements"], 
+                correct: 0, 
+                rationale: "During brainstorming, random words can be introduced in the session to 'trigger' other creative ideas." 
+            },
+            { 
+                id: 15, 
+                question: "What type of provided information significantly helps team members achieve mutual agreement on their quality mission much more easily?", 
+                options: ["Relevant quantitative baseline data", "Unrelated historical clinical studies", "Hypothetical future financial projections", "Detailed original architectural blueprints"], 
+                correct: 0, 
+                rationale: "Agreement on the team's aim is more easily achieved if members are provided with relevant information, such as baseline data about the process being investigated." 
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

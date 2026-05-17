@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Concepts Of Quality</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 50 QUESTIONS HERE) ---
+        const rawQuizData = [
+            { 
+                id: 1, 
+                question: "Which principle focuses on analyzing collected data to formulate accurate organizational choices?", 
+                options: ["Factual approach to decision making", "System approach to management", "Continual improvement process", "Customer focused approach"], 
+                correct: 0, 
+                rationale: "The factual approach to decision-making dictates that effective decisions are based on collected facts and the analysis of data." 
+            },
+            { 
+                id: 2, 
+                question: "The concept of zero defect emerged during the twentieth century alongside the statistical revolution.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "In the twentieth century, quality control advanced rapidly through a statistical revolution that introduced the concept of zero defect and total quality control." 
+            },
+            { 
+                id: 3, 
+                question: "Which aspect of quality ensures that individuals receive the same level of care regardless of their background?", 
+                options: ["Ensure equity", "Enhance patient safety", "Improve patient outcomes", "Reduce healthcare cost"], 
+                correct: 0, 
+                rationale: "Ensuring equity means that all patients receive the same level of care regardless of their background." 
+            },
+            { 
+                id: 4, 
+                question: "Total Quality Management involves nurse managers changing standard workflows primarily by doing what?", 
+                options: ["Developing staff knowledge and methods", "Decreasing the overall facility budget", "Hiring new external management teams", "Removing outdated medical equipment"], 
+                correct: 0, 
+                rationale: "Total Quality Management requires nurse managers to change workflows by developing nurses' knowledge about what to do, how to do it, and using the right methods." 
+            },
+            { 
+                id: 5, 
+                question: "Which Total Quality Management principle explicitly covers buildings, units, labs, and drugs?", 
+                options: ["Physical environment and resources", "Policies and procedures", "System approach to management", "Factual approach to decision making"], 
+                correct: 0, 
+                rationale: "The 'Physical environment and resources' principle includes the management of buildings, units, labs, departments, and drugs." 
+            },
+            { 
+                id: 6, 
+                question: "Total Quality Management aims to reduce wasted resources such as time, materials, and funds.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "One of the key importance points of TQM is reducing wasted resources in materials, funds, time, and healthcare providers." 
+            },
+            { 
+                id: 7, 
+                question: "The formal definition of quality states that health services must increase desired outcomes and be consistent with what?", 
+                options: ["Current professional knowledge", "Strict economic guidelines", "Local government mandates", "Traditional medical customs"], 
+                correct: 0, 
+                rationale: "Quality is defined as the degree to which health services increase the likelihood of desired health outcomes and are consistent with current professional knowledge." 
+            },
+            { 
+                id: 8, 
+                question: "Which element serves to guide, support, punish, and reward the performance of nurses?", 
+                options: ["Policies and procedures", "Education and training", "Customer focused approach", "System approach to management"], 
+                correct: 0, 
+                rationale: "Policies and procedures are established to guide, support, punish, and reward nurses' performance." 
+            },
+            { 
+                id: 9, 
+                question: "Up to the nineteenth century, good products belonged exclusively to large international corporations.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "During the middle ages and up to the nineteenth century, good products belonged to a person, families, or small groups of people, not large corporations." 
+            },
+            { 
+                id: 10, 
+                question: "Focusing on the emotional and psychological well-being of individuals primarily serves to achieve which goal?", 
+                options: ["Increase patient satisfaction", "Reduce healthcare cost", "Ensure medical equity", "Enhance patient safety"], 
+                correct: 0, 
+                rationale: "Increasing patient satisfaction is achieved by effective communication, emphasizing preferences, and focusing on the emotional and psychological well-being of patients." 
+            },
+            { 
+                id: 11, 
+                question: "Maintaining unity of goals and directions so nurses become keener to perform their work is the core of which principle?", 
+                options: ["Leadership", "Team work", "Continual improvement", "Education and training"], 
+                correct: 0, 
+                rationale: "The 'Leadership' principle involves maintaining unity of goals and directions, helping nurses understand objectives so they become keener to perform their work." 
+            },
+            { 
+                id: 12, 
+                question: "In which industry did the modern quality concept initially begin before spreading to healthcare services?", 
+                options: ["Car manufacturing companies", "Textile production factories", "Agricultural farming sites", "Construction management firms"], 
+                correct: 0, 
+                rationale: "The quality concept started in Japan in the 19th century specifically within car companies before spreading to other services like healthcare." 
+            },
+            { 
+                id: 13, 
+                question: "Why does Total Quality Management require identifying organizational weaknesses and strengths?", 
+                options: ["To reinforce strengths and correct weaknesses", "To reduce the number of healthcare providers", "To alter the primary mission of the facility", "To decrease overall patient admission rates"], 
+                correct: 0, 
+                rationale: "TQM involves identifying organizational weaknesses and strengths in order to reinforce the strengths and correct the weaknesses." 
+            },
+            { 
+                id: 14, 
+                question: "Which outcome directly contributes to reducing overall healthcare costs within the quality framework?", 
+                options: ["Decreasing the occurrence of chronic diseases", "Extending the average length of hospital stays", "Increasing the total number of medical tests", "Hiring additional international healthcare staff"], 
+                correct: 0, 
+                rationale: "Healthcare costs are reduced by decreasing the occurrence of chronic diseases and making efficient use of resources." 
+            },
+            { 
+                id: 15, 
+                question: "Managing interrelated processes to integrate workflows and achieve the best results defines which concept?", 
+                options: ["System approach to management", "Factual approach to decision making", "Continual improvement process", "Customer focused approach"], 
+                correct: 0, 
+                rationale: "The 'System approach to management' involves understanding a system for managing interrelated processes to integrate them and achieve the best results." 
+            },
+            { 
+                id: 16, 
+                question: "Continuous education and training for health care providers should include problem-solving techniques and communication skills.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "Education and training principles mandate continuous education covering quality of care, standards of care, problem-solving techniques, and communication skills." 
+            },
+            { 
+                id: 17, 
+                question: "Which ancient civilizations are noted for setting standards for crafts and arts to build cities?", 
+                options: ["Greeks and Romans", "Egyptians and Sumerians", "Babylonians and Persians", "Chinese and Mongolians"], 
+                correct: 0, 
+                rationale: "Historically, the Greeks and Romans set standards for craft and arts to build cities." 
+            },
+            { 
+                id: 18, 
+                question: "Minimizing the risk of medical errors and maintaining a safe environment directly corresponds to which quality objective?", 
+                options: ["Enhance patient safety", "Improve patient outcomes", "Reduce healthcare cost", "Increase patient satisfaction"], 
+                correct: 0, 
+                rationale: "Enhancing patient safety is accomplished by minimizing the risk of medical and nursing errors and ensuring a safe environment." 
+            },
+            { 
+                id: 19, 
+                question: "What is required to properly evaluate organizational outcomes according to Total Quality Management principles?", 
+                options: ["Approved organization information flow", "Increased external financial auditing", "Strict disciplinary action policies", "Elimination of all middle management"], 
+                correct: 0, 
+                rationale: "An approved organization information flow is essential in TQM to effectively evaluate the outcomes." 
+            },
+            { 
+                id: 20, 
+                question: "Total Quality Management focuses solely on increasing the satisfaction of customers while ignoring healthcare providers.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "TQM explicitly aims to increase the satisfaction of BOTH healthcare providers and customers." 
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

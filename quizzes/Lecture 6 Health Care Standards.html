@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Lecture 6: Health Care Standards</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY ---
+        const rawQuizData = [
+            { 
+                id: 1, 
+                question: "What dimension of standard describes the final change in the health status of a patient following an intervention?", 
+                options: ["Outcome standards", "Process standards", "Structure standards", "Organizational standards"], 
+                correct: 0, 
+                rationale: "Outcome standards can be defined as the end result of care, or how the patient's health status changes as a result of the intervention." 
+            },
+            { 
+                id: 2, 
+                question: "Which characteristic dictates that objectives should be based on direct counts or percentages?", 
+                options: ["Measurable", "Specific", "Attainable", "Relevant"], 
+                correct: 0, 
+                rationale: "The 'Measurable' component of SMART dictates that standards should be based on quantitative measures such as direct counts, percentages, and ratios." 
+            },
+            { 
+                id: 3, 
+                question: "Which component of professional performance involves interacting with and contributing to the professional development of peers?", 
+                options: ["Collegiality", "Collaboration", "Ethics", "Education"], 
+                correct: 0, 
+                rationale: "Collegiality is defined as the registered nurse interacting with and contributing to the professional development of peers and colleagues." 
+            },
+            { 
+                id: 4, 
+                question: "Nursing care standards are considered permanent and should never be altered once officially established.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "A standard should be considered temporary, because as nursing theory and knowledge evolves, standards should be updated." 
+            },
+            { 
+                id: 5, 
+                question: "Which area of organizational standards focuses on strategic thinking and issues related to nonprofit boards?", 
+                options: ["Governance and leadership", "Administrative systems", "Community collaboration", "Organizational development"], 
+                correct: 0, 
+                rationale: "Governance and leadership refers to strategic thinking, decisions that direct the organization, and anything related to nonprofit boards." 
+            },
+            { 
+                id: 6, 
+                question: "Which elements are primarily evaluated by process standards within nursing care?", 
+                options: ["Task oriented clinical actions", "Physical facility buildings", "Staffing ratio formulations", "Patient satisfaction levels"], 
+                correct: 0, 
+                rationale: "Process standards tend to be task-oriented and focus on the actions required by individuals in order to achieve high quality." 
+            },
+            { 
+                id: 7, 
+                question: "What is a primary administrative purpose for establishing rigorous nursing care standards?", 
+                options: ["To provide a basis for determining nursing negligence", "To increase overall healthcare facility revenues", "To eliminate the need for future clinical research", "To replace existing state nursing practice laws"], 
+                correct: 0, 
+                rationale: "A key purpose of nursing standards is to safeguard practice and provide a basis for determining nursing negligence." 
+            },
+            { 
+                id: 8, 
+                question: "Which element serves as a crucial source of data when developing new nursing practice standards?", 
+                options: ["Evidence based nursing", "Unverified internet articles", "Individual physician choices", "Unrelated corporate policies"], 
+                correct: 0, 
+                rationale: "Evidence-based nursing is explicitly listed as one of the important sources of data for nursing standards development." 
+            },
+            { 
+                id: 9, 
+                question: "According to professional standards, which ability is specifically expected from nursing managers?", 
+                options: ["Negotiate and resolve conflict", "Formulate medical diagnoses", "Administer surgical anesthesia", "Disregard community partners"], 
+                correct: 0, 
+                rationale: "Standards of Nursing Managers include abilities such as negotiating and resolving conflict, managing resources, and advocating for patients." 
+            },
+            { 
+                id: 10, 
+                question: "Criteria are the interpretations and cues used for measuring whether a standard has been successfully reached.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "Criteria are defined as the interpretations, cues, characteristics, or items used for measuring whether the standard has been reached or not." 
+            },
+            { 
+                id: 11, 
+                question: "Which specific component is classified strictly as a structure standard in healthcare?", 
+                options: ["Staffing mix ratios", "Assessment techniques", "Patient health responses", "Educational training programs"], 
+                correct: 0, 
+                rationale: "Staffing, staffing ratio, and staffing mix are classified under Structure Standards." 
+            },
+            { 
+                id: 12, 
+                question: "Creating a productive work environment with clear policies and fair supervision falls under which organizational standard area?", 
+                options: ["Administrative systems", "Program management", "Governance and leadership", "Community advocacy"], 
+                correct: 0, 
+                rationale: "Administrative systems involve creating a positive work environment, providing training, supervision, having clear policies, and prioritizing equity." 
+            },
+            { 
+                id: 13, 
+                question: "Which phase of clinical nursing practice involves identifying the expected results for a specific patient situation?", 
+                options: ["Outcomes identification", "Comprehensive assessment", "Strategy implementation", "Progress evaluation"], 
+                correct: 0, 
+                rationale: "Outcomes identification is the phase where the registered nurse identifies expected outcomes for a plan individuated to the patient or situation." 
+            },
+            { 
+                id: 14, 
+                question: "Which standard characteristic ensures that the established performance objectives align directly with the actual job responsibilities?", 
+                options: ["Relevant", "Timely", "Specific", "Attainable"], 
+                correct: 0, 
+                rationale: "The 'Relevant' component of SMART ensures that the performance standards are relevant to the job responsibilities." 
+            },
+            { 
+                id: 15, 
+                question: "The American Nurses Association divides professional nursing standards into performance standards, clinical practice standards, and managerial standards.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "The ANA outlines Professional nursing standards into three types: Professional Performance, Clinical Nursing Practice, and Nursing Managers." 
+            },
+            { 
+                id: 16, 
+                question: "Where do the legally binding rules and regulations that govern daily nursing practice primarily originate?", 
+                options: ["State nursing practice acts", "Individual hospital boards", "Local community collaborations", "National medical associations"], 
+                correct: 0, 
+                rationale: "Each state has a nursing practice act which details the legal rules and regulations that govern the practice of nursing in that state." 
+            },
+            { 
+                id: 17, 
+                question: "Considering safety, effectiveness, and cost during the delivery of nursing services describes which professional performance standard?", 
+                options: ["Resources utilization", "Professional practice evaluation", "Quality of nursing practice", "Ethical provisions integration"], 
+                correct: 0, 
+                rationale: "Resources utilization involves the registered nurse considering factors related to safety, effectiveness, cost, and impact on practice in planning and delivering services." 
+            },
+            { 
+                id: 18, 
+                question: "Program and information management standards deal strictly with financial management and providing volunteer training.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "Financial management and volunteer training fall under Administrative systems. Program and information management deals with monitoring, evaluation, and information technology." 
+            },
+            { 
+                id: 19, 
+                question: "Utilizing standardized clinical guidelines and critical pathways is an example of which standard dimension?", 
+                options: ["Process standards", "Structure standards", "Outcome standards", "Policy standards"], 
+                correct: 0, 
+                rationale: "Critical pathway and standardized clinical guidelines are explicitly included under Process Standards." 
+            },
+            { 
+                id: 20, 
+                question: "Why must established nursing standards be considered temporary working models?", 
+                options: ["Nursing theory and knowledge continuously evolve", "Hospital administrators frequently change roles", "Patients consistently demand experimental treatments", "Medical equipment becomes outdated every single year"], 
+                correct: 0, 
+                rationale: "Standards should be considered temporary because as nursing theory and knowledge evolves, standards should be updated to reflect a higher level of performance." 
+            },
+            { 
+                id: 21, 
+                question: "Outcome standards describe the desired effect of care in terms of patient behavior and overall satisfaction.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "Outcome standards describe the desired effect of care or actions in terms of behavior, responses, level of knowledge, and satisfaction." 
+            },
+            { 
+                id: 22, 
+                question: "How do nursing standards specifically benefit nurse educators within academic settings?", 
+                options: ["Provide guidelines for setting educational program objectives", "Eliminate the absolute need for student clinical evaluations", "Reduce the overall administrative cost of academic tuition", "Replace traditional undergraduate medical school curriculums"], 
+                correct: 0, 
+                rationale: "One of the purposes of nursing standards is to provide guidelines for nurse educators in setting objectives of educational programs." 
+            },
+            { 
+                id: 23, 
+                question: "What must a nursing standard contain in order to be considered valid and measurable?", 
+                options: ["Interpretative criteria", "Financial budgets", "Subjective opinions", "Unrealistic goals"], 
+                correct: 0, 
+                rationale: "Standards cannot be valid unless they contain criteria to enable action to be measured and evaluated." 
+            },
+            { 
+                id: 24, 
+                question: "Which clinical step requires the registered nurse to analyze collected assessment data to determine current issues?", 
+                options: ["Diagnosis formulation", "Intervention planning", "Strategy implementation", "Progress evaluation"], 
+                correct: 0, 
+                rationale: "In the Diagnosis phase, the registered nurse analyzes the assessment data to determine the diagnoses or issues." 
+            },
+            { 
+                id: 25, 
+                question: "Which principle dictates that employees must know the exact actions they are expected to accomplish?", 
+                options: ["Specific", "Measurable", "Attainable", "Timely"], 
+                correct: 0, 
+                rationale: "The 'Specific' component of SMART means performance standards should let employees know exactly which actions and results they are expected to accomplish." 
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>
