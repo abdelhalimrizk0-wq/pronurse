@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Burns and Burn Management</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY ---
+        const rawQuizData = [
+            {
+                id: 1,
+                question: "Which type of tissue offers the most resistance to electrical current during an electrical burn injury?",
+                options: ["Adipose tissue", "Nerve tissue", "Blood vessels", "Muscle fibers"],
+                correct: 0,
+                rationale: "The severity of an electrical burn effect depends mostly on tissue resistance, with fat offering the most resistance while nerves and blood vessels offer the least."
+            },
+            {
+                id: 2,
+                question: "Frostbite is classified as a mechanical injury due to the destructive freezing of human tissue.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Frostbite has an effect similar to excessive dry and moist heat, so it is officially considered a thermal injury."
+            },
+            {
+                id: 3,
+                question: "What is the estimated daily volume of insensible water loss through perspiration in a normal individual?",
+                options: ["Six hundred milliliters", "Four hundred milliliters", "Eight hundred milliliters", "One thousand milliliters"],
+                correct: 0,
+                rationale: "There is an insensible water loss by evaporation because the skin is not completely impermeable, and the daily amount is approximately 600 ml."
+            },
+            {
+                id: 4,
+                question: "When calculating fluid replacement for a burn exceeding fifty percent of the total body surface area, what percentage is used in the formula to prevent fluid overload?",
+                options: ["Fifty percent", "Sixty percent", "Seventy five percent", "One hundred percent"],
+                correct: 0,
+                rationale: "If burns exceed 50% TBSA, they are calculated as equal to 50% TBSA to avoid complications of fluid overload."
+            },
+            {
+                id: 5,
+                question: "Which wound debridement method involves the direct use of surgical scissors and forceps during hydrotherapy?",
+                options: ["Mechanical debridement", "Natural debridement", "Surgical debridement", "Chemical debridement"],
+                correct: 0,
+                rationale: "Mechanical debridement involves using surgical scissors and forceps or friction on hydrotherapy and dressing."
+            },
+            {
+                id: 6,
+                question: "The patient's open palm including the fingers represents approximately one percent of their total body surface area.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "The size of the patient's one open palm is approximately 1% of the TBSA, whereas the palm without fingers is 0.5%."
+            },
+            {
+                id: 7,
+                question: "What is the primary characteristic of the exit wound in an electrical burn compared to the inlet wound?",
+                options: ["Smaller with regular edges", "Larger with irregular edges", "Heavily necrotic and widened", "Deeply charred and expansive"],
+                correct: 0,
+                rationale: "Electrical burns have a unique character of an inlet with wide irregular edges and more necrosis, and an exit with smaller regular edges and less necrosis."
+            },
+            {
+                id: 8,
+                question: "Which fluid replacement solution is most commonly administered during the first twenty four hours post burn?",
+                options: ["Lactated Ringers", "Hypertonic saline", "Dextrose in water", "Fresh frozen plasma"],
+                correct: 0,
+                rationale: "The most commonly given crystalloid to replace sodium and potassium during the first day is Lactated Ringer's."
+            },
+            {
+                id: 9,
+                question: "What specific surgical procedure is indicated to relieve the constricting pressure of a circumferential burn?",
+                options: ["Escharotomy", "Fasciotomy", "Skin grafting", "Wound excision"],
+                correct: 0,
+                rationale: "The physician may need to perform an escharotomy, a surgical incision into the eschar, to relieve the constricting pressure effect of the burned tissue."
+            },
+            {
+                id: 10,
+                question: "Hyperkalemia frequently occurs in the first days post burn due to massive cellular trauma.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Hyperkalemia results from massive cellular trauma, metabolic acidosis, or renal failure, releasing potassium into the extracellular fluid in the first days."
+            },
+            {
+                id: 11,
+                question: "Which type of skin graft is specifically obtained from an animal source such as a pig?",
+                options: ["Heterograft", "Autograft", "Homograft", "Biosynthetic graft"],
+                correct: 0,
+                rationale: "A heterograft or xenograft is obtained from animals, usually pigs, though rejection may occur due to immunologic responses."
+            },
+            {
+                id: 12,
+                question: "How often is the outer layer of the skin epidermis typically replaced under normal conditions?",
+                options: ["Every three to four days", "Every one to two weeks", "Every twenty four hours", "Every five to seven days"],
+                correct: 0,
+                rationale: "The epidermis consists of live cells covered by a dead cell layer that is usually replaced every 3 to 4 days."
+            },
+            {
+                id: 13,
+                question: "What is the recommended maximum duration for a hydrotherapy session to prevent chilling and additional metabolic stress?",
+                options: ["Twenty to thirty minutes", "Ten to fifteen minutes", "Forty to fifty minutes", "One full hour"],
+                correct: 0,
+                rationale: "Hydrotherapy should be strictly limited to a 20 to 30 minute period to prevent chilling or additional metabolic stress."
+            },
+            {
+                id: 14,
+                question: "Which inhaled gas binds faster with hemoglobin than oxygen and requires immediate treatment with pure humidified oxygen?",
+                options: ["Carbon monoxide", "Carbon dioxide", "Hydrogen cyanide", "Nitrogen dioxide"],
+                correct: 0,
+                rationale: "Carbon monoxide binds faster with hemoglobin than oxygen causing carboxyhemoglobin, necessitating 100% humidified oxygen."
+            },
+            {
+                id: 15,
+                question: "Superficial partial thickness burns typically present with a white charred appearance and severe nerve damage.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Superficial partial thickness burns are red in color with clear blisters and are very painful. Charred, painless tissue indicates a full thickness burn."
+            },
+            {
+                id: 16,
+                question: "What severe renal complication can occur due to the release of myoglobin from damaged muscles?",
+                options: ["Acute tubular necrosis", "Chronic pyelonephritis", "Glomerular sclerosis", "Polycystic kidney degeneration"],
+                correct: 0,
+                rationale: "Muscle damage causes myoglobin release which is excreted by the kidneys, causing occlusion of the renal tubules and acute tubular necrosis."
+            },
+            {
+                id: 17,
+                question: "At what time post burn do capillaries typically regain their integrity allowing diuresis to commence?",
+                options: ["Forty eight hours", "Twelve hours", "Twenty four hours", "Seventy two hours"],
+                correct: 0,
+                rationale: "Capillaries regain integrity at 48 hours or more post burn, moving fluids from the interstitial to intravascular space and beginning diuresis."
+            },
+            {
+                id: 18,
+                question: "What target minimum urine output should be maintained using intravenous fluid infusion in an adult burn patient?",
+                options: ["Thirty milliliters per hour", "Ten milliliters per hour", "Fifty milliliters per hour", "Seventy milliliters per hour"],
+                correct: 0,
+                rationale: "Intravenous lactated Ringers infusion is given to maintain a urine output of at least 30 ml per hour."
+            },
+            {
+                id: 19,
+                question: "Local and systemic effects are expected to occur when a burn exceeds twenty five percent of the total body surface area.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "If the burn exceeds 25% of the total body surface area, it produces both local and systemic effects due to the release of chemical mediators."
+            },
+            {
+                id: 20,
+                question: "Which specific burn depth classification is characterized by destruction of all skin layers resulting in a completely painless wound?",
+                options: ["Full thickness third degree", "Superficial partial thickness", "Deep partial thickness", "Superficial first degree"],
+                correct: 0,
+                rationale: "Full thickness third degree burns destroy all skin layers and are painless due to complete nerve damage."
+            },
+            {
+                id: 21,
+                question: "What is a primary advantage of placing a burn patient in a closed or occlusive dressing?",
+                options: ["Maintains a moist wound environment", "Facilitates continuous visual inspection", "Increases heat loss by evaporation", "Eliminates the need for analgesics"],
+                correct: 0,
+                rationale: "Closed or occlusive methods maintain a moist wound, promote body temperature maintenance, and decrease the risk of infection and pain."
+            },
+            {
+                id: 22,
+                question: "Which caloric intake range is generally required for a severe adult burn patient per day?",
+                options: ["Three thousand to five thousand calories", "One thousand to two thousand calories", "Two thousand to three thousand calories", "Five thousand to seven thousand calories"],
+                correct: 0,
+                rationale: "The adult burn patient may require 3,000 to 5,000 calories per day depending on the total burn body surface area."
+            },
+            {
+                id: 23,
+                question: "Ice should be applied directly to a burn wound immediately on the scene to halt the burning process and reduce tissue damage.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "First aid protocol strictly dictates to cool the burn with running water and never apply ice directly to the burn."
+            },
+            {
+                id: 24,
+                question: "Which condition is a gastrointestinal consequence of the sympathetic nervous system response following severe burn trauma?",
+                options: ["Paralytic ileus", "Hyperactive bowel sounds", "Severe hepatic cirrhosis", "Chronic malabsorption syndrome"],
+                correct: 0,
+                rationale: "Sympathetic nervous system response to trauma decreases peristalsis, causing gastric distention, nausea, vomiting, and paralytic ileus."
+            },
+            {
+                id: 25,
+                question: "What is the maximum absolute volume of fluid replacement recommended over the first twenty four hours regardless of the calculated formula?",
+                options: ["Ten thousand milliliters", "Five thousand milliliters", "Fifteen thousand milliliters", "Twenty thousand milliliters"],
+                correct: 0,
+                rationale: "Protocols state a maximum limit of 10,000 mL over the first 24 hours to prevent severe fluid overload complications."
+            },
+            {
+                id: 26,
+                question: "Which type of burn injury is directly caused by friction and abrasions from harshly rubbing the skin against a coarse surface?",
+                options: ["Mechanical burn", "Electrical burn", "Chemical burn", "Thermal radiation burn"],
+                correct: 0,
+                rationale: "Friction or abrasions from harshly rubbing the skin against coarse surfaces, such as in motorcycle accidents, are classified as mechanical burns."
+            },
+            {
+                id: 27,
+                question: "The initial fluid accumulation and third space shift reach their absolute maximum extent within eight hours after the burn injury.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Fluid accumulation causes edema which reaches its maximum extent within 8 hours after the burn injury."
+            },
+            {
+                id: 28,
+                question: "What specific insoluble protein constitutes the nails covering the dorsal surface of the fingers and toes?",
+                options: ["Keratin", "Collagen", "Elastin", "Melanin"],
+                correct: 0,
+                rationale: "Nails are made of keratin, an insoluble fibrous protein covering the dorsal surface of the fingers and toes."
+            },
+            {
+                id: 29,
+                question: "Which late fluid balance complication can result directly from the aggressive use of hypertonic sodium solutions?",
+                options: ["Hypernatremia", "Hyponatremia", "Hypokalemia", "Hypercalcemia"],
+                correct: 0,
+                rationale: "Late after a burn, hypernatremia can result from the aggressive use of hypertonic sodium solutions during fluid replacement therapy."
+            },
+            {
+                id: 30,
+                question: "How long does complete resolution of burn wound edema typically take if excessive fluid replacement is avoided?",
+                options: ["Seven to ten days", "One to two days", "Three to five days", "Fourteen to twenty days"],
+                correct: 0,
+                rationale: "Edema begins to resolve gradually 1 to 2 days post burn until complete resolution in 7 to 10 days post injury."
+            },
+            {
+                id: 31,
+                question: "Core body temperatures exceeding thirty eight degrees Celsius in the acute phase always indicate a normal metabolic response without infection.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Fever is common, but temperatures do not typically exceed 38 degrees Celsius except in cases of a septic burn wound infection."
+            },
+            {
+                id: 32,
+                question: "Which physiological mechanism causes a systemic drop in blood pH resulting in metabolic acidosis post burn?",
+                options: ["Release of lactic acid from injured tissue", "Excessive retention of carbon dioxide", "Massive destruction of red blood cells", "Depletion of circulating immunoglobulins"],
+                correct: 0,
+                rationale: "Injured tissue causes the release of acids, specifically lactic acid from tissue destruction, dropping the pH level and causing metabolic acidosis."
+            },
+            {
+                id: 33,
+                question: "What specific assessment finding strongly indicates significant lower airway injury below the glottis following a burn?",
+                options: ["Carbonaceous black bloody sputum", "Clear thin watery nasal discharge", "Isolated superficial facial blisters", "Severe systemic muscular contractions"],
+                correct: 0,
+                rationale: "Indicators of pulmonary affection and lower airway injury include hoarseness, stridor, and black and bloody sputum."
+            },
+            {
+                id: 34,
+                question: "Which biological substance is primarily responsible for causing intense bronchoconstriction during the pulmonary response to a burn?",
+                options: ["Histamine", "Catecholamine", "Myoglobin", "Immunoglobulin"],
+                correct: 0,
+                rationale: "Bronchoconstriction in the pulmonary response is caused by the release of histamine."
+            },
+            {
+                id: 35,
+                question: "A deep partial thickness burn typically heals spontaneously within five to ten days without requiring any surgical debridement.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "A deep partial thickness burn takes more than 3 weeks to heal and may require debridement. Superficial partial thickness burns heal in 5-10 days."
+            },
+            {
+                id: 36,
+                question: "What is the primary clinical advantage of utilizing an open exposed method for burn wound dressing?",
+                options: ["Facilitates continuous wound inspection", "Decreases the risk of wound infection", "Minimizes heat loss by evaporation", "Promotes maintenance of body temperature"],
+                correct: 0,
+                rationale: "The open method facilitates early continuous wound inspection and allows wound dryness."
+            },
+            {
+                id: 37,
+                question: "Which distinct cardiovascular response occurs as a direct result of catecholamine release following a severe burn?",
+                options: ["Systemic vasoconstriction and tachycardia", "Systemic vasodilation and bradycardia", "Decreased capillary permeability", "Suppression of the immune system"],
+                correct: 0,
+                rationale: "The sympathetic nervous system releases catecholamines causing systemic vasoconstriction and tachycardia."
+            },
+            {
+                id: 38,
+                question: "What exact proportion of the calculated twenty four hour fluid requirement must be administered during the first eight hours?",
+                options: ["One half of the total volume", "One third of the total volume", "One fourth of the total volume", "Two thirds of the total volume"],
+                correct: 0,
+                rationale: "Half of the calculated total volume should be given over the first 8 post burn hours, and the other half over the next 16 hours."
+            },
+            {
+                id: 39,
+                question: "Contractures develop when burn wound tissue shortens due to the continuous force exerted by fibroblasts during natural healing.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "A contracture occurs when burn wound tissue shortens because of the force exerted by fibroblasts and muscle flexion during natural wound healing."
+            },
+            {
+                id: 40,
+                question: "Which anatomical component of the skin primarily consists of supportive adipose tissue?",
+                options: ["Subcutaneous dermal layer", "Superficial epidermal layer", "Deep epidermal layer", "Stratum corneum layer"],
+                correct: 0,
+                rationale: "The subcutaneous or subdermal layer is an adipose tissue located under the dermis."
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        // Randomize question order
+        for (let i = quizData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+        }
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

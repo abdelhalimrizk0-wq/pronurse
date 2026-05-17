@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Intracranial Surgery (ICS) Quiz</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 50 QUESTIONS HERE) ---
+        const rawQuizData =[
+            { id: 1, question: "Which surgical approach is used to gain access to the pituitary gland without making incisions to the face or skull?", options:["Transsphenoidal approach", "Infratentorial approach", "Supratentorial approach", "Occipital approach"], correct: 0, rationale: "The transsphenoidal approach is used to access the pituitary gland through the nose and sphenoid bone without facial incisions." },
+            { id: 2, question: "What is the primary purpose of administering dexamethasone preoperatively for an intracranial surgery patient?", options:["Reduce cerebral edema", "Prevent postoperative seizures", "Maintain systemic blood pressure", "Eliminate surgical site infection"], correct: 0, rationale: "Preoperative corticosteroids like dexamethasone are introduced to reduce cerebral edema." },
+            { id: 3, question: "Which procedure involves making circular openings in the skull using a hand drill or automatic craniotome?", options:["Burr holes", "Cranioplasty", "Craniectomy", "Endarterectomy"], correct: 0, rationale: "Burr holes are circular openings made in the skull to make a bone flap, evacuate hematomas, or access ventricles." },
+            { id: 4, question: "How is a craniectomy distinct from a craniotomy?", options:["It involves the excision of a portion of the skull", "It repairs a cranial defect using a plastic plate", "It creates a temporary bony flap that is immediately replaced", "It requires access strictly through the nasal cavity"], correct: 0, rationale: "A craniectomy is the excision of a portion of the skull, often done to enhance the potential volume of the intracranial compartment (decompression)." },
+            { id: 5, question: "Which diagnostic test uses sound waves to evaluate the blood flow within the intracranial blood vessels?", options:["Transcranial Doppler flow studies", "Brain computed tomography", "Magnetic resonance imaging", "Cerebral angiography"], correct: 0, rationale: "Transcranial Doppler flow studies are specifically used to evaluate the blood flow within the intracranial blood vessels." },
+            { id: 6, question: "Which medication is classified as a hyperosmotic agent given to patients to reduce brain herniation risk?", options:["Mannitol", "Phenytoin", "Diazepam", "Acetaminophen"], correct: 0, rationale: "A hyperosmotic agent like mannitol may be given intravenously to reduce the risk of herniation of the brain." },
+            { id: 7, question: "When is hair typically removed for a patient undergoing a craniotomy?", options:["Immediately before surgery in the operating room", "Forty eight hours before the scheduled admission", "One week prior during a preoperative clinic visit", "On the morning of the day before the procedure"], correct: 0, rationale: "Hair is removed with clippers and the surgical site is prepared immediately before surgery, usually in the operating room, to decrease infection risk." },
+            { id: 8, question: "Which patient position is recommended after a supratentorial craniotomy?", options:["Head of bed elevated thirty degrees", "Completely flat on the back without pillows", "Prone position with the neck flexed forward", "Trendelenburg position for optimal drainage"], correct: 0, rationale: "After supratentorial surgery, the head of the bed may be elevated 30-45 degrees to promote venous drainage." },
+            { id: 9, question: "How should a patient be positioned after infratentorial surgery?", options:["Flat on one side with a small firm pillow", "Supine with the head elevated sixty degrees", "High Fowler position to improve breathing", "Prone with the neck in hyperextension"], correct: 0, rationale: "After posterior fossa (infratentorial) surgery, the patient is kept flat on one side with the head on a small, firm pillow." },
+            { id: 10, question: "What is a classic sign of diabetes insipidus following intracranial surgery?", options:["Excessive urinary output", "Severe fluid retention", "High urine specific gravity", "Elevated serum potassium"], correct: 0, rationale: "Symptoms of diabetes insipidus include excessive urinary output, decreased urine osmolality, and low urine specific gravity." },
+            { id: 11, question: "Why must serum glucose levels be measured frequently in these postoperative patients?", options:["Large doses of corticosteroids", "Prolonged preoperative fasting", "Continuous intravenous antibiotics", "Excessive mannitol administration"], correct: 0, rationale: "Patients may be at risk for hyperglycemia because of the large doses of corticosteroids prescribed." },
+            { id: 12, question: "Which bedside test differentiates cerebrospinal fluid from normal nasal mucus?", options:["Using Dextrostix to test for glucose", "Checking the specific gravity of the fluid", "Measuring the exact fluid temperature", "Culturing the fluid for bacterial growth"], correct: 0, rationale: "Differentiate between CSF and mucus with Dextrostix, as cerebrospinal fluid contains glucose." },
+            { id: 13, question: "Which set of vital sign changes indicates Cushing triad?", options:["Increased blood pressure and decreased pulse", "Decreased blood pressure and increased pulse", "Elevated body temperature and rapid breathing", "Decreased respiratory rate and pinpoint pupils"], correct: 0, rationale: "Cushing triad involves an increase in blood pressure and a decrease in pulse with respiratory failure, indicating increased ICP." },
+            { id: 14, question: "What turning technique is recommended to prevent strain on the cranial incision and tearing of sutures?", options:["Turn the body as a single unit", "Turn the head followed by the torso", "Elevate the legs before moving the trunk", "Ask the patient to pull on the side rails"], correct: 0, rationale: "When the patient is being turned, the body should be turned as a unit (log-rolled) to prevent placing strain on the incision." },
+            { id: 15, question: "Why is extreme head rotation avoided after intracranial surgery?", options:["It raises intracranial pressure", "It triggers severe neck muscle spasms", "It restricts the carotid artery blood flow", "It dislodges the endotracheal tube"], correct: 0, rationale: "Extreme head rotation is avoided because it raises intracranial pressure (ICP)." },
+            { id: 16, question: "Why must rewarming be conducted slowly if a patient experiences hypothermia after a lengthy surgery?", options:["To prevent shivering", "To avoid rapid vasodilation", "To prevent immediate sweating", "To avoid superficial skin burns"], correct: 0, rationale: "Rewarming should occur slowly to prevent shivering, which increases cellular oxygen demands." },
+            { id: 17, question: "What does patient restlessness most likely indicate following intracranial surgery?", options:["Pain or an obstructed urinary drainage system", "Complete recovery from surgical anesthesia", "Expected side effect of diuretic medications", "Sudden return to baseline consciousness"], correct: 0, rationale: "Restlessness may reflect a return to consciousness but may also be due to pain, confusion, or an obstructed urinary drainage system." },
+            { id: 18, question: "What is the immediate nursing action if the cranial dressing becomes heavily stained with blood?", options:["Reinforce it with a sterile dressing and report immediately", "Remove the dressing entirely to inspect the incision", "Wash the stained area vigorously with sterile saline", "Apply a tight elastic bandage around the entire head"], correct: 0, rationale: "A heavily stained or displaced dressing should be reinforced with a sterile one and reported immediately." },
+            { id: 19, question: "When does postoperative cerebral edema typically reach its peak?", options:["Twenty four to thirty six hours", "Two to four hours", "Forty eight to seventy two hours", "Five to seven days"], correct: 0, rationale: "Some degree of cerebral edema occurs after brain surgery, with a peak 24 to 36 hours after surgery." },
+            { id: 20, question: "What should the nurse suspect if a patient complains of a salty taste or postnasal drip postoperatively?", options:["Cerebrospinal fluid trickling down the throat", "Normal side effect of general anesthesia", "Mild infection of the pharyngeal tonsils", "Residual effect of preoperative antibiotics"], correct: 0, rationale: "Attention should be paid to the patient who complains of a salty taste or postnasal drip because this can be caused by CSF trickling down the throat." },
+            { id: 21, question: "Which surgical approach requires maintaining nasal packing and instructing the patient to avoid nose blowing?", options:["Transsphenoidal approach", "Supratentorial approach", "Infratentorial approach", "Occipital approach"], correct: 0, rationale: "The transsphenoidal approach involves maintaining nasal packing in place and instructing the patient to avoid blowing their nose." },
+            { id: 22, question: "What is the primary surgical purpose of a cranioplasty?", options:["To repair a cranial defect", "To remove a massive brain tumor", "To drain a deep intracranial abscess", "To measure strict intracranial pressure"], correct: 0, rationale: "Cranioplasty is a repair of a cranial defect by means of a plastic, metal plate, or bone graft." },
+            { id: 23, question: "Which medication is commonly prescribed prophylactically to prevent postoperative seizures?", options: ["Phenytoin", "Furosemide", "Lorazepam", "Acetaminophen"], correct: 0, rationale: "Antiseizure medication like phenytoin or diazepam is often prescribed prophylactically in patients with supratentorial craniotomy." },
+            { id: 24, question: "Which respiratory complication is a direct risk of immobility and decreased level of consciousness?", options:["Pneumonia", "Bronchial asthma", "Pulmonary fibrosis", "Tension pneumothorax"], correct: 0, rationale: "Pneumonia can develop due to aspiration and restricted mobility from decreased LOC and immunosuppression." },
+            { id: 25, question: "Why are histamine receptor antagonists prescribed for postoperative intracranial surgery patients?", options:["To suppress the secretion of gastric acid", "To prevent allergic reactions to contrast dye", "To reduce the risk of surgical site infections", "To control severe postoperative head pain"], correct: 0, rationale: "Patients are prone to stress ulcers, so histamine-2 receptor antagonists are prescribed to suppress the secretion of gastric acid." },
+            { id: 26, question: "What is a recommended nursing intervention for managing periorbital edema?", options:["Applying cold compresses over the eyes", "Massaging the orbital area firmly", "Administering warm intravenous fluids", "Keeping the head of the bed flat"], correct: 0, rationale: "Nursing measures include elevating the head of the bed and applying cold compresses over the eyes." },
+            { id: 27, question: "What is the proper discharge teaching regarding the patient scalp and sutures?", options:["Keep the scalp dry until all sutures are removed", "Wash the scalp vigorously with soap every day", "Apply a thick layer of antibiotic ointment hourly", "Remove the surgical sutures independently at home"], correct: 0, rationale: "The scalp should be kept dry until all sutures have been removed." },
+            { id: 28, question: "Why is it mandatory to check gag and swallowing reflexes before initiating oral fluids?", options:["To prevent pulmonary aspiration", "To stimulate gastric acid production", "To measure baseline saliva volume", "To assess cranial nerve optic function"], correct: 0, rationale: "The presence of gag and swallowing reflex must be checked before initiation of oral fluids to prevent aspiration." },
+            { id: 29, question: "Which action should be avoided to prevent creating pressure on the operative site and risking a cerebrospinal fluid leak?", options:["Coughing and sneezing", "Taking slow deep breaths", "Performing range of motion", "Blinking the eyes rapidly"], correct: 0, rationale: "The patient is instructed to avoid coughing, sneezing, or nose blowing, which can cause CSF leakage by creating pressure." },
+            { id: 30, question: "What complication might a significant and sudden increase in periorbital edema indicate?", options:["A postoperative clot and increasing intracranial pressure", "A completely normal expected healing response", "An improved rate of cerebral venous drainage", "The complete resolution of general cerebral edema"], correct: 0, rationale: "The surgeon is notified if periorbital edema increases significantly, as it implies a postoperative clot, increasing ICP, and poor venous drainage." },
+            { id: 31, question: "What is the primary role of diazepam or lorazepam given preoperatively?", options:["To relieve patient anxiety", "To reduce active brain swelling", "To prevent surgical infections", "To maintain strict blood pressure"], correct: 0, rationale: "Diazepam or lorazepam may be prescribed preoperatively to relieve anxiety." },
+            { id: 32, question: "Which specific symptom is a direct consequence of surgical injury to the hypothalamic centers?", options:["Moderate temperature elevation", "Severe resting bradycardia", "General muscle spasticity", "Complete visual field loss"], correct: 0, rationale: "Moderate temperature elevation can be expected because of injury to the hypothalamic centers that regulate body temperature." },
+            { id: 33, question: "Which fluid imbalance syndrome is characterized by water retention and serum hypo osmolality?", options:["Syndrome of inappropriate antidiuretic hormone secretion", "Classic diabetes insipidus", "Diabetic hyperosmolar ketoacidosis", "Cushing adrenal syndrome"], correct: 0, rationale: "Syndrome of Inappropriate Antidiuretic Hormone Secretion (SIADH) presents with water retention, hyponatremia, and serum hypo-osmolality." },
+            { id: 34, question: "How should healthcare personnel enter the room of a patient recovering from intracranial surgery?", options:["Announcing their presence to avoid startling the patient", "Silently to ensure the patient is not awakened", "Quickly to minimize the total door open time", "With all overhead bright lights turned on"], correct: 0, rationale: "Health care personnel should announce their presence when entering the room to avoid startling the patient." },
+            { id: 35, question: "What is a common but temporary cause of impaired hearing postoperatively in these patients?", options:["A large bulky head dressing", "Permanent acoustic nerve damage", "A severe inner ear infection", "Side effects of intravenous antibiotics"], correct: 0, rationale: "The large head dressing applied after surgery may impair hearing temporarily." },
+            { id: 36, question: "Which visual change should the nurse carefully observe and record as a potential neurologic deficit?", options:["Diplopia", "Hyperopia", "Presbyopia", "Color blindness"], correct: 0, rationale: "The nurse carefully observes any neurologic deficit, such as visual changes like diplopia or blurred vision." },
+            { id: 37, question: "Which specific goal is an indication for performing a craniotomy procedure?", options:["Evacuating a blood clot", "Repairing a facial bone fracture", "Treating a superficial scalp laceration", "Diagnosing a mild physical concussion"], correct: 0, rationale: "A craniotomy involves opening the skull to remove a tumor, relieve elevated ICP, evacuate a blood clot, or control hemorrhage." },
+            { id: 38, question: "Which neck movement must be avoided to prevent tearing of the suture line after an infratentorial surgery?", options:["Flexion of the neck", "Extension of the legs", "Elevation of the arms", "Rotation of the shoulders"], correct: 0, rationale: "After infratentorial surgery, the nurse must avoid flexion of the neck to prevent tearing of the suture line." },
+            { id: 39, question: "What resource should the nurse provide to help an aphasic patient communicate effectively?", options:["Picture and word cards", "A high volume hearing aid", "Only close family members", "Written verbal consent forms"], correct: 0, rationale: "For aphasic patients, writing materials or picture and word cards of frequently used items may help improve communication." },
+            { id: 40, question: "Why is careful assessment of respiratory status deemed essential for neurosurgical patients?", options:["Small degrees of hypoxia can aggravate cerebral ischemia", "It directly measures the exact intracranial pressure", "It prevents superficial skin integrity breakdown", "It guarantees normal gastrointestinal tract motility"], correct: 0, rationale: "Assessment of respiratory status is essential because small degrees of hypoxia can aggravate cerebral ischemia." },
+            { id: 41, question: "A craniotomy procedure involves permanently excising a bone flap without repositioning it after surgery.", options:["False", "True"], correct: 0, rationale: "A craniectomy involves excision. A craniotomy involves creating a bony flap and repositioning it after surgery." },
+            { id: 42, question: "The transsphenoidal surgical approach provides access to the pituitary gland directly through the nasal cavity.", options: ["True", "False"], correct: 0, rationale: "The transsphenoidal approach is used to access the pituitary gland by going through the nose and the sphenoid bone." },
+            { id: 43, question: "Corticosteroids are administered preoperatively to stimulate the patient immune system response.", options: ["False", "True"], correct: 0, rationale: "Corticosteroids like dexamethasone are given before surgery specifically to reduce cerebral edema." },
+            { id: 44, question: "Patients who undergo supratentorial surgery should have the head of the bed elevated thirty to forty five degrees.", options: ["True", "False"], correct: 0, rationale: "The head of the bed is maintained elevated at 30-45 degrees to promote venous drainage after supratentorial craniotomy." },
+            { id: 45, question: "Cerebrospinal fluid can be differentiated from nasal mucus because it contains measurable glucose.", options: ["True", "False"], correct: 0, rationale: "Cerebrospinal fluid contains glucose, which allows it to be differentiated from mucus using Dextrostix." },
+            { id: 46, question: "Cushing triad is clinically characterized by a sharp decrease in blood pressure and an increase in pulse rate.", options:["False", "True"], correct: 0, rationale: "Cushing triad consists of an increase in blood pressure and a decrease in pulse with respiratory failure." },
+            { id: 47, question: "Shivering should be strictly prevented during rewarming because it significantly increases cellular oxygen demands.", options: ["True", "False"], correct: 0, rationale: "Rewarming should occur slowly to prevent shivering, which increases cellular oxygen demands." },
+            { id: 48, question: "Patients are strongly encouraged to cough vigorously after intracranial surgery to clear their airway.", options: ["False", "True"], correct: 0, rationale: "Patients are instructed to avoid coughing, sneezing, or nose blowing because these actions increase pressure and can cause CSF leakage." },
+            { id: 49, question: "Periorbital edema and ecchymosis forming a black eye are common expected consequences of intracranial surgery.", options: ["True", "False"], correct: 0, rationale: "Periorbital edema is a common consequence as fluid drains into dependent areas when the patient is prone during surgery." },
+            { id: 50, question: "Hair removal for cranial surgery is routinely completed several days prior to the admission date.", options: ["False", "True"], correct: 0, rationale: "Hair is removed with clippers immediately before surgery, usually in the operating room, to decrease the chance of infection." }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

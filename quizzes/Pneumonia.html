@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Pneumonia</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 40 QUESTIONS HERE) ---
+        const rawQuizData = [
+            {
+                id: 1,
+                question: "Which classification describes pneumonia occurring in a nonhospitalized patient who received hemodialysis treatment at a clinic?",
+                options: ["Health care associated pneumonia", "Community acquired pneumonia", "Hospital acquired pneumonia", "Ventilator associated pneumonia"],
+                correct: 0,
+                rationale: "Health care associated pneumonia (HCAP) is an infection obtained in patients with extensive healthcare contact, such as hemodialysis treatment at a clinic."
+            },
+            {
+                id: 2,
+                question: "Bronchopneumonia is less common than lobar pneumonia in affected individuals.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "The text states that bronchopneumonia is actually more common than lobar pneumonia."
+            },
+            {
+                id: 3,
+                question: "What is the primary cause of arterial hypoxemia in patients with pneumonia?",
+                options: ["Mixing of oxygenated and unoxygenated blood", "Complete obstruction of the upper airway", "Destruction of the alveolar capillary membrane", "Excessive retention of carbon dioxide"],
+                correct: 0,
+                rationale: "Venous blood passing through underventilated areas travels to the left side of the heart poorly oxygenated, resulting in the mixing of oxygenated and unoxygenated blood which causes arterial hypoxemia."
+            },
+            {
+                id: 4,
+                question: "What is the recommended fluid intake for a pneumonia patient without preexisting conditions such as heart failure?",
+                options: ["Two to three liters per day", "One to two liters per day", "Three to four liters per day", "Four to five liters per day"],
+                correct: 0,
+                rationale: "The nurse encourages hydration of 2 to 3 liters per day to help loosen pulmonary secretions and compensate for insensible fluid loss."
+            },
+            {
+                id: 5,
+                question: "Which organism is a common causative agent of pneumonia in an immunocompromised host?",
+                options: ["Pneumocystis pneumonia", "Haemophilus influenzae", "Streptococcus pneumoniae", "Klebsiella pneumoniae"],
+                correct: 0,
+                rationale: "Common causative organisms for pneumonia in the immunocompromised host include Pneumocystis pneumonia (PCP), fungal pneumonias, and Mycobacterium tuberculosis."
+            },
+            {
+                id: 6,
+                question: "Ventilator associated pneumonia generally occurs within forty eight hours of the onset of mechanical ventilation.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Ventilator-associated pneumonia (VAP) occurs within 96 hours of the onset of mechanical ventilation, not 48 hours."
+            },
+            {
+                id: 7,
+                question: "Which condition is a specific recommendation for receiving the pneumococcal conjugate vaccine?",
+                options: ["Cerebrospinal fluid leak", "Chronic liver disease", "Chronic heart disease", "Cigarette smoking habit"],
+                correct: 0,
+                rationale: "The pneumococcal conjugate vaccine (PCV13) is recommended for conditions that weaken the immune system, such as cerebrospinal fluid leak, HIV, or leukemia."
+            },
+            {
+                id: 8,
+                question: "Which clinical manifestation is most characteristic of severe pneumonia?",
+                options: ["Central cyanosis of the lips and nail beds", "Gradual onset of a low grade fever", "Productive cough with clear white sputum", "Bradycardia and decreased respiratory rate"],
+                correct: 0,
+                rationale: "In severe pneumonia, the cheeks are flushed, and the lips and nail beds demonstrate central cyanosis."
+            },
+            {
+                id: 9,
+                question: "Which medical procedure is indicated to manage a patient who develops a pleural effusion?",
+                options: ["Thoracentesis", "Bronchoscopy", "Tracheostomy", "Lobectomy"],
+                correct: 0,
+                rationale: "If a pleural effusion develops, a thoracentesis is performed to remove the excess fluid from the pleural space."
+            },
+            {
+                id: 10,
+                question: "Which intervention is a key element of the ventilator associated pneumonia bundle?",
+                options: ["Peptic ulcer disease prophylaxis", "Continuous deep sedation therapy", "Routine administration of systemic steroids", "Supine positioning at zero degrees"],
+                correct: 0,
+                rationale: "Peptic ulcer disease prophylaxis is one of the five key elements of the VAP bundle interventions."
+            },
+            {
+                id: 11,
+                question: "A pneumococcal conjugate vaccine protects against twenty three types of pneumococcal bacteria.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "The pneumococcal conjugate vaccine (PCV13) protects against 13 types, while the pneumococcal polysaccharide vaccine (PPSV23) protects against 23 types."
+            },
+            {
+                id: 12,
+                question: "Which factor is recognized as a direct cause of aspiration pneumonia?",
+                options: ["Entry of exogenous chemical contents", "Inhalation of aerosolized fungal spores", "Prolonged exposure to cold weather", "Contact with a contaminated surface"],
+                correct: 0,
+                rationale: "Causes of aspiration pneumonia include gastric contents, irritating gases, bacteria, and exogenous chemical contents."
+            },
+            {
+                id: 13,
+                question: "When should the patient's status be assessed for modifying antibiotic therapy based on culture results?",
+                options: ["Seventy two hours after initiation", "Twenty four hours after initiation", "Forty eight hours after initiation", "Ninety six hours after initiation"],
+                correct: 0,
+                rationale: "The patient's status must be assessed 72 hours after the initiation of therapy, and antibiotics should be discontinued or modified based on culture results."
+            },
+            {
+                id: 14,
+                question: "Which type of white blood cell primarily migrates into the alveoli and fills the air spaces during pneumonia?",
+                options: ["Neutrophils", "Lymphocytes", "Macrophages", "Eosinophils"],
+                correct: 0,
+                rationale: "During the inflammatory reaction in pneumonia, white blood cells, mostly neutrophils, migrate into the alveoli and fill the normally air-filled spaces."
+            },
+            {
+                id: 15,
+                question: "Hospital acquired pneumonia is the most common cause of death among all patients with hospital acquired infections.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "HAP is associated with a high mortality rate and is the most common cause of death among all patients with hospital-acquired infection."
+            },
+            {
+                id: 16,
+                question: "How does providing humidified air through a facemask benefit a patient with pneumonia?",
+                options: ["It helps liquefy secretions and relieves irritation", "It reduces the body temperature during high fever", "It directly destroys the causative microorganisms", "It prevents the development of a pleural effusion"],
+                correct: 0,
+                rationale: "Humidification through a high-humidity facemask delivers warm, humidified air which helps liquefy secretions and relieves tracheobronchial irritation."
+            },
+            {
+                id: 17,
+                question: "What preventive measure is most appropriate for patients with prolonged immobility and a shallow breathing pattern?",
+                options: ["Promote lung expansion exercises and coughing", "Administer prophylactic broad spectrum antibiotics", "Implement strict airborne isolation precautions", "Restrict daily fluid intake to reduce pulmonary edema"],
+                correct: 0,
+                rationale: "For prolonged immobility and shallow breathing, preventive measures include repositioning and promoting lung expansion exercises and coughing."
+            },
+            {
+                id: 18,
+                question: "Community acquired pneumonia can occur within the first forty eight hours after a patient is hospitalized.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Community-acquired pneumonia occurs either in the community setting or within the first 48 hours after hospitalization."
+            },
+            {
+                id: 19,
+                question: "What dietary modification should the nurse encourage for a pneumonia patient experiencing shortness of breath and fatigue?",
+                options: ["Small frequent meals", "Three large calorie dense meals", "Exclusively clear liquid diets", "High protein bolus tube feedings"],
+                correct: 0,
+                rationale: "Because shortness of breath and fatigue can decrease appetite, the nurse encourages the patient to have small, frequent meals."
+            },
+            {
+                id: 20,
+                question: "Which diagnostic test is primarily used to detect frequent bloodstream invasion in pneumonia patients?",
+                options: ["Blood culture", "Sputum examination", "Arterial blood gases", "Chest radiography"],
+                correct: 0,
+                rationale: "Blood cultures are used diagnostically because bloodstream invasion (bacteremia) occurs frequently in pneumonia patients."
+            },
+            {
+                id: 21,
+                question: "Which organism is commonly responsible for hospital acquired pneumonia?",
+                options: ["Pseudomonas aeruginosa", "Streptococcus pneumoniae", "Mycoplasma pneumoniae", "Legionella pneumophila"],
+                correct: 0,
+                rationale: "Common organisms responsible for HAP include Enterobacter species, Escherichia coli, Haemophilus influenzae, Klebsiella pneumoniae, and Pseudomonas aeruginosa."
+            },
+            {
+                id: 22,
+                question: "The nurse should encourage a fluid intake of at least two to three liters per day to help loosen pulmonary secretions.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "The nurse encourages hydration of 2 to 3 liters per day to loosen pulmonary secretions unless contraindicated."
+            },
+            {
+                id: 23,
+                question: "Which nursing intervention minimizes the risk of aspiration in a patient with a nasogastric tube?",
+                options: ["Checking placement of the tube and proper positioning", "Administering continuous high volume enteral feedings", "Maintaining the patient in a flat supine position", "Replacing the feeding tube every twenty four hours"],
+                correct: 0,
+                rationale: "To minimize the risk for aspiration with a nasogastric tube, the nurse must check the placement of the tube and ensure proper positioning of the patient."
+            },
+            {
+                id: 24,
+                question: "Which complication of pneumonia involves a severe drop in blood pressure requiring hemodynamic monitoring and intravenous fluids?",
+                options: ["Shock and respiratory failure", "Extensive pleural effusion", "Atelectasis of the lung lobe", "Severe acute delirium"],
+                correct: 0,
+                rationale: "Shock is a complication where the nurse assesses vital signs and hemodynamic parameters, and assists in administering IV fluids to combat the deteriorating status."
+            },
+            {
+                id: 25,
+                question: "Which antibiotic is recommended as monotherapy for patients with known multidrug resistant pneumonia?",
+                options: ["Levofloxacin", "Azithromycin", "Clarithromycin", "Amoxicillin"],
+                correct: 0,
+                rationale: "Levofloxacin, along with ceftriaxone, ampicillin/sulbactam, or ertapenem, is used as monotherapy for patients with known multidrug resistance."
+            },
+            {
+                id: 26,
+                question: "What term is used to describe pneumonia that originates in localized areas and extends in a patchy fashion to adjacent tissue?",
+                options: ["Bronchopneumonia", "Lobar pneumonia", "Interstitial pneumonitis", "Atypical pneumonia"],
+                correct: 0,
+                rationale: "The term bronchopneumonia is used to describe pneumonia distributed in a patchy fashion originating in localized areas within the bronchi."
+            },
+            {
+                id: 27,
+                question: "Delirium in pneumonia patients may be directly related to hypoxemia, fever, dehydration, or developing sepsis.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "The text explicitly states that delirium may be related to hypoxemia, fever, dehydration, or developing sepsis."
+            },
+            {
+                id: 28,
+                question: "What specific type of pain is commonly reported by patients presenting with pneumonia?",
+                options: ["Pleuritic chest pain aggravated by deep breathing", "Dull retrosternal pain radiating to the jaw", "Sharp epigastric pain spreading to the back", "Continuous cramping pain in the lower abdomen"],
+                correct: 0,
+                rationale: "Clinical manifestations of pneumonia include pleuritic chest pain that is aggravated by deep breathing and coughing."
+            },
+            {
+                id: 29,
+                question: "What concentration of chlorhexidine is used for daily oral care to prevent ventilator associated pneumonia?",
+                options: ["Zero point twelve percent", "Zero point two percent", "One point five percent", "Two point zero percent"],
+                correct: 0,
+                rationale: "Daily oral care with chlorhexidine using zero point twelve percent oral rinses is part of the VAP bundle interventions."
+            },
+            {
+                id: 30,
+                question: "What physiological disturbance occurs in the affected area of the lung primarily due to hypoventilation?",
+                options: ["Ventilation perfusion mismatch", "Increased alveolar oxygen tension", "Enhanced pulmonary gas diffusion", "Decreased pulmonary vascular resistance"],
+                correct: 0,
+                rationale: "Because of hypoventilation, a ventilation-perfusion mismatch occurs in the affected area of the lung during pneumonia."
+            },
+            {
+                id: 31,
+                question: "Antibiotic therapy for pneumonia should be discontinued or modified based on culture results strictly after twenty four hours.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "The text states that the patient's status must be assessed 72 hours after the initiation of therapy, not 24 hours."
+            },
+            {
+                id: 32,
+                question: "Which patient population is particularly at risk for aspirating foreign material due to an abnormal swallowing mechanism?",
+                options: ["Unconscious patients", "Ambulatory patients", "Immunocompromised patients", "Febrile patients"],
+                correct: 0,
+                rationale: "Unconscious patients have a depressed cough reflex and abnormal swallowing mechanism, making them prone to aspiration of foreign material."
+            },
+            {
+                id: 33,
+                question: "Which outcome accurately indicates improved airway patency in a patient recovering from pneumonia?",
+                options: ["Normal breath sounds and effective coughing", "Consumption of adequate dietary intake", "Adherence to the prescribed management strategies", "Maintenance of a normal skin turgor"],
+                correct: 0,
+                rationale: "Demonstrating improved airway patency is evidenced by adequate oxygenation, normal breath sounds, and effective coughing."
+            },
+            {
+                id: 34,
+                question: "Which assessment finding should strongly alert the nurse to the possibility of bacterial pneumonia?",
+                options: ["Night sweats accompanied by respiratory symptoms", "Gradual onset of a mild dry continuous cough", "Normal resting heart rate and blood pressure", "Absence of pain during deep inspiration"],
+                correct: 0,
+                rationale: "Fever, chills, or night sweats in a patient who also has respiratory symptoms should alert the nurse to the possibility of bacterial pneumonia."
+            },
+            {
+                id: 35,
+                question: "Elevating the head of the bed at least thirty degrees is recommended for patients unable to protect their airway.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Supine positioning in patients unable to protect their airway requires elevating the head of the bed at least 30 degrees to prevent aspiration."
+            },
+            {
+                id: 36,
+                question: "What combination of drugs might be used for a patient with known multidrug resistant pneumonia?",
+                options: ["Antipseudomonal cephalosporin plus an aminoglycoside", "High dose oral corticosteroids and bronchodilators", "Intravenous diuretics combined with beta blockers", "Monoclonal antibodies targeting viral replication"],
+                correct: 0,
+                rationale: "A three-drug combination therapy including an antipseudomonal cephalosporin plus an aminoglycoside (and linezolid/vancomycin) may be used for multidrug resistance."
+            },
+            {
+                id: 37,
+                question: "How many days of hospitalization in an acute care facility within the past ninety days places a patient at risk for health care associated pneumonia?",
+                options: ["Twenty two days", "Ten days", "Five days", "Fourteen days"],
+                correct: 0,
+                rationale: "Hospitalization for 22 days in an acute care facility within 90 days of infection is a criterion for Health care-associated pneumonia (HCAP)."
+            },
+            {
+                id: 38,
+                question: "Which medication class is known to predispose a patient to pneumonia by compromising the immune system?",
+                options: ["Corticosteroids", "Antihypertensives", "Nonsteroidal anti inflammatories", "Proton pump inhibitors"],
+                correct: 0,
+                rationale: "Pneumonia in the immunocompromised host occurs with the use of corticosteroids or other immunosuppressive agents."
+            },
+            {
+                id: 39,
+                question: "Pneumonitis is a specific term describing an infection caused strictly by invasive bacterial microorganisms.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Pneumonitis is a more general term that describes an inflammatory process in the lung tissue that predisposes a patient to microbial invasion, not specifically caused by bacteria."
+            },
+            {
+                id: 40,
+                question: "What action should the nurse take immediately after changing the patient's position during chest physiotherapy?",
+                options: ["Encourage the patient to breathe deeply and cough", "Administer a high dose of intravenous antibiotics", "Measure the patient's core body temperature", "Provide a large meal to replenish lost energy"],
+                correct: 0,
+                rationale: "After each position change during postural drainage and chest physiotherapy, the nurse encourages the patient to breathe deeply and cough."
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Chronic Obstructive Pulmonary Disease</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 40 QUESTIONS HERE) ---
+        const rawQuizData = [
+            {
+                id: 1,
+                question: "Which surgical procedure is specifically designed to remove one or more very large air spaces from the lungs?",
+                options: ["Pulmonary bullectomy", "Emergency thoracentesis", "Lung volume reduction", "Complete lung transplant"],
+                correct: 0,
+                rationale: "A bullectomy is a surgical management option used to remove one or more very large bullae from the lungs."
+            },
+            {
+                id: 2,
+                question: "Asthma is currently classified as a distinct obstructive disorder under the broad umbrella term of chronic obstructive pulmonary disease.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Asthma, once classified as a type of COPD, is now considered a distinct restrictive rather than obstructive disorder."
+            },
+            {
+                id: 3,
+                question: "What underlying cellular change makes patients with chronic bronchitis significantly more susceptible to respiratory infections?",
+                options: ["Altered function of alveolar macrophages", "Excessive proliferation of lymphocytes", "Decreased production of thick mucus", "Complete destruction of tracheal cilia"],
+                correct: 0,
+                rationale: "Damaged and fibrosed alveoli result in altered function of the alveolar macrophages, making the patient more susceptible to respiratory infections."
+            },
+            {
+                id: 4,
+                question: "Which characteristic physical deformity of the chest is frequently observed during visual inspection of patients with advanced emphysema?",
+                options: ["Barrel shaped chest", "Funnel shaped chest", "Pigeon shaped chest", "Flail chest segment"],
+                correct: 0,
+                rationale: "Visual inspection of an emphysema patient typically shows a barrel-chest due to hyperinflation of the lungs."
+            },
+            {
+                id: 5,
+                question: "Testing for alpha one antitrypsin deficiency is especially indicated in nonsmokers who present with a strong family history of chronic lung disease.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Testing for alpha-1 antitrypsin deficiency is particularly recommended for nonsmokers or individuals with a strong family history of COPD."
+            },
+            {
+                id: 6,
+                question: "What specific respiratory benefit is achieved by frequently turning a bedridden patient from side to side?",
+                options: ["Promotes aeration of the lung lobes", "Decreases the resting respiratory rate", "Prevents the formation of pulmonary blebs", "Reverses the underlying alveolar destruction"],
+                correct: 0,
+                rationale: "Turning side to side promotes better aeration of the lung lobes and enhances secretion clearance."
+            },
+            {
+                id: 7,
+                question: "Which specific posture do patients with severe chronic obstructive pulmonary disease typically adopt to ease breathing?",
+                options: ["Tripod position", "Supine position", "Lateral decubitus position", "Trendelenburg position"],
+                correct: 0,
+                rationale: "The tripod position, leaning slightly forward with arms resting on the sides of a chair, is characteristic for patients easing respiratory effort."
+            },
+            {
+                id: 8,
+                question: "What is the recommended daily fluid intake goal for a patient aiming to keep pulmonary secretions moist and easy to expectorate?",
+                options: ["Three liters per day", "One liter per day", "Five liters per day", "Half a liter per day"],
+                correct: 0,
+                rationale: "Nurses increase fluid intake to 3 liters per day (if not contraindicated) to keep secretions moist and easier to expectorate."
+            },
+            {
+                id: 9,
+                question: "Right sided heart failure in patients with chronic lung disease results directly from bradycardia occurring in response to severe hypoxemia.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Right-sided heart failure actually results from tachycardia, not bradycardia, in response to hypoxemia."
+            },
+            {
+                id: 10,
+                question: "Which combination of laboratory abnormalities is most routinely revealed during arterial blood gas analysis of an advanced case?",
+                options: ["Hypoxemia and respiratory acidosis", "Hyperoxemia and respiratory alkalosis", "Hypoxemia and metabolic acidosis", "Hyperoxemia and metabolic alkalosis"],
+                correct: 0,
+                rationale: "Arterial blood gas analysis in advanced COPD usually reveals hypoxemia and respiratory acidosis due to impaired gas exchange and CO2 retention."
+            },
+            {
+                id: 11,
+                question: "Which specific measurements obtained during spirometry are most critical for assessing the response to pulmonary medications?",
+                options: ["Forced expiratory volume and forced vital capacity", "Total lung capacity and functional residual capacity", "Peak expiratory flow and minimal inspiratory volume", "Tidal volume and continuous expiratory reserve volume"],
+                correct: 0,
+                rationale: "The most important values measured during spirometry to determine severity and medication response are forced expiratory volume in one second (FEV1) and forced vital capacity (FVC)."
+            },
+            {
+                id: 12,
+                question: "High concentrations of accurate oxygen administration are completely contraindicated because these patients strictly depend on a hypercapnic drive to breathe.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Accurate oxygen administration is essential. While these patients chronically retain CO2, they depend on a hypoxic drive as the stimulus for breathing, not a hypercapnic one."
+            },
+            {
+                id: 13,
+                question: "Which distinct clinical signs indicate the progression to right sided heart failure in a patient with chronic lung disease?",
+                options: ["Jugular vein distention and pedal edema", "Pulmonary crackles and frothy pink sputum", "Severe hypertension and bounding pulses", "Generalized muscle wasting and severe weight loss"],
+                correct: 0,
+                rationale: "Right-sided heart failure commonly presents with systemic signs such as jugular vein distention and pedal edema."
+            },
+            {
+                id: 14,
+                question: "How does the practice of diaphragmatic breathing specifically benefit a patient struggling with severe respiratory compromise?",
+                options: ["Increases alveolar ventilation and expels trapped air", "Decreases systemic circulation and lowers blood pressure", "Prevents the structural collapse of small airway passages", "Enhances the rapid clearance of thick bronchial secretions"],
+                correct: 0,
+                rationale: "Diaphragmatic breathing reduces the respiratory rate, increases alveolar ventilation, and helps expel trapped air during expiration."
+            },
+            {
+                id: 15,
+                question: "In the pathophysiology of chronic lung diseases resistance to inspiration is significantly increased while resistance to expiration is decreased.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "The opposite is true: resistance to inspiration is decreased, whereas resistance to expiration is significantly increased."
+            },
+            {
+                id: 16,
+                question: "What distinct characteristic is routinely observed in the sputum produced by a patient suffering from emphysema?",
+                options: ["Muco purulent composition", "Bright red blood streaks", "Thin watery consistency", "Frothy pink appearance"],
+                correct: 0,
+                rationale: "Patients with emphysema typically present with a chronic productive cough characterized by muco-purulent sputum."
+            },
+            {
+                id: 17,
+                question: "What specific pathophysiological change in emphysema directly impairs passive expiration and causes air to become trapped?",
+                options: ["Loss of lung elastic recoil", "Hypertrophy of mucus glands", "Constriction of smooth muscles", "Inflammation of the bronchial tree"],
+                correct: 0,
+                rationale: "Because of the loss of elastic recoil, passive expiration is impaired and air is trapped within the alveoli."
+            },
+            {
+                id: 18,
+                question: "Which environmental factor is identified alongside cigarette smoking as a primary external cause of chronic bronchitis?",
+                options: ["Air pollution", "Cold temperature", "High altitude", "Indoor humidity"],
+                correct: 0,
+                rationale: "Air pollution, along with smoking and genetic factors, is listed as a primary cause of chronic bronchitis."
+            },
+            {
+                id: 19,
+                question: "Emphysema is a chronic irreversible disease that causes the abnormal distention of the alveoli and marked destruction of capillary beds.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Emphysema is indeed a chronic, irreversible disease characterized by abnormal alveolar distention and marked destruction of capillary beds."
+            },
+            {
+                id: 20,
+                question: "What significant alteration in the respiratory cycle is considered a hallmark clinical sign of obstructed air passages?",
+                options: ["Prolonged expiratory phase", "Shortened inspiratory phase", "Rapid shallow breathing", "Intermittent apneic episodes"],
+                correct: 0,
+                rationale: "Expiration is prolonged secondary to obstructed air passages in COPD."
+            },
+            {
+                id: 21,
+                question: "What is the earliest clinical symptom typically observed in patients developing chronic bronchitis?",
+                options: ["Chronic productive cough", "Severe exertional dyspnea", "Peripheral tissue cyanosis", "Audible expiratory wheezing"],
+                correct: 0,
+                rationale: "The earliest symptom of chronic bronchitis is a chronic productive cough, where sputum may become gray, white, or yellow."
+            },
+            {
+                id: 22,
+                question: "Which compensatory hematological abnormality is frequently observed late in the disease process due to persistent severe hypoxia?",
+                options: ["Increased hemoglobin levels", "Decreased platelet counts", "Elevated white blood cells", "Reduced red blood cells"],
+                correct: 0,
+                rationale: "An increased hemoglobin level is seen late in the disease as a compensatory mechanism for persistent severe hypoxia."
+            },
+            {
+                id: 23,
+                question: "Renal failures and severe hyponatremia are common early manifestations of chronic bronchitis directly caused by acute systemic dehydration.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Renal failures and hyponatremia are late complications of the disease and are caused by fluid overload, not dehydration."
+            },
+            {
+                id: 24,
+                question: "Which physical examination finding elicited through chest percussion is highly indicative of advanced emphysematous lung tissue?",
+                options: ["Hyper resonance", "Dullness to percussion", "Tympanic abdominal resonance", "Flatness over lung bases"],
+                correct: 0,
+                rationale: "Hyper resonance on percussion is a classic finding in emphysema due to the hyperinflation and trapping of air within the lungs."
+            },
+            {
+                id: 25,
+                question: "Which clinical parameter is measured to objectively confirm the relief of bronchospasm following the administration of nebulized treatments?",
+                options: ["Forced expiratory volume", "Peripheral oxygen saturation", "Arterial carbon dioxide level", "Systemic blood pressure"],
+                correct: 0,
+                rationale: "Relief of bronchospasm is confirmed by measuring improvement in forced expiratory volume (FEV1) as well as assessing dyspnea."
+            },
+            {
+                id: 26,
+                question: "A clinical diagnosis of chronic bronchitis requires the presence of a productive cough for at least three months each year for two consecutive years.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Chronic bronchitis is strictly defined by excessive mucus production with a productive cough for at least 3 months each year for 2 consecutive years."
+            },
+            {
+                id: 27,
+                question: "In congenital cases of emphysema what specific microscopic lung structures are actively destroyed by uninhibited enzymatic activity?",
+                options: ["Elastic fibers of the alveolar tissue", "Ciliated epithelial cells of the bronchi", "Cartilage rings of the upper trachea", "Mucus producing goblet cell glands"],
+                correct: 0,
+                rationale: "In alpha-1 antitrypsin deficiency, uninhibited trypsin destroys the alveolar tissue, specifically the elastic fibers."
+            },
+            {
+                id: 28,
+                question: "Which diagnostic assessment is primarily used to determine the severity of airflow limitation and disease progression?",
+                options: ["Pulmonary function tests", "Arterial blood gas analysis", "High resolution radiography", "Microscopic sputum evaluation"],
+                correct: 0,
+                rationale: "Pulmonary function tests, particularly spirometry, are used to determine airflow limitation severity, assess response to medications, and follow progression."
+            },
+            {
+                id: 29,
+                question: "What is the primary purpose of prescribing an oral corticosteroid during an acute exacerbation of chronic obstructive pulmonary disease?",
+                options: ["Decreasing the inflammatory response and bronchial edema", "Dilating the bronchial airways through smooth muscle relaxation", "Eradicating the bacterial pathogens responsible for the infection", "Increasing the systemic blood pressure to improve tissue perfusion"],
+                correct: 0,
+                rationale: "Steroids are used to decrease the inflammatory response, thus decreasing bronchial edema during acute exacerbations."
+            },
+            {
+                id: 30,
+                question: "Pursed lip breathing is an effective technique that helps control the rate and depth of respiration while promoting overall patient relaxation.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Pursed-lip breathing helps slow expiration, prevents collapse of small airways, controls the rate/depth of respiration, and promotes relaxation."
+            },
+            {
+                id: 31,
+                question: "Which specific cardiac auscultation finding is frequently noted during the physical examination of a patient with severe emphysema?",
+                options: ["Diminished or muffled heart sounds", "Prominent systolic ejection murmurs", "Rapid irregular ventricular rhythms", "Loud splitting of the second sound"],
+                correct: 0,
+                rationale: "Due to hyperinflation of the lungs, physical examination in emphysema often reveals diminished or muffled heart sounds."
+            },
+            {
+                id: 32,
+                question: "Which characteristic finding is typically visible on a chest radiograph of a patient suffering from advanced emphysema?",
+                options: ["Flattened diaphragm and hyperinflation", "Elevated diaphragm and consolidation", "Narrowed anteroposterior chest diameter", "Prominent bilateral pleural effusions"],
+                correct: 0,
+                rationale: "A chest X-ray in advanced emphysema displays a flattened diaphragm, hyperinflation of the lungs, and an enlarged anteroposterior chest diameter."
+            },
+            {
+                id: 33,
+                question: "What emergency intervention is immediately required if a pulmonary bleb ruptures and allows air to enter the thoracic cavity?",
+                options: ["Thoracentesis", "Bronchoscopy", "Tracheostomy", "Thoracotomy"],
+                correct: 0,
+                rationale: "Emergency thoracentesis is performed to remove the trapped air from the thoracic cavity following a ruptured bleb (pneumothorax)."
+            },
+            {
+                id: 34,
+                question: "Chronic obstructive pulmonary disease primarily affects men over the age of fifty who have a history of heavy cigarette smoking.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Chronic bronchitis and emphysema usually occur in male patients over the age of 50 who are heavy cigarette smokers."
+            },
+            {
+                id: 35,
+                question: "Which specific body position is strongly recommended by nurses to promote optimal lung expansion in compromised patients?",
+                options: ["High Fowler position", "Left lateral recumbent", "Prone resting position", "Modified Trendelenburg"],
+                correct: 0,
+                rationale: "The High Fowler's position promotes better lung expansion and improves overall breathing mechanics."
+            },
+            {
+                id: 36,
+                question: "How does the pathophysiology of chronic bronchitis directly affect the normal function of the patient's airway?",
+                options: ["Impairs ciliary function and causes gland hypertrophy", "Destroys the alveolar capillary membrane completely", "Increases the elastic recoil of the lung tissue", "Reduces the systemic circulation of macrophages"],
+                correct: 0,
+                rationale: "Chronic bronchitis involves inflammation from inhaled irritants that impairs ciliary function and causes mucus-producing glands to hypertrophy."
+            },
+            {
+                id: 37,
+                question: "Which breathing technique is specifically taught to slow expiration and prevent the collapse of small peripheral airways?",
+                options: ["Pursed lip breathing", "Incentive spirometry", "Apneic oxygenation", "Shallow panting maneuvers"],
+                correct: 0,
+                rationale: "Pursed-lip breathing helps slow expiration and prevents the premature collapse of small airways."
+            },
+            {
+                id: 38,
+                question: "What primary therapeutic effect is expected when aminophylline is administered to a patient experiencing a respiratory exacerbation?",
+                options: ["Relaxes bronchial smooth muscle spasms", "Decreases pulmonary mucosal inflammation", "Eliminates bacterial respiratory infections", "Reduces peripheral extremity fluid retention"],
+                correct: 0,
+                rationale: "Aminophylline or another methylxanthine is administered to relax bronchial spasms."
+            },
+            {
+                id: 39,
+                question: "Which pharmacological agent is considered the mainstay maintenance therapy delivered via metered dose inhalers?",
+                options: ["Inhaled anticholinergics", "Intravenous corticosteroids", "Systemic broad antibiotics", "Potassium sparing diuretics"],
+                correct: 0,
+                rationale: "An inhaled anticholinergic and an inhaled beta2-adrenergic agonist are the mainstay of therapy, usually delivered by MDI."
+            },
+            {
+                id: 40,
+                question: "What life threatening complication should be rapidly evaluated if a patient exhibits a sudden asymmetrical chest movement and absent breath sounds?",
+                options: ["Potential pneumothorax", "Acute pulmonary embolism", "Massive myocardial infarction", "Severe acute asthma attack"],
+                correct: 0,
+                rationale: "A rapid onset of shortness of breath alongside asymmetrical chest movement and differences in breath sounds warrants immediate evaluation for a potential pneumothorax."
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        // Randomize the order of questions
+        for (let i = quizData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+        }
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>
