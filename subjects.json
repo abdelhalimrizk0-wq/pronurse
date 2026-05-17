@@ -52,7 +52,16 @@
     "color": "#ef4444",
     "department": "adult",
     "lectures": [
-      { "name": "كويز 1", "file": "#", "questions": 20 }
+       {
+    "name": "جميع كويزات باثولوجي",
+    "file": "quizzes/جميع كويزات باثولوجي.html",
+    "questions": 0
+  },
+  {
+    "name": "Pathology Final Revision",
+    "file": "quizzes/Pathology Final Revision.html",
+    "questions": 0
+  }
     ]
   },
   {
@@ -74,7 +83,11 @@
     "color": "#8b5cf6",
     "department": "adult",
     "lectures": [
-      { "name": "كويز 1", "file": "#", "questions": 20 }
+        {
+    "name": "جميع كويزات ميكروبيولوجي",
+    "file": "quizzes/جميع كويزات ميكروبيولوجي.html",
+    "questions": 0
+  }
     ]
   },
   {
