@@ -8,36 +8,61 @@
     "department": "adult",
     "lectures": [
       {
-        "name": "Lumber Disc Herniation",
-        "file": "quizzes/Lumber Disc Herniation.html",
-        "questions": 0
-      },
-      {
-        "name": "Musculoskeletal Injuries",
-        "file": "quizzes/Musculoskeletal Injuries.html",
-        "questions": 0
-      },
-      {
-        "name": "Dialysis quiz",
-        "file": "quizzes/Dialysis quiz.html",
-        "questions": 0
-      },
-      {
-        "name": "Renal faliure part 1",
-        "file": "quizzes/Renal faliure part 1.html",
-        "questions": 0
-      },
-      {
-        "name": "perioperative part 2 quiz",
-        "file": "quizzes/perioperative part 2 quiz.html",
-        "questions": 0
-      },
-      {
-        "name": "perioperative part 1 quiz",
-        "file": "quizzes/perioperative part 1 quiz.html",
-        "questions": 0
-      },
-        {
+    "name": "perioperative part 1",
+    "file": "quizzes/perioperative part 1.html",
+    "questions": 0
+  },
+  {
+    "name": "perioperative part 2",
+    "file": "quizzes/perioperative part 2.html",
+    "questions": 0
+  },
+  {
+    "name": "Renal faliure part 1",
+    "file": "quizzes/Renal faliure part 1.html",
+    "questions": 0
+  },
+  {
+    "name": "Dialysis quiz",
+    "file": "quizzes/Dialysis quiz.html",
+    "questions": 0
+  },
+  {
+    "name": "Musculoskeletal Injuries",
+    "file": "quizzes/Musculoskeletal Injuries.html",
+    "questions": 0
+  },
+  {
+    "name": "Lumber Disc Herniation",
+    "file": "quizzes/Lumber Disc Herniation.html",
+    "questions": 0
+  },
+  {
+    "name": "Intracranial Surgery (ICS) Quiz",
+    "file": "quizzes/Intracranial Surgery (ICS) Quiz.html",
+    "questions": 0
+  },
+  {
+    "name": "Total Hip Replacement",
+    "file": "quizzes/Total Hip Replacement.html",
+    "questions": 0
+  },
+  {
+    "name": "Pneumonia",
+    "file": "quizzes/Pneumonia.html",
+    "questions": 0
+  },
+  {
+    "name": "Chronic Obstructive Pulmonary Disease (COPD)",
+    "file": "quizzes/Chronic Obstructive Pulmonary Disease (COPD).html",
+    "questions": 0
+  },
+  {
+    "name": "Burns",
+    "file": "quizzes/Burns.html",
+    "questions": 0
+  },
+  {
     "name": "Dialysis, Musculoskeletal & Lumbar Herniation شامل",
     "file": "quizzes/Dialysis, Musculoskeletal & Lumbar Herniation شامل.html",
     "questions": 0
