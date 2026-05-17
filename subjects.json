@@ -706,7 +706,46 @@
     "color": "#f59e0b",
     "department": "common_t2",
     "lectures": [
-      { "name": "كويز 1", "file": "#", "questions": 20 }
+      {
+    "name": "Lecture 1 Concepts Of Quality",
+    "file": "quizzes/Lecture 1 Concepts Of Quality.html",
+    "questions": 0
+  },
+  {
+    "name": "Lecture 2 Quality Evolution",
+    "file": "quizzes/Lecture 2 Quality Evolution.html",
+    "questions": 0
+  },
+  {
+    "name": "Lecture 3 Tools For Quality Improvement",
+    "file": "quizzes/Lecture 3 Tools For Quality Improvement.html",
+    "questions": 0
+  },
+  {
+    "name": "Lecture 4 Quality Teams",
+    "file": "quizzes/Lecture 4 Quality Teams.html",
+    "questions": 0
+  },
+  {
+    "name": "Lecture 5 Nursing Audit",
+    "file": "quizzes/Lecture 5 Nursing Audit.html",
+    "questions": 0
+  },
+  {
+    "name": "Lecture 6 Health Care Standards",
+    "file": "quizzes/Lecture 6 Health Care Standards.html",
+    "questions": 0
+  },
+  {
+    "name": "Lecture 7 Customer Focus Management",
+    "file": "quizzes/Lecture 7 Customer Focus Management.html",
+    "questions": 0
+  },
+  {
+    "name": "Lecture 8 Patient Safety and Safety Culture",
+    "file": "quizzes/Lecture 8 Patient Safety and Safety Culture.html",
+    "questions": 0
+  }
     ]
   },
   {
