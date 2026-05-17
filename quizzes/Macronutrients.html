@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Macronutrients</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 50 QUESTIONS HERE) ---
+        const rawQuizData = [
+            { 
+                id: 1, 
+                question: "Where does the majority of lipid chemical breakdown initially occur within the human body?", 
+                options: ["Small intestinal cavity", "Upper gastric stomach", "Terminal large intestine", "Initial oral cavity"], 
+                correct: 0, 
+                rationale: "Fat digestion primarily occurs in the small intestine, where bile emulsifies fats into smaller droplets." 
+            },
+            { 
+                id: 2, 
+                question: "Which enzyme initiates the breakdown of complex polypeptides within the acidic gastric environment?", 
+                options: ["Gastric pepsin", "Salivary amylase", "Pancreatic lipase", "Intestinal lactase"], 
+                correct: 0, 
+                rationale: "Protein digestion begins in the stomach with the enzyme pepsin before continuing in the small intestine." 
+            },
+            { 
+                id: 3, 
+                question: "What is the primary and most readily available source of energy for the human body?", 
+                options: ["Dietary carbohydrates", "Structural proteins", "Essential minerals", "Fat soluble vitamins"], 
+                correct: 0, 
+                rationale: "Carbohydrates are considered the body's primary and most readily available source of instant energy." 
+            },
+            { 
+                id: 4, 
+                question: "Dietary fiber is a type of carbohydrate that the human body efficiently breaks down for immediate energy.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "False. Dietary fiber is a type of carbohydrate that the human body cannot digest for energy." 
+            },
+            { 
+                id: 5, 
+                question: "Which nutrient serves as a direct precursor for the synthesis of steroid hormones and digestive fluids?", 
+                options: ["Systemic cholesterol", "Hepatic glycogen", "Circulating triglycerides", "Cellular phospholipids"], 
+                correct: 0, 
+                rationale: "Cholesterol serves as a precursor for the synthesis of steroid hormones and is essential for digestive fluids." 
+            },
+            { 
+                id: 6, 
+                question: "Which lipid category typically maintains a solid state at normal room temperature?", 
+                options: ["Saturated fats", "Monounsaturated fats", "Polyunsaturated fats", "Trans fatty acids"], 
+                correct: 0, 
+                rationale: "Saturated fats contain no double bonds in their fatty acid chains and are typically solid at room temperature." 
+            },
+            { 
+                id: 7, 
+                question: "What is the primary role of structural protein components within the biological system?", 
+                options: ["Forming tissue blocks", "Speeding biochemical reactions", "Regulating fluid distribution", "Transporting vital oxygen"], 
+                correct: 0, 
+                rationale: "Structural protein components form the essential building blocks of muscles, bones, skin, and other tissues." 
+            },
+            { 
+                id: 8, 
+                question: "What is the typical ratio of hydrogen to oxygen atoms found within organic carbohydrate compounds?", 
+                options: ["Two to one", "One to one", "Three to two", "Four to one"], 
+                correct: 0, 
+                rationale: "Carbohydrates typically feature a hydrogen-to-oxygen atom ratio of two to one, similar to water molecules." 
+            },
+            { 
+                id: 9, 
+                question: "Which symptom is a recognized clinical indicator of insufficient dietary lipid intake?", 
+                options: ["Delayed wound healing", "Excessive weight gain", "Heightened energy levels", "Improved visual acuity"], 
+                correct: 0, 
+                rationale: "Symptoms of fat deficiency can include impaired wound healing, dry skin, and increased susceptibility to infections." 
+            },
+            { 
+                id: 10, 
+                question: "Which condition is characterized by severe muscle wasting due to a combined deficiency of both total calories and structural nutrients?", 
+                options: ["Clinical marasmus", "Acute kwashiorkor", "Systemic ketosis", "Chronic osteoporosis"], 
+                correct: 0, 
+                rationale: "Marasmus is characterized by severe wasting of muscle and fat caused by a severe deficiency of calories and protein." 
+            },
+            { 
+                id: 11, 
+                question: "What percentage of total daily caloric intake should optimally come from carbohydrate sources?", 
+                options: ["Forty five to sixty five percent", "Twenty to thirty five percent", "Ten to fifteen percent", "Seventy to eighty percent"], 
+                correct: 0, 
+                rationale: "Recommendations state that dietary carbohydrates should generally constitute forty-five to sixty-five percent of total daily caloric intake." 
+            },
+            { 
+                id: 12, 
+                question: "Which chemical element is uniquely present in the primary building blocks of bodily tissues but absent in energy storing lipids?", 
+                options: ["Nitrogen molecules", "Carbon structures", "Hydrogen particles", "Oxygen compounds"], 
+                correct: 0, 
+                rationale: "Amino acids, the building blocks of proteins, uniquely contain nitrogen atoms alongside carbon, hydrogen, and oxygen." 
+            },
+            { 
+                id: 13, 
+                question: "Gram for gram lipids provide more than twice the energy compared to immediate cellular carbohydrate fuels.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "True. Fats provide about nine calories per gram, which is more than twice the four calories per gram provided by carbohydrates." 
+            },
+            { 
+                id: 14, 
+                question: "Into which bodily system do the final simple products of protein chemical breakdown primarily enter for systemic distribution?", 
+                options: ["Systemic bloodstream", "Lymphatic circulation", "Central nervous system", "Pulmonary respiratory system"], 
+                correct: 0, 
+                rationale: "After being broken down into individual amino acids, they are absorbed directly into the bloodstream and transported to the liver." 
+            },
+            { 
+                id: 15, 
+                question: "Following intestinal absorption what cellular structures enclose reassembled lipid molecules for transport through the lymphatic pathways?", 
+                options: ["Microscopic chylomicrons", "Simple monoglycerides", "Structural phospholipids", "Individual tripeptides"], 
+                correct: 0, 
+                rationale: "Re-esterified triglycerides are packaged into chylomicrons, which then enter the lymphatic system before reaching the bloodstream." 
+            },
+            { 
+                id: 16, 
+                question: "What physiological state is actively prevented when adequate glucose levels restrict the excessive breakdown of stored adipose tissue?", 
+                options: ["Harmful ketosis", "Systemic alkalosis", "Peripheral edema", "Nutritional marasmus"], 
+                correct: 0, 
+                rationale: "Adequate carbohydrate intake prevents ketosis by inhibiting the body from extensively breaking down fats for immediate energy." 
+            },
+            { 
+                id: 17, 
+                question: "What is the maximum recommended percentage of total daily calories that should originate from saturated lipid sources?", 
+                options: ["Less than ten percent", "Less than twenty percent", "Less than thirty percent", "Less than forty percent"], 
+                correct: 0, 
+                rationale: "Dietary guidelines emphasize limiting saturated fat intake to strictly less than ten percent of total daily calories." 
+            },
+            { 
+                id: 18, 
+                question: "Which dietary source category generally lacks one or more essential building blocks needed for optimal physiological function?", 
+                options: ["Plant based products", "Liquid dairy products", "Cooked poultry meats", "Marine fish varieties"], 
+                correct: 0, 
+                rationale: "Most plant proteins are considered incomplete because they typically lack one or more of the nine essential amino acids." 
+            },
+            { 
+                id: 19, 
+                question: "Which chemical compound represents a complex carbohydrate unit commonly functioning as a primary plant energy reserve?", 
+                options: ["Botanical starch", "Dietary lactose", "Natural fructose", "Refined sucrose"], 
+                correct: 0, 
+                rationale: "Starch is a polysaccharide that serves as a common example of plant energy storage." 
+            },
+            { 
+                id: 20, 
+                question: "Artificial trans lipids are generally considered biologically beneficial because they elevate high density lipoproteins in the circulatory system.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "False. Trans fats are highly unhealthy as they raise bad cholesterol and actually lower good high-density lipoproteins." 
+            },
+            { 
+                id: 21, 
+                question: "Which severe nutritional deficiency uniquely presents with prominent abdominal swelling despite a seemingly adequate caloric energy intake?", 
+                options: ["Nutritional kwashiorkor", "Metabolic marasmus", "Prolonged ketosis", "Dietary scurvy"], 
+                correct: 0, 
+                rationale: "Kwashiorkor is characterized by edema or swelling, particularly in the abdomen, resulting from severe protein deficiency." 
+            },
+            { 
+                id: 22, 
+                question: "Which critical biological process is directly facilitated by the presence of dietary lipids within the human digestive tract?", 
+                options: ["Specific vitamin absorption", "Complex protein breakdown", "Essential mineral synthesis", "Cellular carbohydrate transport"], 
+                correct: 0, 
+                rationale: "Dietary fats are necessary for the absorption and internal transport of fat-soluble vitamins from the digestive tract." 
+            },
+            { 
+                id: 23, 
+                question: "Monosaccharides represent the simplest molecular forms of dietary sugars and include the primary physiological cellular energy sources.", 
+                options: ["True", "False"], 
+                correct: 0, 
+                rationale: "True. Monosaccharides are the simplest carbohydrate units and include glucose, which is the body's main energy source." 
+            },
+            { 
+                id: 24, 
+                question: "Which specific biological agents are continuously synthesized from macromolecular subunits to defend the body against foreign infectious invaders?", 
+                options: ["Protective antibodies", "Regulatory hormones", "Catalytic enzymes", "Circulating dipeptides"], 
+                correct: 0, 
+                rationale: "Antibodies are critical proteins that form an integral part of the immune system, defending the body against foreign invaders." 
+            },
+            { 
+                id: 25, 
+                question: "In what specific chemical form does the body primarily store excess immediate energy fuels within hepatic and muscular tissues?", 
+                options: ["Hepatic glycogen", "Pancreatic glucagon", "Cellular glycerol", "Intestinal galactose"], 
+                correct: 0, 
+                rationale: "Excess glucose that is not immediately used for energy is safely stored as glycogen within the liver and muscle tissues." 
+            },
+            { 
+                id: 26, 
+                question: "Which distinct category of unsaturated dietary lipids is chemically characterized by possessing exactly one double bond in its molecular chain?", 
+                options: ["Monounsaturated fats", "Polyunsaturated fats", "Fully saturated fats", "Artificial trans fats"], 
+                correct: 0, 
+                rationale: "Monounsaturated fats have exactly one chemical double bond and are commonly found in foods like olive oil and avocados." 
+            },
+            { 
+                id: 27, 
+                question: "What is the standard recommended daily allowance of protein expressed in grams per kilogram of body weight for average healthy adults?", 
+                options: ["Zero point eight grams", "One point two grams", "Two point zero grams", "Zero point four grams"], 
+                correct: 0, 
+                rationale: "The Recommended Dietary Allowance for protein for average healthy adults is approximately zero point eight grams per kilogram." 
+            },
+            { 
+                id: 28, 
+                question: "Which specific anatomical location marks the final completion of carbohydrate digestion through specialized border enzymes?", 
+                options: ["Small intestinal border", "Upper gastric cavity", "Terminal large intestine", "Initial oral cavity"], 
+                correct: 0, 
+                rationale: "Carbohydrate digestion is finalized by specialized enzymes located exclusively on the brush border of the small intestine." 
+            },
+            { 
+                id: 29, 
+                question: "How many distinct types of essential macromolecular building blocks must be obligatorily obtained through the human daily diet?", 
+                options: ["Exactly nine components", "Exactly twenty components", "Exactly eleven components", "Exactly four components"], 
+                correct: 0, 
+                rationale: "There are nine essential amino acids that the human body cannot synthesize and must obtain directly through the diet." 
+            },
+            { 
+                id: 30, 
+                question: "The human body is fully capable of independently synthesizing all twenty distinct amino acids required for optimal physiological function.", 
+                options: ["True", "False"], 
+                correct: 1, 
+                rationale: "False. The body cannot synthesize the nine essential amino acids, meaning they must be strictly obtained through the diet." 
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>

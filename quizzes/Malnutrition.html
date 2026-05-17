@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Malnutrition Quiz</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. QUESTIONS ARRAY (GENERATE 50 QUESTIONS HERE) ---
+        const rawQuizData = [
+            {
+                id: 1,
+                question: "Stunting represents an acute form of malnutrition characterized by a rapid loss of body weight.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Stunting is a chronic form of malnutrition characterized by low height for age, whereas wasting represents acute rapid weight loss."
+            },
+            {
+                id: 2,
+                question: "Which condition is specifically classified as an underlying cause of malnutrition according to the standard framework?",
+                options: ["Inadequate care practices", "Gastrointestinal infections", "Political instability", "Nutrient malabsorption"],
+                correct: 0,
+                rationale: "Inadequate care practices, household food insecurity, and unhealthy environments are categorized as underlying causes."
+            },
+            {
+                id: 3,
+                question: "Which health issue is primarily associated with an excessive intake of a specific micronutrient?",
+                options: ["Birth defects", "Impaired thyroid function", "Severe anemia", "Cognitive decline"],
+                correct: 0,
+                rationale: "Excessive vitamin A intake can lead to liver damage and birth defects."
+            },
+            {
+                id: 4,
+                question: "What is the recommended duration for exclusive breastfeeding to promote optimal child nutrition?",
+                options: ["Three months", "Six months", "Nine months", "Twelve months"],
+                correct: 1,
+                rationale: "Optimal feeding strategies encourage exclusive breastfeeding for the first six months."
+            },
+            {
+                id: 5,
+                question: "The developmental impacts of childhood stunting are highly reversible with proper adult nutrition.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "The effects of stunting are largely irreversible after early childhood."
+            },
+            {
+                id: 6,
+                question: "Which indicator serves as a composite metric reflecting either wasting or stunting or both conditions?",
+                options: ["Low body mass index", "Low weight for age", "Low height for age", "Low weight for height"],
+                correct: 1,
+                rationale: "Underweight is characterized by low weight for age and can reflect wasting, stunting, or both."
+            },
+            {
+                id: 7,
+                question: "Which nutritional deficiency is most directly linked to impaired thyroid function and delayed cognitive development?",
+                options: ["Zinc deficiency", "Iron deficiency", "Iodine deficiency", "Vitamin deficiency"],
+                correct: 2,
+                rationale: "Iodine deficiency is specifically known for impairing cognitive development and thyroid function."
+            },
+            {
+                id: 8,
+                question: "What is the defining body mass index threshold for an adult to be classified as obese?",
+                options: ["Twenty kilograms per square meter", "Twenty five kilograms per square meter", "Thirty kilograms per square meter", "Thirty five kilograms per square meter"],
+                correct: 2,
+                rationale: "Obesity is defined as a Body Mass Index of 30.0 kilograms per square meter or higher."
+            },
+            {
+                id: 9,
+                question: "Which factor directly constitutes an immediate cause of malnutrition by altering physiological nutrient needs?",
+                options: ["Poverty levels", "Infectious diseases", "Poor sanitation", "Cultural taboos"],
+                correct: 1,
+                rationale: "Diseases and infections are immediate causes that increase nutrient requirements and impair absorption."
+            },
+            {
+                id: 10,
+                question: "Malnutrition exclusively refers to conditions arising from an inadequate intake of dietary energy and nutrients.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "Malnutrition is a broad term that covers both under-nutrition and over-nutrition."
+            },
+            {
+                id: 11,
+                question: "Which physical measurement profile is the primary diagnostic criterion for acute malnutrition?",
+                options: ["Low weight for age", "Low height for age", "Low weight for height", "Low height for weight"],
+                correct: 2,
+                rationale: "Wasting, or acute malnutrition, is characterized by low weight for height indicating recent and severe weight loss."
+            },
+            {
+                id: 12,
+                question: "How does maternal malnutrition primarily perpetuate an intergenerational cycle of health issues?",
+                options: ["Through genetic mutation inheritance", "By increasing maternal metabolic rates", "Through low birth weight deliveries", "By delaying infant weaning periods"],
+                correct: 2,
+                rationale: "Malnourished mothers are more likely to give birth to low birth weight babies, perpetuating the cycle."
+            },
+            {
+                id: 13,
+                question: "Which intervention falls directly under the water sanitation and hygiene strategy for managing malnutrition?",
+                options: ["Promoting hygiene practices", "Providing therapeutic foods", "Enhancing market access", "Fortifying staple foods"],
+                correct: 0,
+                rationale: "Improving access to clean water and promoting hygiene practices help reduce infections that cause malnutrition."
+            },
+            {
+                id: 14,
+                question: "Which element is classified as a basic cause driving food insecurity and poor healthcare access?",
+                options: ["Measles infection", "Poor breastfeeding", "Poverty prevalence", "Water contamination"],
+                correct: 2,
+                rationale: "Poverty is a fundamental driver and basic cause of food insecurity and poor access to healthcare."
+            },
+            {
+                id: 15,
+                question: "Hidden hunger occurs when individuals consume enough calories but lack essential vitamins and minerals.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Micronutrient deficiencies are known as hidden hunger because they occur even when energy intake is sufficient."
+            },
+            {
+                id: 16,
+                question: "Excessive consumption of which specific element leads directly to severe organ damage rather than birth defects?",
+                options: ["Iron supplements", "Vitamin supplements", "Zinc compounds", "Iodine compounds"],
+                correct: 0,
+                rationale: "While excessive vitamin A causes birth defects, too much iron can cause organ damage."
+            },
+            {
+                id: 17,
+                question: "Which approach is strictly utilized to manage children suffering from severe acute malnutrition?",
+                options: ["General food distribution", "Therapeutic feeding care", "Agricultural subsidies", "School meal programs"],
+                correct: 1,
+                rationale: "Management of acute malnutrition requires providing therapeutic feeding and medical care."
+            },
+            {
+                id: 18,
+                question: "Which nutrient deficiency is the primary cause of widespread anemia in affected populations?",
+                options: ["Zinc deficiency", "Iodine deficiency", "Vitamin deficiency", "Iron deficiency"],
+                correct: 3,
+                rationale: "Common micronutrient deficiencies include iron, which directly leads to anemia."
+            },
+            {
+                id: 19,
+                question: "Overweight conditions and obesity significantly increase the risk for which category of health problems?",
+                options: ["Communicable diseases", "Noncommunicable diseases", "Congenital anomalies", "Acute infectious diseases"],
+                correct: 1,
+                rationale: "These conditions are major risk factors for noncommunicable diseases such as type 2 diabetes and cardiovascular diseases."
+            },
+            {
+                id: 20,
+                question: "The global prevalence of overweight and obesity has declined steadily over the past few decades.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "The global prevalence of overweight and obesity has risen dramatically in recent decades."
+            },
+            {
+                id: 21,
+                question: "Which environmental factor directly contributes to malnutrition by increasing the risk of recurring infections?",
+                options: ["Inadequate healthcare", "Poor sanitation", "Market inaccessibility", "Crop failure"],
+                correct: 1,
+                rationale: "Poor sanitation and unsafe water are unhealthy environmental factors that contribute to malnutrition."
+            },
+            {
+                id: 22,
+                question: "What is a major long term societal consequence of childhood stunting beyond individual physical health?",
+                options: ["Higher fertility rates", "Lower adult productivity", "Increased agricultural yields", "Decreased chronic illnesses"],
+                correct: 1,
+                rationale: "Stunting is associated with impaired cognitive development, reduced school performance, and lower adult productivity."
+            },
+            {
+                id: 23,
+                question: "What public health strategy involves adding essential vitamins and minerals to widely consumed foods?",
+                options: ["Dietary diversification", "Nutrition counseling", "Staple food fortification", "Therapeutic supplementation"],
+                correct: 2,
+                rationale: "A key strategy is fortifying staple foods with essential micronutrients."
+            },
+            {
+                id: 24,
+                question: "Which condition is identified as a noncommunicable disease directly related to excessive body fat accumulation?",
+                options: ["Pneumonia infection", "Musculoskeletal disorders", "Severe acute wasting", "Thyroid dysfunction"],
+                correct: 1,
+                rationale: "Musculoskeletal disorders are among the noncommunicable diseases linked to overweight and obesity."
+            },
+            {
+                id: 25,
+                question: "How do acute viral infections like measles exacerbate the condition of an already malnourished individual?",
+                options: ["By decreasing metabolic rates", "By increasing nutrient requirements", "By improving nutrient absorption", "By stimulating patient appetite"],
+                correct: 1,
+                rationale: "Infections increase nutrient requirements, reduce appetite, and impair nutrient absorption."
+            },
+            {
+                id: 26,
+                question: "Which factor represents a cultural determinant that negatively influences food choices and nutritional access?",
+                options: ["Dietary taboos", "Economic crises", "Agricultural practices", "Sanitation facilities"],
+                correct: 0,
+                rationale: "Cultural and social factors like dietary taboos and gender inequality can influence food choices."
+            },
+            {
+                id: 27,
+                question: "Which essential nutrient is crucial for maintaining proper vision and strong immune system functions?",
+                options: ["Iron", "Zinc", "Iodine", "Vitamin A"],
+                correct: 3,
+                rationale: "Vitamin A deficiency causes vision problems and weakened immunity."
+            },
+            {
+                id: 28,
+                question: "What is a key component of improving food security through sustainable structural changes?",
+                options: ["Establishing therapeutic clinics", "Implementing social safety nets", "Distributing temporary rations", "Providing nutrient supplements"],
+                correct: 1,
+                rationale: "Improving food security involves sustainable agriculture, market access, and social safety nets."
+            },
+            {
+                id: 29,
+                question: "Why are micronutrient deficiencies often referred to as hidden hunger by healthcare professionals?",
+                options: ["They occur exclusively during famines", "They present without visible signs initially", "They cannot be diagnosed through blood tests", "They only affect internal organ structures"],
+                correct: 1,
+                rationale: "Deficiencies can have severe health consequences often without visible signs until advanced stages."
+            },
+            {
+                id: 30,
+                question: "Which basic systemic issue disrupts both food distribution networks and social protection mechanisms?",
+                options: ["Political instability", "Maternal ignorance", "Viral epidemics", "Genetic predispositions"],
+                correct: 0,
+                rationale: "Political and economic instability, such as conflicts and weak governance, disrupt food systems and social safety nets."
+            }
+        ];
+
+        // --- 2. SHUFFLE & RENDER LOGIC (DO NOT EDIT) ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>
