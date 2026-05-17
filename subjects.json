@@ -97,7 +97,46 @@
     "color": "#10b981",
     "department": "adult",
     "lectures": [
-      { "name": "كويز 1", "file": "#", "questions": 20 }
+        {
+    "name": "Clinical Nutrition",
+    "file": "quizzes/Clinical Nutrition.html",
+    "questions": 0
+  },
+  {
+    "name": "Healthy Eating & Balanced Diet",
+    "file": "quizzes/Healthy Eating & Balanced Diet.html",
+    "questions": 0
+  },
+  {
+    "name": "Macronutrients",
+    "file": "quizzes/Macronutrients.html",
+    "questions": 0
+  },
+  {
+    "name": "Malnutrition",
+    "file": "quizzes/Malnutrition.html",
+    "questions": 0
+  },
+  {
+    "name": "Micronutrients Vitamins and Minerals",
+    "file": "quizzes/Micronutrients Vitamins and Minerals.html",
+    "questions": 0
+  },
+  {
+    "name": "Nutrition Across the Life Cycle",
+    "file": "quizzes/Nutrition Across the Life Cycle.html",
+    "questions": 0
+  },
+  {
+    "name": "Nutritional Assessment",
+    "file": "quizzes/Nutritional Assessment.html",
+    "questions": 0
+  },
+  {
+    "name": "Therapeutic Nutrition For Chronic Diseases",
+    "file": "quizzes/Therapeutic Nutrition For Chronic Diseases.html",
+    "questions": 0
+  }
     ]
   },
   {
