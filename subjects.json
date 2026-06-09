@@ -888,6 +888,11 @@
     "name": "Tele-Health, Tele-Medicine & Tele-Nursing",
     "file": "quizzes/Tele-Health, Tele-Medicine & Tele-Nursing.html",
     "questions": 0
+  },
+      {
+    "name": "شامل 100 سؤال تكنولوجيا",
+    "file": "quizzes/شامل 100 سؤال تكنولوجيا.html",
+    "questions": 0
   }
     ]
   },
