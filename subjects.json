@@ -392,7 +392,12 @@
         "name": "شامل طب طوارئ",
         "file": "quizzes/شامل طب طوارئ.html",
         "questions": 0
-      }
+      },
+       {
+    "name": "Emergency Medicine Quizzes",
+    "file": "quizzes/Emergency Medicine Quizzes.html",
+    "questions": 0
+  }
     ]
   },
   {
