@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <!-- إعدادات الموبايل لمنع التقريب وإعطاء إحساس التطبيق الأصلي -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Emergency Quizzes">
+    <link rel="manifest" href="manifest.json">
+
+    <title>Emergency Medicine Quizzes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none !important; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .menu-btn { transition: all 0.3s ease; }
+        .menu-btn:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+
+    <!-- MAIN MENU SECTION -->
+    <div id="main-menu" class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-truck-medical text-8xl text-blue-600"></i></div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4 font-cairo text-center" dir="rtl">Emergency Medicine Quizzes</h1>
+            <p class="text-gray-600 font-cairo text-lg mb-4" dir="rtl">كل ما تدخل هنا صلي علي النبي</p>
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذه الامتحانات بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+
+        <div id="menu-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-6" dir="ltr">
+            <!-- Menu cards will be generated here -->
+        </div>
+    </div>
+
+    <!-- QUIZ SECTION -->
+    <div id="quiz-area" class="max-w-3xl mx-auto px-4 py-8 hidden-content">
+        
+        <div class="mb-6 flex justify-between items-center">
+            <button onclick="showMenu()" class="bg-white text-blue-600 border border-blue-200 px-4 py-2 rounded-xl hover:bg-blue-50 hover:border-blue-300 transition shadow-sm font-cairo font-bold flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> العودة للقائمة الرئيسية
+            </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-user-md text-8xl text-blue-600"></i></div>
+            <h1 id="active-quiz-title" class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">Quiz Title</h1>
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+
+        <div id="quiz-container"></div>
+
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="restartCurrentQuiz()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-redo"></i> Restart Exam
+                </button>
+                <button onclick="showMenu()" class="bg-gray-100 text-gray-700 border border-gray-200 px-8 py-3 rounded-xl hover:bg-gray-200 transition shadow-sm flex items-center justify-center gap-2 font-cairo font-bold">
+                    <i class="fas fa-home"></i> القائمة الرئيسية
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allQuizzes = [
+            {
+                title: "Principles of Emergency Care",
+                icon: "fa-star-of-life",
+                data: [
+                    { question: "What is the primary focus of emergency medicine?", options: ["Long-term rehabilitation", "Early recognition and management of sudden illnesses", "Routine outpatient checkups", "Elective surgical procedures"], correct: 1, rationale: "Emergency medicine focuses on early recognition, assessment, and management of sudden and severe illnesses or injuries." },
+                    { question: "Which of the following is NOT one of the three key components of emergency care services?", options: ["Rapid assessment and triage", "Immediate stabilization and treatment", "Referral and continuity of care", "Long-term physical therapy"], correct: 3, rationale: "The 3 key components are rapid assessment/triage, immediate stabilization/treatment, and referral/continuity of care." },
+                    { question: "In the emergency department, what is the first priority?", options: ["To decide upon admission", "To provide analgesia", "To make life-saving interventions", "To order routine investigations"], correct: 2, rationale: "The priorities are: 1. Life-saving interventions, 2. Analgesia, 3. Investigations/treatment, 4. Admission/discharge." },
+                    { question: "Which pulse rate indicates a clinical need for ED admission?", options: ["60 - 100 bpm", "50 - 90 bpm", "< 40 or > 140 bpm", "70 - 110 bpm"], correct: 2, rationale: "Cardiovascular signs for admission include a pulse rate < 40 or > 140 bpm." },
+                    { question: "Which systolic blood pressure (BP) is a clinical indicator for admission?", options: ["< 100 mmHg", "110 mmHg", "120 mmHg", "130 mmHg"], correct: 0, rationale: "A systolic blood pressure < 100 mmHg is a clinical indicator for admission." },
+                    { question: "Oliguria is defined as a urine output of less than:", options: ["1.0 ml/kg/hr", "0.5 ml/kg/hr", "2.0 ml/kg/hr", "1.5 ml/kg/hr"], correct: 1, rationale: "Oliguria is defined as < 0.5 ml/kg/hr." },
+                    { question: "Which SpO2 level on high-flow O2 indicates admission?", options: ["< 95%", "< 98%", "< 90%", "< 100%"], correct: 2, rationale: "Respiratory signs for admission include SpO2 < 90% on high-flow O2." },
+                    { question: "A Glasgow Coma Scale (GCS) score below what number is a neurological sign for admission?", options: ["15", "13", "10", "12"], correct: 2, rationale: "A GCS < 10 or a sudden fall in level of consciousness (> 2 points) indicates admission." },
+                    { question: "Which is a key indicator of severe trauma in vehicle accidents?", options: ["Intact windshield", "Pedal intrusion", "Use of seat belt", "Minor bumper dent"], correct: 1, rationale: "Key indicators include pedal intrusion, ejection, spider-webbed windshield, deformed steering wheel, and lack of seat belt." },
+                    { question: "A patient with chest pain and a systolic BP < 100 mmHg is considered:", options: ["Low priority", "High priority", "Non-urgent", "Routine"], correct: 1, rationale: "A patient is high priority if they exhibit chest pain with systolic BP <100 mmHg." },
+                    { question: "In the ABCDE approach, what does 'A' stand for?", options: ["Alertness", "Airway", "Arteries", "Assessment"], correct: 1, rationale: "A stands for Airway: check for and correct any obstruction." },
+                    { question: "What is the primary goal of 'B' in the ABCDE approach?", options: ["Blood pressure control", "Brain protection", "Ensure adequate movement of air into lungs", "Bleeding control"], correct: 2, rationale: "B - Breathing: ensure adequate movement of air into the lungs." },
+                    { question: "Which step in ABCDE checks for signs of life-threatening bleeding?", options: ["A", "B", "C", "D"], correct: 2, rationale: "C - Circulation: evaluate adequate perfusion and check for signs of life-threatening bleeding." },
+                    { question: "What does 'D' in ABCDE assess?", options: ["Defibrillation", "Disability (brain and spine functions)", "Drugs", "Digestion"], correct: 1, rationale: "D - Disability: assess and protect brain and spine functions." },
+                    { question: "In the ABCDE approach, 'E' requires identifying environmental threats and avoiding:", options: ["Hyperthermia", "Hypothermia", "Hypoxia", "Hyperglycemia"], correct: 1, rationale: "E - Exposure: identify all injuries/environmental threats and avoid hypothermia." },
+                    { question: "How fast should the Primary Survey be completed?", options: ["Less than 5 minutes", "10 minutes", "15 minutes", "30 minutes"], correct: 0, rationale: "The primary survey should be rapid: less than 5 min, treating as you find." },
+                    { question: "What does AVPU stand for during Disability assessment?", options: ["Alert, Verbal, Pain, Unresponsive", "Awake, Voice, Pain, Unresponsive", "Action, Vitals, Pulse, Urine", "Airway, Ventilation, Perfusion, Ultrasound"], correct: 1, rationale: "AVPU stands for Awake, voice, pain, unresponsive." },
+                    { question: "In the AMPLE history, what does 'A' represent?", options: ["Age", "Allergies", "Airway", "Assessment"], correct: 1, rationale: "AMPLE stands for Allergies, Medication, Past medical history, Last eaten, Events." },
+                    { question: "In the AMPLE history, what does 'L' stand for?", options: ["Location", "Last eaten", "Liver disease", "Lethargy"], correct: 1, rationale: "L stands for Last eaten (important before surgery)." },
+                    { question: "When assessing 'A' (Airway), what must be protected in trauma cases?", options: ["C-spine", "Lumbar spine", "Pelvis", "Femur"], correct: 0, rationale: "In case of trauma, In-line C-spine immobilization is required during airway management." },
+                    { question: "Which is a life-threatening condition evaluated during 'B' (Breathing)?", options: ["Tension pneumothorax", "Minor rib bruise", "Asthma without distress", "Normal respiratory rate"], correct: 0, rationale: "Life-threatening conditions in breathing include airway injury and Tension/open pneumothorax." },
+                    { question: "Application of a cervical collar is essential in trauma unless cleared, to prevent damage to the:", options: ["Trachea", "Spinal cord", "Esophagus", "Carotid artery"], correct: 1, rationale: "A cervical collar prevents movement of the cervical spine that could cause additional damage to the spinal cord." },
+                    { question: "Which is a valid reason to intubate a patient?", options: ["SpO2 of 98%", "Failure to maintain or protect the airway (e.g., low GCS)", "Respiratory rate of 16", "Normal PaCO2"], correct: 1, rationale: "Decisions to intubate include failure to maintain/protect the airway, failure to ventilate/oxygenate, or anticipatory needs." },
+                    { question: "Which is considered a temporizing measure for airway management?", options: ["Orotracheal intubation", "Surgical airway", "Chin lift/jaw thrust", "Tracheostomy"], correct: 2, rationale: "Temporizing measures include chin lift/jaw thrust, BVM, suctioning, and LMA." },
+                    { question: "In the 6Ps of Rapid Sequence Intubation, what is the goal of Pre-Oxygenation?", options: ["Administering fentanyl", "100% FiO2 to improve recruitment", "Giving paralytics", "Checking EtCO2"], correct: 1, rationale: "Pre-Oxygenation employs 100% FiO2 and a PEEP valve to improve recruitment." },
+                    { question: "During RSI (Paralysis with Induction), which type of drug is succinylcholine?", options: ["Sedative", "Muscle relaxant", "Analgesic", "Vasopressor"], correct: 1, rationale: "Succinylcholine is a muscle relaxant indicated for paralysis after a sedative is administered." },
+                    { question: "Which technique provides definitive airway management?", options: ["Nasal airway", "Bag-valve mask", "Oro-tracheal intubation", "Chin lift"], correct: 2, rationale: "Definitive measures include Oro-tracheal intubation and surgical airway." },
+                    { question: "What is the recommended oxygen delivery device for a respiratory rate more than 40/min?", options: ["Nasal prongs", "Face mask", "Non-rebreathing mask at 10-15 L/min", "Room air"], correct: 2, rationale: "For RR > 40 per minute, use a non-rebreathing mask giving 10-15 litres per minute." },
+                    { question: "Which is a perfusion goal during circulation management?", options: ["MAP < 50 mmHg", "Urine Output > 0.5 mL/kg/h", "Delayed cap refill", "Increased lactate"], correct: 1, rationale: "Perfusion goals include Urine Output >0.5mL/kg/h, MAP >65mmHg, and lactate clearance." },
+                    { question: "How should fluids and blood products be initially managed in massive hemorrhage?", options: ["1:1:1 of pRBCs:platelets:FFP", "Only crystalloids up to 5 Liters", "Platelets only", "Only FFP"], correct: 0, rationale: "Blood product transfusion should follow a 1:1:1 ratio of pRBCs:platelets:FFP." }
+                ]
+            },
+            {
+                title: "Shock",
+                icon: "fa-heart-pulse",
+                data: [
+                    { question: "What is the primary characteristic of shock?", options: ["Elevated blood pressure", "Inadequate tissue perfusion and oxygen delivery", "Increased oxygen saturation", "Decreased carbon dioxide production"], correct: 1, rationale: "Shock is characterized by inadequate tissue perfusion and oxygen delivery to vital organs." },
+                    { question: "During shock, cells shift from aerobic metabolism to:", options: ["Anaerobic metabolism producing lactate", "Aerobic metabolism producing glucose", "Lipid metabolism producing ketones", "Protein metabolism producing urea"], correct: 0, rationale: "Cells shift to anaerobic metabolism, producing increased carbon dioxide and elevated blood lactate levels." },
+                    { question: "Is early shock reversible?", options: ["True", "False"], correct: 0, rationale: "Early shock is highly reversible with intervention." },
+                    { question: "Which is a clinical sign of Stage 2 (Compensatory) shock?", options: ["Bradycardia", "Warm, flushed skin", "Tachycardia, pale skin, cold extremities", "Coma"], correct: 2, rationale: "Clinical signs of compensatory shock include tachycardia, pale skin, cold extremities, and restlessness." },
+                    { question: "In Stage 3 (Progressive) shock, the MAP drops by more than:", options: ["5%", "10%", "20%", "50%"], correct: 2, rationale: "Stage 3 features systemic hypotension with a MAP drop > 20%." },
+                    { question: "Multiple Organ Dysfunction Syndrome (MODS) typically develops in which stage of shock?", options: ["Stage 1", "Stage 2", "Stage 3", "Stage 4 (Refractory)"], correct: 3, rationale: "MODS develops in Stage 4 (Irreversible) shock as end-organ necrosis despite intervention." },
+                    { question: "In MODS, which pattern is associated with Pulmonary dysfunction?", options: ["Acute tubular necrosis", "ARDS (capillary leak, refractory hypoxemia)", "Ischemic injury", "Hepatocellular necrosis"], correct: 1, rationale: "Pulmonary dysfunction in MODS manifests as ARDS." },
+                    { question: "Which type of shock results from absolute volume loss like hemorrhage?", options: ["Cardiogenic", "Distributive", "Hypovolemic", "Obstructive"], correct: 2, rationale: "Hypovolemic shock results from absolute volume loss (blood or fluid)." },
+                    { question: "What is the initial medical management fluid target for hypovolemic shock in adults?", options: ["50-100 mL boluses", "500-1000 mL boluses of warmed isotonic crystalloids", "3000 mL boluses", "Dextrose 5% only"], correct: 1, rationale: "Administer warmed isotonic crystalloids in 500-1000 mL boluses for adults." },
+                    { question: "What is the goal of 'permissive hypotension' in hemorrhagic shock?", options: ["To completely normalize BP immediately", "To avoid disrupting clots until bleeding is controlled (systolic 80-90 mmHg)", "To cause renal failure", "To increase intracranial pressure"], correct: 1, rationale: "Permissive hypotension (systolic 80-90 mmHg) is used until bleeding control to avoid disrupting clots." },
+                    { question: "Cardiogenic shock is most often caused by:", options: ["Severe dehydration", "Spinal cord injury", "Myocardial infarction (>40% ventricular dysfunction)", "Allergic reaction"], correct: 2, rationale: "Cardiogenic shock arises from pump failure, often myocardial infarction." },
+                    { question: "Which medication is considered the first-line vasopressor for hypotension in shock?", options: ["Dobutamine", "Epinephrine", "Norepinephrine", "Milrinone"], correct: 2, rationale: "Norepinephrine is the first-line vasopressor for hypotension." },
+                    { question: "Which type of distributive shock is caused by IgE-mediated hypersensitivity?", options: ["Septic shock", "Neurogenic shock", "Anaphylactic shock", "Adrenal crisis"], correct: 2, rationale: "Anaphylactic shock is triggered by allergens like foods or drugs." },
+                    { question: "What is the hallmark sign of Neurogenic shock?", options: ["Hypertension + Tachycardia", "Hypotension + Bradycardia", "Fever + Rigors", "Urticaria + Stridor"], correct: 1, rationale: "Hypotension + bradycardia is the hallmark of neurogenic shock due to loss of sympathetic tone." },
+                    { question: "Septic shock primarily involves release of:", options: ["Histamine only", "Pro-inflammatory cytokines and nitric oxide", "Cortisol", "IgE antibodies"], correct: 1, rationale: "Septic shock involves cytokine-mediated endothelial damage and nitric oxide release." },
+                    { question: "Which medication is specific for treating Anaphylactic shock?", options: ["Dobutamine", "Norepinephrine", "Epinephrine IM", "Hydrocortisone only"], correct: 2, rationale: "Epinephrine IM (0.01 mg/kg) is the primary treatment for anaphylaxis." },
+                    { question: "For an Adrenal Crisis, what is the required specific treatment?", options: ["Epinephrine", "Hydrocortisone IV", "Dobutamine", "Antibiotics"], correct: 1, rationale: "Adrenal crisis is treated with Hydrocortisone 100 mg IV bolus." },
+                    { question: "In shock, Oxygen Delivery (DO2) is calculated by multiplying Arterial Oxygen Content (CaO2) with:", options: ["Heart Rate", "Stroke Volume", "Cardiac Output (CO)", "Blood Pressure"], correct: 2, rationale: "DO2 = Cardiac Output (CO) × Arterial Oxygen Content (CaO2)." },
+                    { question: "What happens during the compensatory phase of hypovolemic shock?", options: ["Decreased heart rate", "Sympathetic activation and tachycardia", "Vasodilation", "Increased urine output"], correct: 1, rationale: "Sympathetic activation increases heart rate, contractility, and vasoconstriction." },
+                    { question: "Which blood product ratio is recommended for massive transfusion in hemorrhagic shock?", options: ["1:1:1 of packed RBCs, plasma, platelets", "2:1 of RBCs to plasma", "Only RBCs", "Only whole blood"], correct: 0, rationale: "Transition to blood products early in a 1:1:1 ratio to prevent coagulopathy." },
+                    { question: "Dobutamine is primarily used in cardiogenic shock for what purpose?", options: ["To lower heart rate", "As an inotrope for low Cardiac Output", "To cause vasoconstriction", "To treat anaphylaxis"], correct: 1, rationale: "Dobutamine is an inotrope used for low CO with preserved BP." },
+                    { question: "Which shock type initially presents with warm extremities (hyperdynamic phase)?", options: ["Hypovolemic", "Cardiogenic", "Septic (Distributive)", "Obstructive"], correct: 2, rationale: "Septic shock shows warm extremities initially (hyperdynamic phase) before turning cold." },
+                    { question: "What position is recommended for managing neurogenic shock?", options: ["Sitting upright", "Trendelenburg positioning", "Prone", "Lateral decubitus"], correct: 1, rationale: "Trendelenburg positioning and cautious fluids are recommended." },
+                    { question: "Within what timeframe should broad-spectrum antibiotics be given in septic shock?", options: ["24 hours", "12 hours", "1 hour", "48 hours"], correct: 2, rationale: "Broad-spectrum antibiotics should be administered within 1 hour." },
+                    { question: "What occurs during 'Reperfusion Injury'?", options: ["Neutrophil infiltration and explosive ROS generation", "Immediate organ healing", "Decrease in inflammatory mediators", "Cellular regeneration"], correct: 0, rationale: "When blood flow is restored, neutrophil infiltration and ROS generation cause paradoxical worsening." },
+                    { question: "What indicates the 'Irreversible Phase' of hypovolemic shock?", options: ["Normal lactate levels", "Profound hypoxia causing cellular necrosis and multiorgan failure", "Increased urine output", "Bounding pulses"], correct: 1, rationale: "Profound hypoxia causes necrosis, multiorgan failure, with mortality exceeding 50%." },
+                    { question: "Which is a sign of acute Adrenal Crisis?", options: ["Hypertension", "Severe weakness, hyperpigmentation, hyponatremia", "Tachycardia and flushed skin", "Hypernatremia"], correct: 1, rationale: "Signs include severe weakness, hyperpigmentation, hyponatremia, and hyperkalemia." },
+                    { question: "What MAP target is generally aimed for in initial shock resuscitation?", options: ["≥ 50 mmHg", "≥ 65 mmHg", "≥ 90 mmHg", "≥ 120 mmHg"], correct: 1, rationale: "Early goal-directed therapy targets MAP ≥65 mmHg." },
+                    { question: "What lactate level is associated with late (decompensated) distributive shock?", options: ["< 2 mmol/L", "2-4 mmol/L", "> 8 mmol/L", "Normal"], correct: 2, rationale: "Late shock presents with lactate > 8 mmol/L and multiorgan failure." },
+                    { question: "In cardiogenic shock management, IV fluids should be given:", options: ["In massive 2L boluses", "Cautiously in 250-500 mL boluses only if hypovolemic", "Never", "As rapid infusions continuously"], correct: 1, rationale: "Fluids are given cautiously (250-500 mL boluses) to avoid overload." }
+                ]
+            },
+            {
+                title: "Chest Trauma",
+                icon: "fa-lungs",
+                data: [
+                    { question: "Chest injuries account for what percentage of all deaths from traumatic injury?", options: ["10%", "25%", "50%", "75%"], correct: 1, rationale: "Chest injuries account for 25% of all deaths from traumatic injury." },
+                    { question: "How is a flail chest diagnosed?", options: ["Single rib fracture", "Fracture of two or more ribs in two or more separate locations", "Fractured sternum only", "Simple pneumothorax"], correct: 1, rationale: "Diagnosis is based on a fracture of two or more ribs, in two or more separate locations, causing an unstable segment." },
+                    { question: "What is the characteristic breathing pattern in flail chest?", options: ["Kussmaul breathing", "Cheyne-Stokes breathing", "Paradoxical breathing", "Agonal breathing"], correct: 2, rationale: "The flail segment movement is paradoxical, moving opposite to the rest of the chest." },
+                    { question: "During inspiration in a flail chest, the flail segment:", options: ["Bulges outward", "Remains stationary", "Is pulled inward", "Expands normally"], correct: 2, rationale: "During inspiration, the flail segment is pulled inward, reducing air drawn into the lungs." },
+                    { question: "For severe flail chest injuries, what is the required medical management?", options: ["Observation only", "Endotracheal intubation and mechanical ventilation", "Immediate pneumonectomy", "Applying a tight chest binder"], correct: 1, rationale: "Severe flail chest requires endotracheal intubation and mechanical ventilation to stabilize the thoracic cage." },
+                    { question: "Which technique is currently argued as superior for sternal fractures?", options: ["Plate osteosynthesis", "K-wires", "External fixator", "Casting"], correct: 0, rationale: "Plate osteosynthesis increases stability, speeds healing, and reduces complications." },
+                    { question: "What defines a pneumothorax?", options: ["Blood in the pericardium", "Air entering the pleural space producing lung collapse", "Fluid in the alveoli", "Inflammation of the pleura"], correct: 1, rationale: "Pneumothorax occurs when air enters the pleural space between visceral and parietal pleurae." },
+                    { question: "Primary spontaneous pneumothorax typically occurs in:", options: ["Elderly patients with COPD", "Young, tall, and thin men without underlying lung disease", "Infants", "Pregnant women"], correct: 1, rationale: "It occurs primarily in young (20-30 years), tall, thin men without underlying lung disease." },
+                    { question: "Secondary spontaneous pneumothorax is associated with:", options: ["Penetrating trauma", "Underlying lung disease such as COPD", "Rib fractures", "Blunt trauma"], correct: 1, rationale: "Secondary pneumothorax occurs as a result of underlying lung disease, like COPD." },
+                    { question: "An open pneumothorax is usually caused by:", options: ["Spontaneous alveolar rupture", "Penetrating trauma creating a chest wall defect", "Blunt force without skin break", "Infection"], correct: 1, rationale: "It is a chest wall defect allowing ambient air to enter, mostly caused by penetrating trauma." },
+                    { question: "What pathophysiology occurs in a tension pneumothorax?", options: ["Air moves freely in and out", "Air enters the pleural space and is trapped without an exit (one-way valve)", "Blood fills the pleural space", "The lung expands excessively"], correct: 1, rationale: "Air becomes trapped without an exit forming a one-way valve, compressing intrathoracic structures." },
+                    { question: "Which of the following is a sign of a tension pneumothorax?", options: ["Symmetric chest movement", "Tracheal shift and neck vein distention", "Bradycardia", "Increased breath sounds"], correct: 1, rationale: "Signs include tracheal shift, neck vein distention, decreased breath sounds, and decreased cardiac output." },
+                    { question: "Palpating subcutaneous emphysema or crepitus on the chest wall likely indicates:", options: ["Normal finding", "Underlying pneumothorax", "Myocardial infarction", "Asthma"], correct: 1, rationale: "Subcutaneous emphysema or crepitus likely indicates an underlying pneumothorax." },
+                    { question: "What is Homans' sign in the context of chest trauma?", options: ["Calf pain on dorsiflexion", "A crunching sound heard with each heartbeat due to mediastinal air", "Dullness on percussion", "Tracheal deviation"], correct: 1, rationale: "Homans' sign here refers to a crunching sound with each heartbeat from air in the mediastinum." },
+                    { question: "If a patient has a sucking sound from a chest wound during breathing, they likely have:", options: ["Closed pneumothorax", "Tension pneumothorax", "Open pneumothorax", "Hemothorax"], correct: 2, rationale: "A sucking sound from the wound during a spontaneous breath indicates an open pneumothorax." },
+                    { question: "Which imaging modality has equivalent sensitivity to CT for diagnosing pneumothorax?", options: ["Chest X-ray", "Thoracic ultrasound", "MRI", "PET scan"], correct: 1, rationale: "Thoracic ultrasound shows equivalent sensitivity and specificity to CT for diagnosing pneumothorax." },
+                    { question: "Why is incentive spirometry recommended for rib fractures?", options: ["To decrease heart rate", "To enhance lung expansion and lower risk of pulmonary complications", "To drain pleural fluid", "To set bones in place"], correct: 1, rationale: "It enhances lung expansion and potentially lowers the risk of pulmonary complications." },
+                    { question: "What position should a patient with a pneumothorax be kept in?", options: ["Supine", "Prone", "Semi-Fowler position", "Trendelenburg"], correct: 2, rationale: "Keep the patient in the semi-Fowler position." },
+                    { question: "For a small, uncomplicated pneumothorax without suction need, the chest tube can be connected to:", options: ["A ventilator", "A Heimlich valve", "A Foley bag", "An IV pump"], correct: 1, rationale: "It is frequently connected to a Heimlich valve instead of an underwater seal." },
+                    { question: "If a chest tube is unavailable for a tension pneumothorax, what is the immediate intervention?", options: ["Large-bore needle in anterior second intercostal space", "Tracheostomy", "CPR", "Administer antibiotics"], correct: 0, rationale: "A large-bore (16/18G) needle should be placed into the anterior second intercostal space." },
+                    { question: "What defines a hemothorax?", options: ["Air in the pleural space", "Collection of blood within the intra-thoracic space", "Fluid in the pericardium", "Pus in the pleural space"], correct: 1, rationale: "Hemothorax is the collection of blood within the intra-thoracic space." },
+                    { question: "Surgical exploration is indicated immediately if initial tube thoracotomy evacuates more than:", options: ["200 mL of blood", "500 mL of blood", "1000 mL of blood", "50 mL of blood"], correct: 2, rationale: "Evacuation of more than 1000 mL of blood immediately is considered a massive hemothorax requiring surgery." },
+                    { question: "Continued bleeding from the chest indicating surgery is defined as:", options: ["50 mL/hr", "150-200 mL/hr for 2-4 hours", "10 mL/hr", "500 mL/hr for 1 hour"], correct: 1, rationale: "Continued bleeding of 150-200 mL/hr for 2-4 hours requires surgical exploration." },
+                    { question: "What does VATS stand for?", options: ["Vascular And Thoracic Surgery", "Video-Assisted Thoracoscopic Surgery", "Ventilation And Trauma Support", "Venous Access Treatment System"], correct: 1, rationale: "VATS stands for Video-assisted thoracoscopic surgery." },
+                    { question: "Which is an indication for VATS in injured patients?", options: ["Massive unstable hemorrhage", "Persistent hemothorax or empyema", "Simple rib fracture", "Tension pneumothorax needing needle decompression"], correct: 1, rationale: "Indications include persistent hemothorax, empyema, persistent air-leakage, or injury with little blood loss in a stable patient." },
+                    { question: "Insertion of a chest tube is required for:", options: ["Very small pneumothorax without compromise", "Moderate or large pneumothorax and associated hemothorax", "All rib fractures", "Sternal fractures"], correct: 1, rationale: "Chest tubes are for moderate/large pneumothoraxes or those with associated hemothorax." },
+                    { question: "What symptom is commonly associated with a flail chest?", options: ["Bradycardia", "Hyperventilation", "Hypoventilation and Dyspnea", "Hypertension"], correct: 2, rationale: "Signs and symptoms include paradoxical motion, pain, hypoventilation, dyspnea, and tachycardia." },
+                    { question: "When should rib osteosynthesis ideally be performed for best results?", options: ["After 1 month", "Early (24–72 hours after injury)", "Immediately within 1 hour", "Never"], correct: 1, rationale: "Best results are observed when stabilization is performed early (24–72 h after injury)." },
+                    { question: "During normal expiration, the internal pressure increases, allowing:", options: ["Abdominal organs to push air upwards and out", "Lungs to suck in air", "The flail segment to pull inward", "The diaphragm to contract"], correct: 0, rationale: "During normal expiration, relaxed muscles increase internal pressure, allowing abdominal organs to push air upwards and out." },
+                    { question: "Why is SaO2 considered a late indicator in some chest injuries?", options: ["It rises too quickly", "A low SaO2 can be a late indicator of hypercapnic respiratory failure", "It only measures heart rate", "It is unrelated to oxygen"], correct: 1, rationale: "A low SaO2 can be a late indicator of hypercapnic respiratory failure." }
+                ]
+            },
+            {
+                title: "Abdominal Trauma",
+                icon: "fa-x-ray",
+                data: [
+                    { question: "Abdominal injuries rank what number in the causes of trauma deaths?", options: ["First", "Second", "Third", "Fourth"], correct: 2, rationale: "Abdominal injuries rank third in the causes of trauma deaths." },
+                    { question: "Deaths occurring more than 48 hours after abdominal injury are primarily due to:", options: ["Hemorrhage", "Sepsis and its complications", "Brain injury", "Airway obstruction"], correct: 1, rationale: "Deaths >48 hours after abdominal injury are due to sepsis and complications; early deaths are from hemorrhage." },
+                    { question: "Which two organs are the most injured in blunt abdominal trauma?", options: ["Stomach and intestines", "Liver and spleen", "Kidneys and bladder", "Pancreas and gallbladder"], correct: 1, rationale: "Along with the liver, the spleen is the most injured abdominal organ in blunt trauma." },
+                    { question: "Why does the spleen tend to lose blood rapidly?", options: ["It produces acid", "It is highly vascular", "It has no capsule", "It is connected to the aorta"], correct: 1, rationale: "Because of its vascularity, the spleen tends to lose blood rapidly." },
+                    { question: "Presence of left lower rib fractures increases suspicion for injury to which organ?", options: ["Liver", "Spleen", "Right kidney", "Appendix"], correct: 1, rationale: "Left lower rib fractures increase suspicion for a splenic injury." },
+                    { question: "What is Kehr's sign?", options: ["Dullness on percussion", "Left upper quadrant pain radiating to the left shoulder", "Periumbilical ecchymosis", "Flank ecchymosis"], correct: 1, rationale: "Kehr's sign is left upper quadrant pain radiating to the left shoulder, associated with splenic injury." },
+                    { question: "What does Ballance's Sign indicate?", options: ["Liver laceration", "Ruptured spleen", "Kidney contusion", "Bowel perforation"], correct: 1, rationale: "Ballance's Sign (dullness on percussion of LUQ) indicates a ruptured spleen." },
+                    { question: "What is the primary diagnostic study for splenic and hepatic injuries?", options: ["X-ray", "MRI", "Abdominal CT", "Endoscopy"], correct: 2, rationale: "Abdominal CT is usually necessary for diagnosis." },
+                    { question: "Hemodynamically unstable patients with splenic injury require:", options: ["Observation for 5 days", "Immediate surgery to determine source of bleeding", "Angioembolization only", "Discharge with analgesics"], correct: 1, rationale: "Unstable patients require immediate surgery." },
+                    { question: "What is the standard observation period for stable patients with low-grade splenic injury?", options: ["1 day", "3 days", "5 days", "10 days"], correct: 2, rationale: "An observation period of 5 days is the standard." },
+                    { question: "What is Angioembolization?", options: ["Surgical removal of the spleen", "Using wire-guided catheters to occlude vessels and stop hemorrhage", "A blood transfusion technique", "A type of CT scan"], correct: 1, rationale: "It uses wire-guided catheters under radiographic guidance to occlude vessels, stopping hemorrhage." },
+                    { question: "Which is a chemical agent used in embolization?", options: ["Metal coils", "Gelfoam or thrombin", "Polyglycolic acid", "K-wires"], correct: 1, rationale: "Chemical agents include gelfoam, sclerosant chemicals, and thrombin." },
+                    { question: "When attempting splenic salvage, what can be applied directly to the bleeding site?", options: ["Topical hemostatic agents like fibrin glue", "Epinephrine injection", "Ice packs", "Aspirin"], correct: 0, rationale: "Salvage methods include topical hemostatic agents such as fibrin glue applied with gentle pressure." },
+                    { question: "What mesh is wrapped around an injured spleen to aid hemostasis?", options: ["Nylon mesh", "Absorbable polyglycolic acid mesh", "Metallic mesh", "Cotton gauze"], correct: 1, rationale: "An absorbable polyglycolic acid mesh can facilitate hemostasis and suturing." },
+                    { question: "Why are vaccines given post-splenectomy?", options: ["To prevent hemorrhage", "To prevent overwhelming post-splenectomy sepsis", "To increase platelet count", "To treat hypothermia"], correct: 1, rationale: "Overwhelming post-splenectomy sepsis is a concern; pneumococcal, Hib, and meningococcal vaccines are given." },
+                    { question: "Fractures of the right lower ribs increase suspicion for injury to which organ?", options: ["Spleen", "Liver", "Stomach", "Heart"], correct: 1, rationale: "Fractures of the right lower ribs increase suspicion for a liver injury." },
+                    { question: "What is the standard treatment for hemodynamically stable liver injuries?", options: ["Immediate laparotomy", "Observation (non-operative management)", "Liver transplant", "Routine packing"], correct: 1, rationale: "Stable patients with liver injuries are now managed non-operatively (observation)." },
+                    { question: "In uncontrollable liver hemorrhage, what surgical method is used temporarily?", options: ["Complete hepatectomy", "Perihepatic packing and leaving the abdomen open", "Cryotherapy", "Laser ablation"], correct: 1, rationale: "The liver is packed, and the abdomen may be covered and left open for a re-exploration later." },
+                    { question: "The timing of re-exploration for a packed liver depends on correcting 'trauma's lethal triad', which includes:", options: ["Acidosis, coagulopathy, and hypothermia", "Alkalosis, thrombosis, and hyperthermia", "Hypoxia, hypercapnia, and acidosis", "Hypertension, bradycardia, and altered mental status"], correct: 0, rationale: "Trauma's lethal triad is acidosis, coagulopathy, and hypothermia." },
+                    { question: "Diaphragm rupture is more common in:", options: ["Penetrating injury", "Blunt injury (MVC and falls from height)", "Surgical complications", "Sporting events"], correct: 1, rationale: "It is more common in blunt injury than penetrating injury." },
+                    { question: "Diaphragm rupture occurs more frequently on which side?", options: ["Right side", "Left side", "Equally on both", "Center"], correct: 1, rationale: "More frequently on the left side because the right side is protected by the liver." },
+                    { question: "Bowel strangulation occurs in what percentage of diaphragm rupture patients?", options: ["5%", "15%", "30%", "60%"], correct: 2, rationale: "Abdominal contents in the thorax cause bowel strangulation in approx 30% of patients." },
+                    { question: "What is the only definitive treatment for a diaphragm rupture?", options: ["Chest tube insertion", "Observation", "Surgical repair", "Antibiotics"], correct: 2, rationale: "The only definitive treatment for diaphragm rupture is surgical repair." },
+                    { question: "Kidney trauma from sudden deceleration can cause:", options: ["Ruptured bladder", "Tearing of the renal artery intima and vessel thrombosis", "Immediate kidney stones", "Urethral stricture"], correct: 1, rationale: "Sudden deceleration can move the kidney, tearing the renal artery intima leading to thrombosis." },
+                    { question: "What does the Cullen sign (periumbilical ecchymosis) indicate?", options: ["Hemothorax", "Retroperitoneal injury/hematoma", "Splenic rupture only", "Pneumothorax"], correct: 1, rationale: "The Cullen sign may indicate retroperitoneal injury." },
+                    { question: "Grey-Turner sign refers to:", options: ["Flank ecchymosis", "Neck ecchymosis", "Chest wall deformity", "Abdominal guarding"], correct: 0, rationale: "Grey-turner sign (flank ecchymosis) indicates retroperitoneal hematoma or hemorrhagic pancreatitis." },
+                    { question: "How are many renal injuries typically managed?", options: ["Immediate nephrectomy", "Conservatively with observation and bed rest until gross hematuria resolves", "Routine dialysis", "Stent placement"], correct: 1, rationale: "Many renal injuries can be managed conservatively until gross hematuria resolves." },
+                    { question: "Blunt small bowel or gastric injury often presents initially with:", options: ["Massive external bleeding", "Blood in the nasogastric aspirate or hematemesis", "Immediate severe peritonitis", "Grey-Turner sign"], correct: 1, rationale: "It can present with blood in the NG aspirate or hematemesis; physical signs are often absent." },
+                    { question: "When is the diagnosis of bowel injury often definitively made?", options: ["Immediately on X-ray", "Not until peritonitis develops", "By listening to bowel sounds", "By checking urine output"], correct: 1, rationale: "Diagnosis is often not made until peritonitis develops due to subtle CT findings." },
+                    { question: "Postoperative nutrition for a repaired bowel often utilizes:", options: ["Total parenteral nutrition only", "A feeding jejunostomy tube placed distal to the repair site", "Immediate full oral diet", "NPO for 4 weeks"], correct: 1, rationale: "A feeding jejunostomy tube is placed distal to the repair site to initiate early tube feedings." }
+                ]
+            },
+            {
+                title: "Acute Abdomen",
+                icon: "fa-stethoscope",
+                data: [
+                    { question: "The term 'acute abdomen' refers to sudden, severe abdominal pain of unclear etiology lasting less than:", options: ["12 hours", "24 hours", "48 hours", "72 hours"], correct: 1, rationale: "Acute abdomen refers to sudden, severe abdominal pain that is less than 24 hours in duration." },
+                    { question: "Pain in the upper right quadrant is typically associated with which organs?", options: ["Spleen and pancreas", "Liver and gallbladder", "Appendix and cecum", "Sigmoid colon"], correct: 1, rationale: "Upper right abdominal pain relates to the liver, gallbladder, and biliary tract." },
+                    { question: "Appendicitis typically starts in which region before moving to the lower right abdomen?", options: ["Upper right", "Lower left", "Middle abdominal (peri-umbilical) / upper middle", "Pelvic"], correct: 2, rationale: "Appendicitis starts in the upper middle/peri-umbilical area, then moves to the lower right abdomen." },
+                    { question: "Which condition is a differential diagnosis for Epigastric Region pain?", options: ["Sigmoid volvulus", "Peptic ulcer disease", "Inguinal hernia", "Testicular torsion"], correct: 1, rationale: "Epigastric pain is common in peptic ulcer disease, cholecystitis, pancreatitis, and MI." },
+                    { question: "Lower left quadrant pain is most characteristic of:", options: ["Appendicitis", "Cholecystitis", "Diverticulitis", "Gastric ulcer"], correct: 2, rationale: "Diverticulitis frequently presents as lower left quadrant pain." },
+                    { question: "Which type of abdominal pain is described as vague, dull, and nauseating?", options: ["Somatic pain", "Visceral pain", "Referred pain", "Neuropathic pain"], correct: 1, rationale: "Visceral pain is typically vague, dull, and nauseating, responding to distention/contraction." },
+                    { question: "Somatic pain is characterized as:", options: ["Dull and crampy", "Sharp and well localized", "Perceived distant from its source", "Intermittent waves"], correct: 1, rationale: "Somatic pain comes from the parietal peritoneum and is sharp and well localized." },
+                    { question: "Scapular pain due to biliary colic is an example of:", options: ["Visceral pain", "Somatic pain", "Referred pain", "Psychogenic pain"], correct: 2, rationale: "Referred pain is perceived distant from its source, such as scapular pain from biliary colic." },
+                    { question: "Which is an extra-abdominal *cardiopulmonary* cause of acute abdomen?", options: ["Diabetic ketoacidosis", "Myocardial infarction", "Uremia", "Herpes zoster"], correct: 1, rationale: "MI, pneumonia, and empyema are cardiopulmonary causes that can present as abdominal pain." },
+                    { question: "Which is an extra-abdominal *metabolic* cause of acute abdomen?", options: ["Lead poisoning", "Spinal cord tumor", "Diabetic ketoacidosis", "Empyema"], correct: 2, rationale: "Metabolic causes include uremia, DKA, and adrenal insufficiency." },
+                    { question: "A patient lying perfectly still in the ED likely has:", options: ["Renal colic", "Biliary colic", "Peritonitis", "Gastroenteritis"], correct: 2, rationale: "Patients with peritonitis like to stay immobile, whereas those with colic roll around in agony." },
+                    { question: "A patient rolling around in agony likely has:", options: ["Peritonitis", "Intestinal, biliary or renal colic", "Peptic ulcer", "Hepatitis"], correct: 1, rationale: "Colic causes patients to roll around in agony seeking a comfortable position." },
+                    { question: "Vomitus that is feculent (fecal in nature) suggests:", options: ["Upper GI pathology", "Lower GI obstruction", "Gastritis", "Pancreatitis"], correct: 1, rationale: "Feculent vomiting suggests lower GI obstruction." },
+                    { question: "If abdominal pain is worsened by movement or coughing, the nurse should suspect:", options: ["Active peritonitis", "Pancreatitis", "Kidney stones", "Gastric ulcer"], correct: 0, rationale: "Pain worsened by movement/coughing is suspicious for active peritonitis." },
+                    { question: "Colicky pain that occurs in waves is characteristic of:", options: ["Hepatitis", "Obstruction of the biliary, urinary or GIT", "Myocardial infarction", "Peritonitis"], correct: 1, rationale: "Intermittent and crampy colic occurs in waves due to obstruction." },
+                    { question: "What must be addressed first in the assessment of acute abdominal pain?", options: ["Detailed family history", "Airway, Breathing and Circulation (ABC)", "Urine analysis", "Pain medication administration"], correct: 1, rationale: "Assess and manage Airway, Breathing, and Circulation (ABC) as a priority." },
+                    { question: "During physical examination, what order is generally recommended for the abdomen?", options: ["Palpate, Auscultate, Inspect", "Inspect, Auscultate, Palpate, Percussion", "Auscultate, Percuss, Inspect", "Percuss, Palpate, Auscultate"], correct: 1, rationale: "The order is Inspect, Auscultate, Palpate, Percussion." },
+                    { question: "Palpation is performed to look for:", options: ["Bowel sounds", "Scars and distention", "Guarding, rigidity, and rebound tenderness", "Lung opacities"], correct: 2, rationale: "Palpation looks for guarding, rigidity, rebound tenderness, organomegaly, or hernias." },
+                    { question: "What is an appropriate nursing intervention for a patient with a suspected surgical acute abdomen?", options: ["Give them a large meal", "Keep the patient nil by mouth (NPO)", "Apply a heating pad", "Encourage ambulation"], correct: 1, rationale: "Keep the patient nil by mouth (NPO) in preparation for potential surgery." },
+                    { question: "If severe vomiting occurs or there are signs of intestinal obstruction, the nurse should consider:", options: ["Passing a nasogastric (NG) tube", "Administering oral laxatives", "Giving oral antiemetics", "Discharging the patient"], correct: 0, rationale: "Passing an NG tube is considered if severe vomiting or obstruction occurs." },
+                    { question: "Regarding analgesia in acute abdomen, modern practice states:", options: ["Withhold until the surgeon arrives", "Use only NSAIDs", "A surgical abdomen is very painful and should be relieved by parenteral opiates (e.g., morphine)", "Pain should not be treated to preserve signs"], correct: 2, rationale: "Previous practice withheld analgesia, but now parenteral opiates are used to relieve severe pain." },
+                    { question: "Why should antiemetics be used cautiously in a community setting?", options: ["They cause fever", "Avoid symptomatic treatment without considering a diagnosis", "They increase vomiting", "They cure the obstruction"], correct: 1, rationale: "Avoid symptomatic treatment without considering a diagnosis in a community setting." },
+                    { question: "Which antibiotics are commonly used in acutely unwell patients with suspected peritonitis?", options: ["Oral penicillin", "IV cephalosporin plus metronidazole", "Topical bacitracin", "Macrolides only"], correct: 1, rationale: "IV cephalosporin plus metronidazole are commonly used when peritonitis is suspected." },
+                    { question: "Abdominal pain radiating to the left side of the waist, back, and shoulder indicates pathology in the:", options: ["Liver", "Appendix", "Pancreas", "Bladder"], correct: 2, rationale: "Pancreas pain can radiate to the left side of the waist, back, and even shoulder." },
+                    { question: "Which pain is perceived as more severe: inflammatory pain or ischemic/colicky pain?", options: ["Inflammatory", "Ischemic/colicky", "They are equal", "Neither"], correct: 1, rationale: "Colicky or ischemic pain of the intestine is perceived as more severe than inflammatory pain." },
+                    { question: "Why might a patient with acute cholecystitis mimic a myocardial infarction?", options: ["Because both cause hematuria", "Because it causes upper abdominal pain or chest pressure", "Because it slows the heart rate", "Because it causes left arm paralysis"], correct: 1, rationale: "Upper abdominal pain or chest pressure in acute cholecystitis sometimes mimics a myocardial infarction." },
+                    { question: "What diagnostic test involves taking fluid directly from the abdomen?", options: ["Endoscopy", "Laparoscopy", "Abdominal paracentesis", "IVP"], correct: 2, rationale: "Abdominal paracentesis is a miscellaneous test for acute abdomen." },
+                    { question: "Which diagnostic procedure is used to view the biliary and pancreatic ducts?", options: ["IVP", "ERCP", "CT scan", "Ultrasound"], correct: 1, rationale: "Endoscopic Retrograde Pancreatography (ERCP) visualizes these ducts." },
+                    { question: "What finding on auscultation indicates a possible bowel obstruction?", options: ["Normal bowel sounds", "Hyperactive or absent bowel sounds", "Vesicular breath sounds", "Heart murmurs"], correct: 1, rationale: "Auscultate for hyperactive, obstructive, absent, or normal bowel sounds." },
+                    { question: "Which extra-abdominal cause involves a viral infection of nerve roots?", options: ["Uremia", "Herpes zoster", "Pneumonia", "Empyema"], correct: 1, rationale: "Herpes zoster (neurogenic cause) can present as acute abdominal pain." }
+                ]
+            },
+            {
+                title: "Hypertensive Crises",
+                icon: "fa-arrow-trend-up",
+                data: [
+                    { question: "A hypertensive crisis is defined as a severe increase in blood pressure of:", options: ["Systolic ≥160 and/or diastolic ≥100", "Systolic ≥180 and/or diastolic ≥110", "Systolic ≥140 and/or diastolic ≥90", "Systolic ≥200 and/or diastolic ≥120"], correct: 1, rationale: "It is a severe increase in BP (systolic ≥180 mm Hg and/or diastolic ≥110 mm Hg)." },
+                    { question: "What distinguishes hypertensive emergency from hypertensive urgency?", options: ["Emergency occurs only in elderly", "Emergency is accompanied by end-organ damage", "Urgency has a higher BP limit", "Urgency requires ICU admission"], correct: 1, rationale: "A hypertensive emergency is accompanied by end-organ damage (stroke, MI, kidney damage)." },
+                    { question: "A patient with BP 190/115 mmHg complaining of headache and anxiety, but NO end-organ damage, has:", options: ["Hypertensive emergency", "Hypertensive urgency", "Normotension", "Acute postoperative hypertension"], correct: 1, rationale: "Hypertensive urgency is severe elevation without end-organ damage, though symptoms like headache/anxiety may exist." },
+                    { question: "Which is a sign of hypertension-induced end-organ damage?", options: ["Mild anxiety", "Epistaxis without organ failure", "Hypertensive encephalopathy", "Normal BUN/creatinine"], correct: 2, rationale: "Signs of end-organ damage include hypertensive encephalopathy, stroke, MI, aortic dissection, and acute renal failure." },
+                    { question: "Acute postoperative hypertension is triggered by stressors incurred during major surgery and occurs in the:", options: ["Late recovery phase", "Immediate postoperative period", "Preoperative period", "Home care setting"], correct: 1, rationale: "It occurs in the immediate postoperative period." },
+                    { question: "Which illicit drugs are common causes of a hypertensive crisis?", options: ["Marijuana and Heroin", "Cocaine and Methamphetamine", "LSD and Psilocybin", "Barbiturates"], correct: 1, rationale: "Cocaine and methamphetamine are illicit drugs that cause hypertensive crises." },
+                    { question: "Which withdrawal syndrome can cause a hypertensive crisis?", options: ["Caffeine withdrawal", "Alcohol, benzodiazepine, or clonidine withdrawal", "Nicotine withdrawal", "Sugar withdrawal"], correct: 1, rationale: "Withdrawal from alcohol, benzodiazepines, or clonidine can cause hypertensive crises." },
+                    { question: "During physical examination, why is a thorough inspection of the optic fundi performed?", options: ["To check visual acuity", "To look for acute hemorrhages, exudates, or papilledema", "To measure intraocular pressure", "To check pupil size"], correct: 1, rationale: "Inspection of the optic fundi checks for acute hemorrhages, exudates, or papilledema (signs of emergency)." },
+                    { question: "What diagnostic test evaluates for signs of left ventricular hypertrophy and acute ischemia?", options: ["Chest X-ray", "CT brain", "Electrocardiogram (ECG)", "Urine toxicology"], correct: 2, rationale: "The ECG is used to evaluate left ventricular hypertrophy, acute ischemia, and arrhythmias." },
+                    { question: "In a hypertensive emergency, what is the general goal for BP reduction in the FIRST hour?", options: ["Normalize BP immediately to 120/80", "Maximum reduction in MAP of 20% to 25%", "Reduce MAP by 50%", "No reduction, just observation"], correct: 1, rationale: "The goal is a maximum reduction in mean arterial pressure of 20% to 25% in the first hour." },
+                    { question: "What is the general BP target by 2 to 6 hours of treatment in a hypertensive emergency?", options: ["120/80 mm Hg", "160/100 mm Hg", "140/90 mm Hg", "180/110 mm Hg"], correct: 1, rationale: "The BP should reach 160/100 mm Hg by 2 to 6 hours." },
+                    { question: "For an aortic dissection, what is the specific target and timeframe?", options: ["Lower systolic BP below 120 mm Hg within 20 minutes", "Lower MAP by 25% in 2 hours", "Maintain systolic > 140 mm Hg", "Increase BP to maintain perfusion"], correct: 0, rationale: "Blood pressure should be lowered within 20 minutes to a systolic below 120 mm Hg using beta blockers/vasodilators." },
+                    { question: "What is the onset time of IV Clevidipine?", options: ["5 to 10 min", "2 min", "15 min", "30 min"], correct: 1, rationale: "Clevidipine has an onset of 2 min and duration of 10 min." },
+                    { question: "Which medication is contraindicated in second or third-degree AV block and asthma?", options: ["Clevidipine", "Nitroglycerin", "Nicardipine", "Esmolol"], correct: 3, rationale: "Esmolol (and Labetalol) are beta-blockers contraindicated in AV blocks, systolic heart failure, and asthma." },
+                    { question: "What is a major contraindication for Nicardipine?", options: ["Liver failure", "Asthma", "Bradycardia", "Renal failure"], correct: 0, rationale: "Nicardipine is contraindicated in liver failure." },
+                    { question: "What adverse effect is common among Clevidipine, Nicardipine, and Nitroglycerin?", options: ["Bradycardia", "Headache and reflex tachycardia", "Bronchospasm", "Renal failure"], correct: 1, rationale: "Adverse effects include headache and reflex tachycardia." },
+                    { question: "Management of hypertensive urgency includes:", options: ["ICU admission", "IV vasodilators", "Administration of a short-acting oral hypertensive medication", "Immediate intubation"], correct: 2, rationale: "Interventions include oral short-acting medications and outpatient prescription/monitoring." },
+                    { question: "Patient education for hypertension should address:", options: ["Only medication timing", "Obesity, diabetes, sodium intake, and smoking habits", "Avoiding all physical activity", "Increasing alcohol consumption"], correct: 1, rationale: "Education includes lifestyle choices like diet, sodium intake, alcohol, exercise, and smoking." },
+                    { question: "Which is a recommended pharmacological treatment for persistent, poorly controlled BP?", options: ["Epinephrine", "Thiazide diuretics, calcium channel blockers, ACE inhibitors", "Corticosteroids", "NSAIDs"], correct: 1, rationale: "Treatments include thiazide diuretics, CCBs, ACE inhibitors, and ARBs." },
+                    { question: "A complication of a hypertensive emergency involving the heart is:", options: ["Right bundle branch block", "Acute heart failure and cardiogenic pulmonary edema", "Endocarditis", "Pericardial effusion"], correct: 1, rationale: "Complications include acute heart failure and cardiogenic pulmonary edema." },
+                    { question: "Which Acute Coronary Syndrome (ACS) can result from a hypertensive emergency?", options: ["Stable angina", "STEMI or NSTEMI", "Prinzmetal's angina", "Cor pulmonale"], correct: 1, rationale: "ACS includes STEMI, NSTEMI, and unstable angina." },
+                    { question: "Which condition is classified under Acute Aortic Syndrome?", options: ["Aortic stenosis", "Aortic dissection", "Mitral regurgitation", "Endocarditis"], correct: 1, rationale: "Acute aortic syndrome includes aortic dissection, intramural hemorrhage, and aortic rupture." },
+                    { question: "For pregnant women with a history suggestive of pheochromocytoma, what test is recommended?", options: ["CT brain", "Plasma or urinary fractionated metanephrine assays", "Urine toxicology", "Troponin"], correct: 1, rationale: "Plasma or urinary fractionated metanephrine assays are recommended." },
+                    { question: "Patients with hypertension and chronic kidney disease in a crisis should be specifically monitored for:", options: ["Liver enzymes", "Blood electrolytes and estimated glomerular filtration rate", "Pulmonary function tests", "Coagulation profile"], correct: 1, rationale: "They should be monitored for blood electrolytes and eGFR." },
+                    { question: "A CT scan of the brain is indicated for a patient presenting with:", options: ["Mild anxiety", "Abrupt severe headache, encephalopathy, or focal neurologic deficits", "Chest pain", "Epistaxis"], correct: 1, rationale: "CT brain is used for patients with abrupt severe headache or focal neurologic deficits." },
+                    { question: "A physical exam finding of an 'abdominal bruit' might indicate:", options: ["Primary essential hypertension", "Secondary hypertension (e.g., renal artery stenosis)", "Normal bowel sounds", "Gastric ulcer"], correct: 1, rationale: "Clues like abdominal bruit, striae, or radial-femoral delay indicate secondary hypertension." },
+                    { question: "The primary mechanism by which beta blockers help in aortic dissection is:", options: ["Increasing heart rate", "Causing vasodilation", "Reducing shear stress on the dissection", "Increasing contractility"], correct: 2, rationale: "Beta blockers reduce shear stress on the dissection." },
+                    { question: "If a patient experiences a hypertensive emergency, where should they be admitted?", options: ["General medical ward", "Outpatient clinic", "Intensive Care Unit (ICU)", "Psychiatric ward"], correct: 2, rationale: "They should be admitted to the ICU for IV medication and monitoring." },
+                    { question: "Labetalol is administered via which route in an emergency?", options: ["Oral tablets", "Intramuscular injection", "IV bolus followed by IV infusion", "Subcutaneous injection"], correct: 2, rationale: "Labetalol is given as a 10-20 mg IV bolus followed by incremental doses or IV infusion." },
+                    { question: "Why is an assessment of Troponin done during a hypertensive crisis?", options: ["To check for stroke", "To check for possible acute coronary syndromes or heart failure", "To check for kidney failure", "To check for illicit drugs"], correct: 1, rationale: "Troponin evaluates possible acute coronary syndromes or heart failure." }
+                ]
+            },
+            {
+                title: "Syncope",
+                icon: "fa-face-dizzy",
+                data: [
+                    { question: "Syncope is defined as:", options: ["Prolonged coma", "A transient loss of consciousness that is abrupt and self-limited, with rapid recovery", "Seizures with aura", "Gradual loss of consciousness with confusion"], correct: 1, rationale: "Syncope is a transient loss of consciousness that is abrupt, self-limited, with complete rapid recovery." },
+                    { question: "The immediate physiological cause of syncope is:", options: ["Cerebral hyperperfusion", "Hypoglycemia", "Cerebral hypoperfusion", "Hyperoxia"], correct: 2, rationale: "The immediate cause is cerebral hypoperfusion due to systemic vasodilation or decreased cardiac output." },
+                    { question: "Which structure in the brainstem is responsible for supporting consciousness?", options: ["Cerebellum", "Reticular Activating System (RAS)", "Hypothalamus", "Thalamus"], correct: 1, rationale: "The RAS is a neuronal network in the brainstem responsible for supporting consciousness." },
+                    { question: "Cessation of cerebral blood flow for how many seconds can cause loss of consciousness?", options: ["1-2 seconds", "6-8 seconds", "30 seconds", "1 minute"], correct: 1, rationale: "Cessation of cerebral blood flow for 6-8 seconds can cause loss of consciousness." },
+                    { question: "Which is considered a 'Cardiac - Structural' cause of syncope?", options: ["Vasovagal reaction", "Aortic stenosis", "Bradycardia", "Dysrhythmia"], correct: 1, rationale: "Outflow obstruction (like aortic stenosis) and MI are structural cardiac causes." },
+                    { question: "Vasovagal syncope is triggered by:", options: ["Sensory or emotional reactions", "Standing up quickly", "Shaving", "Coughing"], correct: 0, rationale: "Vasovagal syncope is a reflex syncope triggered by sensory or emotional reactions." },
+                    { question: "Orthostatic syncope is related to:", options: ["Emotional stress", "Postural changes and volume depletion", "Coughing or straining", "Pacing dysfunction"], correct: 1, rationale: "Orthostatic syncope is postural related and linked to volume depletion." },
+                    { question: "Situational syncope can be triggered by:", options: ["Shaving", "Emotional trauma", "Coughing and straining", "Standing up quickly"], correct: 2, rationale: "Situational syncope is triggered by specific actions like coughing or straining." },
+                    { question: "Carotid sinus pressure syncope can occur during:", options: ["Running", "Sleeping", "Shaving", "Eating"], correct: 2, rationale: "Pressure on the carotid sinus during shaving can trigger reflex syncope." },
+                    { question: "Which class of medications is commonly associated with syncope?", options: ["Antibiotics", "NSAIDs", "Beta-blockers and CCBs", "Vitamins"], correct: 2, rationale: "Medications such as CCBs, B-blockers, digoxin, and drugs of abuse can cause syncope." },
+                    { question: "Focal CNS hypoperfusion causing syncope can be due to:", options: ["Hyperventilation", "Hypoxia, epilepsy, or dysfunctional brainstem", "Migraine", "Spinal cord injury"], correct: 1, rationale: "Hypoxia, epilepsy, and dysfunctional brainstem can cause focal CNS hypoperfusion." },
+                    { question: "During the patient history assessment, what specific trigger is critical to ask about regarding cardiac risk?", options: ["Syncope after eating", "Syncope during exertion", "Syncope while sitting", "Syncope while sleeping"], correct: 1, rationale: "Asking about exertion is critical, as syncope during exertion strongly suggests a cardiac structural or arrhythmic cause." },
+                    { question: "Which laboratory test is NOT listed as a standard initial investigation for syncope?", options: ["CBC", "Glucose", "BUN/Cr", "Liver enzymes (ALT/AST)"], correct: 3, rationale: "Standard initial labs mentioned are CBC, glucose, and BUN/Cr." },
+                    { question: "Tachydysrhythmias that can cause syncope include:", options: ["Sinus bradycardia", "SVT, Afib, Vtach, Vfib", "First-degree AV block", "Wenckebach block"], correct: 1, rationale: "Tachydysrhythmias include SVT, Afib, Vtach, and Vfib." },
+                    { question: "What is the Tilt Table Test primarily used to diagnose?", options: ["Myocardial infarction", "Vasovagal syncope", "Aortic stenosis", "Epilepsy"], correct: 1, rationale: "The Tilt table test is used for diagnosing vasovagal syncope." },
+                    { question: "If arrhythmias are suspected but not seen on an initial ECG, what is the next step?", options: ["CT Brain", "Holter monitor for prolonged ECG monitoring", "Tilt table test", "Echocardiogram"], correct: 1, rationale: "A Holter monitor is used for prolonged ECG monitoring if arrhythmias are suspected." },
+                    { question: "What is the primary management for Reflex (Vasovagal) Syncope?", options: ["Implantable defibrillator", "Reassurance, education about triggers, and hydration", "Anti-epileptic drugs", "Beta-blockers"], correct: 1, rationale: "Management includes reassurance, education about triggers, and lifestyle modifications (hydration)." },
+                    { question: "For Orthostatic Hypotension, non-pharmacological management includes:", options: ["Fluid restriction", "Increase fluid and salt intake, use compression stockings", "Avoid standing entirely", "Hot showers"], correct: 1, rationale: "Management includes increasing fluid/salt intake and compression stockings." },
+                    { question: "Which medications might be necessary for treating severe Orthostatic Hypotension?", options: ["Diuretics", "Fludrocortisone and midodrine", "Amiodarone", "Insulin"], correct: 1, rationale: "Medications such as fludrocortisone and midodrine are used if necessary." },
+                    { question: "Management of Cardiac Syncope involves:", options: ["Lifestyle modifications only", "Treatment based on specific condition (e.g., pacemakers, ICD)", "Anti-epileptic drugs", "Compression stockings"], correct: 1, rationale: "Management is based on the cardiac condition, such as pacemakers or ICDs." },
+                    { question: "Neurological causes of syncope (like seizures) require:", options: ["Cardiology consult", "Consultation with neurology for epilepsy management", "Psychiatric consult", "No action"], correct: 1, rationale: "Consultation with neurology for seizure or central nervous system disorders." },
+                    { question: "A key patient education point for preventive measures is:", options: ["Stop all medications", "Teach patients to recognize signs of impending syncope and how to manage triggers", "Encourage prolonged standing", "Advise against drinking water"], correct: 1, rationale: "Teach patients to recognize the signs of impending syncope and how to manage triggers." },
+                    { question: "To prevent syncope, patients with orthostatic triggers should:", options: ["Avoid prolonged standing or rapid position changes", "Stand up as fast as possible", "Decrease salt intake", "Perform strenuous exercises immediately upon waking"], correct: 0, rationale: "Patients should avoid prolonged standing or rapid position changes." },
+                    { question: "Syncope is defined as a 'temporary loss of consciousness due to a drop in blood flow to the:'", options: ["Heart", "Lungs", "Brain", "Kidneys"], correct: 2, rationale: "It is a temporary loss of consciousness due to a drop in blood flow to the brain." },
+                    { question: "Which is considered an 'Other CV disease' that can cause syncope?", options: ["Asthma", "Pulmonary Embolism (PE)", "GERD", "Peptic Ulcer"], correct: 1, rationale: "Pulmonary embolism (PE) and cardiomyopathy are listed under 'Other CV diseases'." },
+                    { question: "Loss of postural tone is a defining characteristic of:", options: ["Vertigo", "Dizziness", "Syncope", "Migraine"], correct: 2, rationale: "Syncope is defined by sudden loss of consciousness with loss of postural tone." },
+                    { question: "Bradyarrhythmias causing syncope include:", options: ["Ventricular tachycardia", "AV conduction blocks and sinus node dysfunction", "Atrial fibrillation", "SVT"], correct: 1, rationale: "AV conduction blocks and sinus node dysfunction are bradyarrhythmias." },
+                    { question: "Syncope follow-up includes:", options: ["Discharge with no further visits", "Regular follow-ups to monitor condition and adjust treatment", "Immediate surgery for all patients", "Lifelong bed rest"], correct: 1, rationale: "Regular follow-ups monitor the condition and response to treatment, adjusting modalities as needed." },
+                    { question: "Does syncope typically involve a prolonged recovery period with confusion?", options: ["Yes, always", "No, it features a rapid return to baseline", "Only in cardiac syncope", "Only in vasovagal syncope"], correct: 1, rationale: "Syncope is accompanied by a rapid return to baseline (unlike seizures which have a post-ictal state)." },
+                    { question: "Which device is considered for high-risk cardiac syncope (e.g., ventricular arrhythmias)?", options: ["Holter monitor", "Implantable cardioverter-defibrillator (ICD)", "Tilt table", "Compression stocking"], correct: 1, rationale: "Consideration of an implantable cardioverter-defibrillator (ICD) if indicated." }
+                ]
+            },
+            {
+                title: "Acute CNS Infection",
+                icon: "fa-brain",
+                data: [
+                    { question: "What is meningitis?", options: ["Infection of the brain parenchyma", "Inflammatory process of the membranes that surround the brain and spinal cord", "Infection of the spinal cord only", "Autoimmune disease of the skull"], correct: 1, rationale: "Meningitis is an inflammatory process of the membranes that surround the brain and spinal cord." },
+                    { question: "Bacterial meningitis is most commonly caused by:", options: ["Viruses", "Encapsulated bacterial organisms", "Fungi", "Parasites"], correct: 1, rationale: "It is caused by a bacterial pathogen, most commonly encapsulated organisms." },
+                    { question: "Aseptic meningitis is most overall caused by:", options: ["Bacteria", "Fungi", "Viruses such as enteroviruses and echoviruses", "Medication side effects"], correct: 2, rationale: "Enteroviruses and echoviruses are the most common overall cause of aseptic meningitis." },
+                    { question: "Encephalitis differs from meningitis because it is an infection of:", options: ["The meninges", "The brain parenchyma", "The skull bone", "The peripheral nerves"], correct: 1, rationale: "Encephalitis is an infection of the brain parenchyma causing inflammation within the CNS." },
+                    { question: "How do pathogens typically enter the CNS to cause meningitis?", options: ["Through intact skin", "Violating the blood-brain barrier after upper airway infection, or via bacteremia", "Through the digestive tract directly", "Via mosquito bites only"], correct: 1, rationale: "They enter by violating the BBB after an upper airway infection, via the bloodstream (bacteremia), or CNS inoculation." },
+                    { question: "Which two pathogens are the most common causes of acute bacterial meningitis?", options: ["E. coli and S. aureus", "Streptococcus pneumoniae and Neisseria meningitidis", "Listeria and Haemophilus", "Treponema and Borrelia"], correct: 1, rationale: "S. pneumoniae and N. meningitidis are the most common pathogens causing acute bacterial meningitis." },
+                    { question: "Listeria monocytogenes as a cause of meningitis is more common in which groups?", options: ["Healthy teenagers", "Patients over 50, infants <3 months, pregnant, or immunocompromised", "Children aged 5-10", "Adults 20-30 years old"], correct: 1, rationale: "It is more common in those >50 years, infants <3 months, immunocompromised, or pregnant." },
+                    { question: "The most treatable cause of viral encephalitis is:", options: ["Enterovirus", "HIV", "Herpes simplex virus (HSV)", "Rabies"], correct: 2, rationale: "Infection by herpes simplex virus (HSV) is the most treatable cause of encephalitis." },
+                    { question: "What is the classically described triad of bacterial meningitis?", options: ["Fever, neck stiffness, altered mental status", "Headache, rash, cough", "Vomiting, diarrhea, fever", "Seizures, aphasia, coma"], correct: 0, rationale: "The classic triad is Fever, Neck stiffness, and Altered mental status." },
+                    { question: "Are all three classic features present in the majority of adult bacterial meningitis patients?", options: ["Yes, almost 100%", "No, present together in less than half of adult patients", "Yes, in 80% of patients", "They are never present together"], correct: 1, rationale: "All three features are present together in less than half of adult patients." },
+                    { question: "Infants with meningitis may present with nonspecific symptoms such as:", options: ["Classic neck stiffness", "Aphasia", "Irritability, lethargy, poor feeding, or a bulging fontanelle", "Photophobia"], correct: 2, rationale: "Infants present nonspecifically with irritability, lethargy, poor feeding, rash, or bulging fontanelle." },
+                    { question: "Kernig's sign involves:", options: ["Passive flexion of the neck", "Severe neck stiffness", "Flexing the hip and extending the knee to elicit pain in the back and legs", "Tapping the facial nerve"], correct: 2, rationale: "Kernig's sign is flexing the hip and extending the knee to elicit pain in the back and legs." },
+                    { question: "Brudzinski's sign involves:", options: ["Passive flexion of the neck eliciting flexion of the hips", "Extending the knee causing pain", "Light sensitivity", "Petechial rash"], correct: 0, rationale: "Brudzinski's sign is passive flexion of the neck eliciting flexion of the hips." },
+                    { question: "Petechiae and purpura are classically associated with which type of meningitis?", options: ["Pneumococcal", "Meningococcal", "Viral", "Fungal"], correct: 1, rationale: "Petechiae and purpura are classically associated with meningococcal meningitis." },
+                    { question: "What is the preferred diagnostic procedure for suspected meningitis/encephalitis?", options: ["CT Scan alone", "Lumbar puncture (LP)", "Blood culture only", "EEG"], correct: 1, rationale: "A prompt lumbar puncture (LP) is the preferred diagnostic procedure." },
+                    { question: "Which CSF finding is highly suggestive of bacterial meningitis?", options: ["Normal glucose", "WBC < 300 with lymphocytic predominance", "Glucose < 40 mg/dL and WBC > 1000 with >80% neutrophils", "Normal opening pressure"], correct: 2, rationale: "Bacterial meningitis shows low glucose (<40), high protein (>200), WBC >1000, and >80% neutrophils." },
+                    { question: "In viral meningitis, the CSF glucose level is typically:", options: ["Reduced", "Elevated", "Normal", "Absent"], correct: 2, rationale: "In viral meningitis, CSF glucose is typically normal." },
+                    { question: "Neuroimaging (CT scan) is required BEFORE an LP if the patient has:", options: ["A fever", "Altered mental status, new seizures, focal neurologic signs, or papilledema", "A rash", "Neck stiffness"], correct: 1, rationale: "CT is required before LP if there are signs of mass/herniation: altered mental status, seizures, focal signs, immunocompromised, or papilledema." },
+                    { question: "What precaution type must be implemented for suspected bacterial meningitis?", options: ["Airborne precautions", "Contact precautions", "Droplet precautions", "Standard precautions only"], correct: 2, rationale: "Implement droplet precautions (private room, surgical masks, face shield) until 24 hours of effective antibiotics." },
+                    { question: "When should empiric antibiotics be administered for suspected bacterial meningitis?", options: ["After the final CSF culture results (48 hours)", "Promptly after LP, or after blood cultures if LP is delayed", "Only after a CT scan is read", "Before any blood cultures are drawn"], correct: 1, rationale: "Administer empiric antibiotics after a prompt LP, or after blood cultures if LP/CT is delayed." },
+                    { question: "For neonates, empiric treatment in many circumstances includes:", options: ["Ceftriaxone and Vancomycin", "Ampicillin and gentamycin (or cefotaxime)", "Acyclovir", "Dexamethasone only"], correct: 1, rationale: "Neonates: Ampicillin and gentamycin (or cefotaxime based on resistance patterns)." },
+                    { question: "For children and adults less than 50 years old, the empiric regimen is typically:", options: ["Ampicillin only", "Third-generation cephalosporin (cefotaxime/ceftriaxone) plus vancomycin", "Gentamycin only", "Fluconazole"], correct: 1, rationale: "Children/adults <50: third-generation cephalosporin plus vancomycin." },
+                    { question: "If a patient has risk factors for Listeria monocytogenes, what antibiotic should be ADDED?", options: ["Vancomycin", "Ampicillin", "Gentamycin", "Acyclovir"], correct: 1, rationale: "Consider adding ampicillin to cover Listeria." },
+                    { question: "What is the role of intravenous dexamethasone in bacterial meningitis?", options: ["To treat viral co-infection", "It may decrease mortality and neurologic sequelae if started before or with the first antibiotic dose", "To increase CSF pressure", "To cure fungal meningitis"], correct: 1, rationale: "Adjunctive corticosteroid started before/with antibiotics decreases mortality and neurologic sequelae." },
+                    { question: "If HSV encephalitis is suspected, what specific treatment must be administered?", options: ["Intravenous Acyclovir", "Vancomycin", "Ampicillin", "Dexamethasone"], correct: 0, rationale: "Intravenous acyclovir is recommended for suspected HSV encephalitis." },
+                    { question: "CSF studies for encephalitis typically show:", options: ["High neutrophil count", "Increased white blood cells with a lymphocytic predominance and possibly increased RBCs", "Zero white blood cells", "Massive glucose drop"], correct: 1, rationale: "Encephalitis CSF shows increased WBCs (lymphocytic predominance) and possibly increased RBCs from neuronal death/hemorrhage." },
+                    { question: "How many tubes of CSF are typically collected during an LP?", options: ["One", "Two", "Four", "Six"], correct: 2, rationale: "Clinicians typically collect four tubes each containing about 1mL of CSF." },
+                    { question: "What should be drawn BEFORE administering empiric antibiotics if LP is delayed by a CT scan?", options: ["Urine culture", "Blood cultures", "Sputum culture", "Skin swab"], correct: 1, rationale: "Obtain blood cultures and begin empiric therapy prior to CT to avoid additional delays." },
+                    { question: "If initial CSF laboratory findings do not yield classic results but bacterial meningitis is possible:", options: ["Withhold antibiotics", "Consider empiric treatment for possible bacterial meningitis", "Give only antivirals", "Discharge the patient"], correct: 1, rationale: "Initial CSF findings don't always yield classic results; consider empiric treatment when inconclusive." },
+                    { question: "Droplet precautions should be maintained until:", options: ["Patient is discharged", "24 hours of effective antibiotic treatment", "Fever breaks", "The rash disappears"], correct: 1, rationale: "Maintain precautions until 24 hours of effective antibiotic treatment." }
+                ]
+            }
+        ];
+
+        let activeQuizIndex = -1;
+        let quizData = [];
+        let score = 0; 
+        let answeredCount = 0;
+
+        function initMenu() {
+            const menuContainer = document.getElementById('menu-cards-container');
+            menuContainer.innerHTML = allQuizzes.map((quiz, index) => {
+                return `
+                <button onclick="startQuiz(${index})" class="menu-btn bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:border-blue-400 hover:shadow-md text-left flex items-start gap-4 h-full w-full">
+                    <div class="bg-blue-50 p-4 rounded-xl text-blue-600">
+                        <i class="fas ${quiz.icon} text-3xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 text-lg mb-2 font-cairo">${quiz.title}</h3>
+                        <p class="text-sm text-gray-500 font-cairo">${quiz.data.length} Questions</p>
+                    </div>
+                </button>`;
+            }).join('');
+        }
+
+        function showMenu() {
+            document.getElementById('quiz-area').classList.add('hidden-content');
+            document.getElementById('main-menu').classList.remove('hidden-content');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startQuiz(index) {
+            activeQuizIndex = index;
+            const rawQuizData = allQuizzes[index].data;
+            
+            // Deep copy and shuffle questions and options
+            quizData = rawQuizData.map(q => {
+                const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+                for (let i = opts.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [opts[i], opts[j]] = [opts[j], opts[i]];
+                }
+                return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+            });
+
+            score = 0;
+            answeredCount = 0;
+            
+            document.getElementById('active-quiz-title').innerText = allQuizzes[index].title;
+            document.getElementById('result-summary').classList.add('hidden-content');
+            document.getElementById('main-menu').classList.add('hidden-content');
+            document.getElementById('quiz-area').classList.remove('hidden-content');
+            
+            renderQuiz();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function restartCurrentQuiz() {
+            if (activeQuizIndex !== -1) {
+                startQuiz(activeQuizIndex);
+            }
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job! ممتاز" : "Keep Studying, راجع المحاضرة";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+
+        initMenu();
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker Registered (Offline mode enabled)'))
+                    .catch(err => console.log('Service Worker Registration Failed', err));
+            });
+        }
+    </script>
+</body>
+</html>
