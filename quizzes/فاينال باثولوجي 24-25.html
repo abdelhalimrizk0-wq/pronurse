@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Pathology Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-microscope text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 font-cairo text-center" dir="auto">فاينال باثولوجي 24/25</h1>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-4 py-1 rounded-full text-sm">
+                <i class="fas fa-check-circle"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800">Exam Completed</h2>
+            <div class="mt-4 text-4xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const rawQuizData = [
+            // ================= SECTION I (MCQs) =================
+            {
+                id: 1,
+                question: ".....................refers to the process of a foreign body moving in the bloodstream and subsequently becoming lodged in a small blood vessel.",
+                options: ["Embolism", "Liquefaction necrosis", "Infarction", "Thrombosis"],
+                correct: 0,
+                rationale: "Embolism is the circulation of a foreign body (Embolus) through the circulatory system until it lodges in a vessel."
+            },
+            {
+                id: 2,
+                question: "The term Renal edema refers to ......",
+                options: ["Edema of the kidney", "General edema", "Local edema", "Renal hypoplasia"],
+                correct: 1,
+                rationale: "Renal edema is classified as a type of generalized edema, which occurs due to kidney failure."
+            },
+            {
+                id: 3,
+                question: ".................refers to deposition of abnormal folded, poorly degradable protein fibrils on the loose connective tissue between the endothelial lining and the capillaries and parenchyma of the organ affected",
+                options: ["Fatty changes", "Amyloidosis", "Hemosidrosis", "Anthracosis"],
+                correct: 1,
+                rationale: "Amyloidosis is the disease resulting from the deposition of amyloid protein fibrils (abnormal folded, Beta-pleated sheets, poorly degradable) on the loose connective tissue."
+            },
+            {
+                id: 4,
+                question: "................refers to the deposition of uric acid crystals in tissues.",
+                options: ["Gout", "Calcification", "Hemosiderin", "edema"],
+                correct: 0,
+                rationale: "Gout is characterized by the infiltration and deposition of uric acid crystals in tissues and joints, indicating a disturbance in protein metabolism."
+            },
+            {
+                id: 5,
+                question: "The significance of hemorrhage doesn't depends on:",
+                options: ["The volume of blood loss", "The rate of blood loss", "The origin of hemorrhage", "The site of hemorrhage"],
+                correct: 2,
+                rationale: "The clinical significance and fatal outcome of a hemorrhage heavily depend on the volume of blood lost, the rate of loss, and the anatomical site, rather than merely the specific vessel of origin."
+            },
+            {
+                id: 6,
+                question: "Which of the following is a plasma derived chemical mediators of inflammation",
+                options: ["Histamine", "Prostaglandins", "Interleukins", "Complement"],
+                correct: 3,
+                rationale: "Endogenous mediators of inflammation are divided into plasma-derived (e.g., Complement system, Coagulation, and Kinin system) and cell-derived (e.g., Histamine and Serotonin)."
+            },
+            {
+                id: 7,
+                question: "Fluid exudation in inflammation occurs at.......",
+                options: ["Levels of large arteries venules", "Levels of large veins", "all levels of microcirculation", "None of the above"],
+                correct: 0,
+                rationale: "Fluid exudation and the primary vascular permeability changes in acute inflammation specifically target the post-capillary venules."
+            },
+            {
+                id: 8,
+                question: "Diffuse Suppurative inflammation under the skin is termed ......",
+                options: ["Cellulitis", "Abscess", "Carbuncle", "Furuncle"],
+                correct: 0,
+                rationale: "While an abscess is localized, cellulitis (or phlegmon) represents a diffuse suppurative inflammation spreading through tissue spaces."
+            },
+            {
+                id: 9,
+                question: "Recruitment of leukocytes to sites of inflammation is termed.....",
+                options: ["Emigration of leukocytes", "Margination of leukocytes", "Chemotaxis of leukocytes", "Pavementation of leukocytes"],
+                correct: 0,
+                rationale: "Emigration is the active outward passage of leukocytes from the blood vessels into the inflamed tissues."
+            },
+            {
+                id: 10,
+                question: "Inflammation of nasal cavity is termed ......",
+                options: ["Sinusitis", "Rhinitis", "Stomatitis", "gengivitis"],
+                correct: 1,
+                rationale: "Rhinitis refers to the inflammation of the mucous membrane of the nasal cavity."
+            },
+            {
+                id: 11,
+                question: "Localized area of Suppurative inflammation under the skin is termed ........",
+                options: ["Phlegmone", "Abscess", "Pustule", "Furuncle"],
+                correct: 1,
+                rationale: "An abscess is the localized form of suppurative inflammation, forming a confined pocket of pus."
+            },
+            {
+                id: 12,
+                question: "Type I hypersensitivity reaction is mediated by .........",
+                options: ["Ig A", "Ig D", "Ig E", "Ig G & IgM"],
+                correct: 2,
+                rationale: "Type I (Immediate or Anaphylactic) hypersensitivity is mediated by IgE antibodies that bind to mast cells and basophils, releasing histamine."
+            },
+            {
+                id: 13,
+                question: "Persistent foramen oval or inter ventricular defect usually cause",
+                options: ["Acute Passive Hyperemia", "Acute Active Hyperemia", "Chronic Active Hyperemia", "Chronic Passive Hyperemia"],
+                correct: 3,
+                rationale: "Congenital heart defects that cause long-term interference with blood outflow result in Chronic Passive Hyperemia (congestion)."
+            },
+            {
+                id: 14,
+                question: ".................... is characterized by increased number of Goblet cells",
+                options: ["Purulent Inflammation", "Fibrinous Inflammation", "Serous Inflammation", "Catarrhal Inflammation"],
+                correct: 3,
+                rationale: "Catarrhal or Mucous Inflammation is limited to mucous membranes and is microscopically characterized by numerous goblet cells and copious mucus production."
+            },
+            {
+                id: 15,
+                question: ".............is the type of cells predominate in allergic and parasitic diseases",
+                options: ["Lymphocytes", "Macrophages", "Neutrophils", "Eosinophils"],
+                correct: 3,
+                rationale: "Persistent eosinophilia is the hallmark sign of systemic hypersensitivity, commonly caused by parasitic diseases and allergic conditions."
+            },
+            {
+                id: 16,
+                question: "The principal constituent of fibrinous inflammation is ........",
+                options: ["Fibrin", "serous fluid", "Mucous", "lymphocytes"],
+                correct: 0,
+                rationale: "Fibrinous inflammation is characterized by the exudation of fibrinogen which clots to form fibrin, often appearing as a pseudomembrane."
+            },
+            {
+                id: 17,
+                question: ".........refers to hemorrhage that occurs from lung and comes out from nostrils.",
+                options: ["Hemoptysis", "Hematemesis", "Hematuria", "Epistaxis"],
+                correct: 0,
+                rationale: "Hemoptysis refers to expectoration of blood originating from the respiratory tract or lungs."
+            },
+            {
+                id: 18,
+                question: "Digestion of cells/ tissues by their own enzymes is known as ............",
+                options: ["Necrosis", "Autolysis", "Apoptosis", "Putrefaction"],
+                correct: 1,
+                rationale: "Postmortem Autolysis refers to self-digestion by enzymes that are present within or released into the cytoplasm of cells after death."
+            },
+            {
+                id: 19,
+                question: "............is stiffening of the body after death",
+                options: ["Melena", "Algor mortis", "Livor mortis", "Rigor mortis"],
+                correct: 3,
+                rationale: "Rigor Mortis refers to the stiffening of all muscles after death due to a progressive decrease in ATP."
+            },
+            {
+                id: 20,
+                question: ".............is the type of cells predominate in acute inflammation",
+                options: ["Lymphocytes", "Macrophages", "Neutrophils", "All of them"],
+                correct: 2,
+                rationale: "Acute inflammation is characterized by the exudative emigration of leukocytes, predominantly neutrophils."
+            },
+            {
+                id: 21,
+                question: "Macrophages is the type of cells predominate in",
+                options: ["Acute inflammation", "Chronic inflammation", "Allergic inflammation", "All of them"],
+                correct: 1,
+                rationale: "Chronic inflammation is a proliferative reaction characterized by the predominance of macrophages, giant cells, and plasma cells."
+            },
+            {
+                id: 22,
+                question: "A type of fracture in which the bone is broken to many separted parts is called .",
+                options: ["Greenstick fracture", "Compound fracture", "Comminuted fracture", "Simple fracture"],
+                correct: 2,
+                rationale: "A comminuted fracture is one where the bone breaks or shatters into three or more separate pieces."
+            },
+            {
+                id: 23,
+                question: "A fracture in which the periosteum remains intact and holds the fractured ends of bone in place is called .",
+                options: ["Greenstick fracture", "Compound fracture", "Comminuted fracture", "Simple fracture"],
+                correct: 0,
+                rationale: "A greenstick fracture is an incomplete fracture where the bone bends and the periosteum remains intact, keeping the bone ends aligned."
+            },
+            {
+                id: 24,
+                question: "The structural or morphological alterations associated with a disease state in an individual is termed",
+                options: ["Disease", "Lesions", "Health", "gross pathology"],
+                correct: 1,
+                rationale: "The term lesion refers to structural or morphological alterations associated with a disease state in an individual."
+            },
+            {
+                id: 25,
+                question: "Putrefied tissue in the living body (during life) is called ......",
+                options: ["Necrosis", "Gangrene", "Infarction", "None of all"],
+                correct: 1,
+                rationale: "Gangrene is defined as putrefied tissue in the living body, caused by the putrefaction of normal or necrotic tissue."
+            },
+            {
+                id: 26,
+                question: "Diffuse generalized edema in subcutaneous tissues is termed......",
+                options: ["Ascites", "Anasarca", "Nutmeg Liver", "None of all"],
+                correct: 1,
+                rationale: "Anasarca is the medical term for severe, generalized subcutaneous edema."
+            },
+            {
+                id: 27,
+                question: "Collection of edematous fluid in the peritoneal cavity is termed.......",
+                options: ["Ascites", "Anasarca", "Nutmeg Liver", "CVC"],
+                correct: 0,
+                rationale: "Ascites refers to the abnormal accumulation of fluid specifically within the peritoneal cavity."
+            },
+            {
+                id: 28,
+                question: "A type of acute immediate hypersensitivity reaction in the skin only mediated by IgE antibodies is termed",
+                options: ["Urticaria", "Anaphylaxis", "Hypermia", "Anemia"],
+                correct: 0,
+                rationale: "Urticaria is a Type I immediate hypersensitivity reaction mediated by IgE that specifically presents as skin manifestations (hives)."
+            },
+            {
+                id: 29,
+                question: "Inflammation aims to .................",
+                options: ["Destroy the irritant", "Dilute the irritant", "Repair of the damaged tissue.", "All of the above"],
+                correct: 3,
+                rationale: "The aims of inflammation are to destroy, dilute, or wall-off the injurious agent, and as far as possible, heal and reconstitute the damaged tissue."
+            },
+            {
+                id: 30,
+                question: "The probable outcome of a disease is termed ....................",
+                options: ["Diagnosis", "apoptosis", "Prognosis", "Non of the above"],
+                correct: 2,
+                rationale: "Prognosis refers to the expected or probable outcome of a disease in a living individual."
+            },
+            {
+                id: 31,
+                question: "Healing of an abscess is by .......................",
+                options: ["first intention", "second intention", "Regeneration", "substitution"],
+                correct: 1,
+                rationale: "Second Intention (Secondary Union) occurs in wounds with separated edges or tissue loss (such as an abscess), requiring abundant granulation tissue."
+            },
+            {
+                id: 32,
+                question: "Petechial haemorrhage are of ................ size.",
+                options: ["1 mm", "5 mm", "10 mm", "20 mm"],
+                correct: 0,
+                rationale: "Petechiae are defined morphologically as tiny, pin-point hemorrhages measuring 1-2 mm in diameter."
+            },
+            {
+                id: 33,
+                question: "Hemolysis is a picture of specimen spoilage confined to:",
+                options: ["Blood sample", "Urine sample", "Tissue sample", "None of these."],
+                correct: 0,
+                rationale: "Hemolysis is the rupture of the red cell membrane, destroying the red blood cell. When it occurs in vitro during collection, it ruins the blood sample."
+            },
+            {
+                id: 34,
+                question: "Suitable type of Blood sample for doing CBC is:",
+                options: ["Whole blood sample", "Serum sample", "Plasma sample", "None of these"],
+                correct: 0,
+                rationale: "A Complete Blood Count (CBC) examines cellular components, meaning the blood must remain uncoagulated as a whole blood sample, typically using EDTA."
+            },
+            {
+                id: 35,
+                question: "Suitable preservation method for Blood sample used for CBC is:",
+                options: ["Refrigeration", "Freezing", "Room Temperature", "None of thses"],
+                correct: 0,
+                rationale: "Blood samples collected for cellular analysis (like CBC) should be kept refrigerated or analyzed quickly to preserve cell morphology."
+            },
+            {
+                id: 36,
+                question: "MCHC is index of:",
+                options: ["RBCs", "Monocytes", "Band cell", "thrombocytes"],
+                correct: 0,
+                rationale: "MCHC (Mean Corpuscular Hemoglobin Concentration) is one of the key RBC indices used to measure hemoglobin concentration in red blood cells."
+            },
+            {
+                id: 37,
+                question: "The recommended site for blood collection in neonates:",
+                options: ["Palm of Hand", "Area of elbow", "Thigh region", "Heel"],
+                correct: 3,
+                rationale: "For infants (<1 year) and neonates, a capillary puncture is safely performed on the side of the heel."
+            },
+            {
+                id: 38,
+                question: "All following Anticoagulants are chemical in nature except:",
+                options: ["Heparin", "Citrates", "Oxalates", "Na fluoride"],
+                correct: 0,
+                rationale: "Heparin is a naturally occurring biological substance, whereas citrates, oxalates, and sodium fluoride are synthetic chemical salts."
+            },
+            {
+                id: 39,
+                question: "PT and aPTT are laboratory tests confined to :",
+                options: ["haemostatic disorders", "erythrocytic disorders", "Leukocytic isoders", "None of these"],
+                correct: 0,
+                rationale: "PT (Prothrombin Time) and APTT test the blood's coagulation pathways, making them essential for diagnosing haemostatic (clotting) disorders."
+            },
+            {
+                id: 40,
+                question: "For estimation of glucose in blood sample, should be collected on:",
+                options: ["Potassium EDTA", "Sodium Citrate", "Sodium Fluoride", "Heparine"],
+                correct: 2,
+                rationale: "A gray stopper tube containing Sodium fluoride is specifically used as a blood sugar tube because it prevents glycolysis."
+            },
+            {
+                id: 41,
+                question: "Serum Sample harvested from:",
+                options: ["Anticoaglated blood", "Non-anticoaglated blood", "Hemolysed blood", "None of these."],
+                correct: 1,
+                rationale: "Serum is the fluid collected after blood is allowed to clot completely. Therefore, it is harvested from non-anticoagulated blood."
+            },
+            {
+                id: 42,
+                question: "...........is deficiency of arterial blood to a portion of an organ or part",
+                options: ["Passive hyperemia", "edema", "Ischemia", "Anemia ."],
+                correct: 2,
+                rationale: "Ischemia is defined as a local deficiency of arterial blood in a specific portion of an organ or region."
+            },
+            {
+                id: 43,
+                question: "............is a clinical term refers to peripheral circulatory failure",
+                options: ["Allergy", "Shock", "Ischemia", "Apoptosis ."],
+                correct: 1,
+                rationale: "Shock is a clinical term referring to peripheral circulatory failure accompanied by pooling of blood in terminal capillaries."
+            },
+            {
+                id: 44,
+                question: "The term ................. means 'changed reactivity' of the host when meeting an 'agent' on a second or subsequent occasion.",
+                options: ["Allergy", "Shock", "Progressive", "Retrogressive"],
+                correct: 0,
+                rationale: "Allergy, clinically representing hypersensitivity, historically means 'changed reactivity' of the immune system upon re-exposure to an antigen."
+            },
+            {
+                id: 45,
+                question: "Healing or Repair of nervous tissues occurs by ....................",
+                options: ["Degeneration", "Regeneration", "Substitution", "infiltration."],
+                correct: 2,
+                rationale: "Neurons are permanent cells with no regenerative capability. Hence, destroyed nervous tissue heals via substitution (gliosis or scar formation)."
+            },
+            {
+                id: 46,
+                question: "A type of Burns characterized by blister formation is ................",
+                options: ["First degree burns", "Second degree burns", "Third degree burns", "Fourth degree burns"],
+                correct: 1,
+                rationale: "Second degree burns cause damage extending to the epidermis and are classically characterized by blister formation."
+            },
+            {
+                id: 47,
+                question: "Heart failure cell is hemosiderin laden macrophage present in ................. suffer from CVC",
+                options: ["Liver", "Heart", "Lung", "All of them"],
+                correct: 2,
+                rationale: "During Chronic Venous Congestion (CVC) resulting from heart failure, macrophages in the lungs phagocytize red blood cells and become hemosiderin-laden 'heart failure cells'."
+            },
+            {
+                id: 48,
+                question: "The term ...................... is employed to describe 'state in which an individual exhibits an anatomical, physiological, biochemical or behavioral deviation from the normal.'",
+                options: ["Lesion", "Pathognomonic Lesions", "Health", "Disease"],
+                correct: 3,
+                rationale: "This is the precise medical definition of a 'Disease', denoting an objective deviation from the normal healthy state."
+            },
+            {
+                id: 49,
+                question: "The term '....................' is the progressive development of the disease process from the time of initiation to its final conclusion in recovery or dearth",
+                options: ["Diagnosis", "Prognoses", "Pathogenesis", "Pathology"],
+                correct: 2,
+                rationale: "Pathogenesis refers to the sequence of events and progressive development of a disease process from its initiation to its conclusion."
+            },
+            {
+                id: 50,
+                question: "One of the following can promote healing of the wounds .......",
+                options: ["Vitamin A", "Steroids", "Anti-inflammatory drugs", "Diabetes"],
+                correct: 0,
+                rationale: "Nutritional elements and vitamins (like Vitamin A, C, and Zinc) promote healing, whereas steroids, diabetes, and certain drugs actively delay or inhibit it."
+            },
+
+            // ================= SECTION II (True/False) =================
+            {
+                id: 51,
+                question: "The term pathology refers to the 'scientific study of disease'",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "Pathology literally forms the bridge between normal physiology and abnormal structure, serving as the scientific study of disease."
+            },
+            {
+                id: 52,
+                question: "Hematoma refers to a collection of edematous fluid in the pericardial cavity",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. A hematoma is a localized collection of blood (clot). Fluid in the pericardial cavity is known as hydropericardium."
+            },
+            {
+                id: 53,
+                question: "The term clinical symptoms refer to any functional evidence of disease that can be determined subjectively or by the patient",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "True. Clinical symptoms are subjective indicators experienced by the patient, unlike clinical signs which are determined objectively by an observer."
+            },
+            {
+                id: 54,
+                question: "Predisposing Causes of Disease: refer to those factors which are directly responsible for a disease (bacteria, viruses,... etc)",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. Factors directly responsible for a disease (like bacteria) are 'Exciting causes'. Predisposing causes only make the host more susceptible."
+            },
+            {
+                id: 55,
+                question: "The term 'Hernia' is the protrusion of an organ through a natural or an artificial body opening",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "True. A hernia occurs when an organ protrudes through a natural or artificial opening, maintaining a covering like the parietal serous membrane."
+            },
+            {
+                id: 56,
+                question: "Exciting Causes of Diseases: refer to those factors which make an individual more susceptible to a disease",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. Making an individual more susceptible is the definition of a Predisposing cause. Exciting causes directly trigger the disease."
+            },
+            {
+                id: 57,
+                question: "Anemia refers to decreased amount of blood supply to in any organ or portion of the body",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. A local deficiency of arterial blood to a specific organ is called Ischemia. Anemia is a systemic quantitative/qualitative decrease in blood cells."
+            },
+            {
+                id: 58,
+                question: "Active hyperemia is an increased amount of blood in the arterial side of the vascular system.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "True. Active hyperemia occurs when there is an increased inflow of blood on the arterial side, such as during exercise or acute inflammation."
+            },
+            {
+                id: 59,
+                question: "Ischemia is a quantitative or a qualitative decrease in the amount of blood in the vascular system",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. A systemic decrease in the quality/quantity of blood is Anemia. Ischemia is strictly a local deficiency of blood to an organ."
+            },
+            {
+                id: 60,
+                question: "Obesity means excessive storage of fat in adipose tissue and connective tissue",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "True. Obesity is pathologically excessive fat accumulation in adipose tissues."
+            },
+            {
+                id: 61,
+                question: "Polycythemia means decrease in PCV, Hb and / or RBCs count",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. Polycythemia refers to an abnormal INCREASE in red cell mass, meaning increased PCV, Hb, and RBC count."
+            },
+            {
+                id: 62,
+                question: "retiucocytosis means presence of reticulocytes in peripheral blood circulation",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "True. Reticulocytosis refers to an increased release and presence of immature erythrocytes (reticulocytes) into the blood."
+            },
+            {
+                id: 63,
+                question: "Serum Iron level is deceased in anemia of inflammation.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "True. In anemia of inflammatory disease, iron is sequestered and functionally unavailable, leading to decreased serum iron levels."
+            },
+            {
+                id: 64,
+                question: "Wet needle and syringe can be used for collection of blood sample.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. Using a wet needle or syringe will induce in vitro hemolysis, ruining the sample for analysis."
+            },
+            {
+                id: 65,
+                question: "Collection of blood from patient in Stress condition will affect results of blood analysis.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "True. A stressed patient can show alterations like a stress leukogram (lymphopenia, neutrophilia), thereby affecting the hematology results."
+            },
+            {
+                id: 66,
+                question: "Leukopenia means decrease number of blood platelets",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. Leukopenia is a reduction in white blood cells (leukocytes). A decrease in platelets is Thrombocytopenia."
+            },
+            {
+                id: 67,
+                question: "Green colored stopper of anticoagulated tube indicate presence of citrate anticoagulant.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. Green stoppers contain Lithium Heparin. Citrate tubes generally have Blue or Black stoppers."
+            },
+            {
+                id: 68,
+                question: "Lymphocytosis means decrease number of neutrophils.",
+                options: ["True", "False"],
+                correct: 1,
+                rationale: "False. Lymphocytosis specifically means an increase in the number of lymphocytes. A decrease in neutrophils is Neutropenia."
+            },
+            {
+                id: 69,
+                question: "The etiology of IDA, (anemia) includes, nutritional deficiency, faulty Iron absorption, and excessive loss of iron",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "True. Iron Deficiency Anemia (IDA) is primarily caused by poor nutrition, malabsorption, or chronic blood loss."
+            },
+            {
+                id: 70,
+                question: "Left Shift means presence of band cells in peripheral blood circulation.",
+                options: ["True", "False"],
+                correct: 0,
+                rationale: "True. A 'left shift' on a hemogram indicates depletion of the storage pool and recruitment of younger, immature neutrophils (band cells)."
+            },
+
+            // ================= SECTION III (Matching Converted to MCQ) =================
+            {
+                id: 71,
+                question: "Match the following term to its correct definition/association: 'schitpcyes' (schistocytes)",
+                options: ["RBCs fragments", "IF deficiency", "Associated with inflammation", "Erythrocytic parameter"],
+                correct: 0,
+                rationale: "Schistocytes are fragmented parts of red blood cells typically observed during consumptive conditions like DIC."
+            },
+            {
+                id: 72,
+                question: "Match the following term to its correct definition/association: 'Thombocytopnia' (Thrombocytopenia)",
+                options: ["Decreases in Platelet count", "Increase blood platelet count", "Immature functional RBCs", "Associated with allergy"],
+                correct: 0,
+                rationale: "Thrombocytopenia is a medical term defining a reduction or decrease in the number of platelets in the blood."
+            },
+            {
+                id: 73,
+                question: "Match the following term to its correct definition/association: 'Neutrophilia'",
+                options: ["Associated with inflammation", "Erythrocytic parameter", "Suitable for blood transfusion", "IF deficiency"],
+                correct: 0,
+                rationale: "Neutrophilia reflects the mobilization of large bone marrow storage pools, heavily associated with active inflammation."
+            },
+            {
+                id: 74,
+                question: "Match the following term to its correct definition/association: 'PCV' (Packed Cell Volume)",
+                options: ["Erythrocytic parameter", "Associated with inflammation", "Increase blood eosinophil count", "RBCs fragments"],
+                correct: 0,
+                rationale: "PCV (or Hematocrit) is a crucial erythrocytic parameter measuring the red blood cell mass."
+            },
+            {
+                id: 75,
+                question: "Match the following term to its correct definition/association: 'Eosinophilia'",
+                options: ["Increase blood eosinophil count", "Decreases in Platelet count", "Suitable for blood transfusion", "Immature functional RBCs"],
+                correct: 0,
+                rationale: "Eosinophilia directly signifies an increase in the blood eosinophil count, frequently seen in parasitic or allergic reactions."
+            },
+            {
+                id: 76,
+                question: "Match the following term to its correct definition/association: 'Heparin'",
+                options: ["Suitable for blood transfusion", "Associated with allergy condition", "IF deficiency", "Increase blood platelet count"],
+                correct: 0,
+                rationale: "Heparin prevents clotting without removing calcium, making it an essential anticoagulant suitable for blood transfusion and specific laboratory tests."
+            },
+            {
+                id: 77,
+                question: "Match the following term to its correct definition/association: 'Basophilia'",
+                options: ["Associated with allergy condition", "Associated with inflammation", "RBCs fragments", "Erythrocytic parameter"],
+                correct: 0,
+                rationale: "Basophilia is a persistent elevation of basophils, which are heavily involved in systemic hypersensitivity and allergic conditions."
+            },
+            {
+                id: 78,
+                question: "Match the following term to its correct definition/association: 'Reticulocytosis'",
+                options: ["Immature functional RBCs", "Increase blood eosinophil count", "IF deficiency", "Decreases in Platelet count"],
+                correct: 0,
+                rationale: "Reticulocytosis is the presence of an increased number of reticulocytes, which are young, immature functional RBCs released during regenerative anemia."
+            },
+            {
+                id: 79,
+                question: "Match the following term to its correct definition/association: 'Thrombocytosis'",
+                options: ["Increase blood platelet count", "Decreases in Platelet count", "Suitable for blood transfusion", "Associated with allergy condition"],
+                correct: 0,
+                rationale: "Thrombocytosis is defined as an increase in the number of platelets in the peripheral blood."
+            },
+            {
+                id: 80,
+                question: "Match the following term to its correct definition/association: 'pernicious anemia'",
+                options: ["IF deficiency", "RBCs fragments", "Immature functional RBCs", "Associated with inflammation"],
+                correct: 0,
+                rationale: "Pernicious anemia is a specific deficiency anemia caused by the lack of Intrinsic Factor (IF), heavily impacting B12 absorption."
+            }
+        ];
+
+        // --- SHUFFLE & RENDER LOGIC ---
+        const quizData = rawQuizData.map(q => {
+            const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+            // Shuffle logic for options
+            for (let i = opts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [opts[i], opts[j]] = [opts[j], opts[i]];
+            }
+            return { ...q, options: opts.map(o => o.text), correct: opts.findIndex(o => o.isCorrect) };
+        });
+
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${quizData.length}`;
+            container.innerHTML = quizData.map((q, index) => {
+                return `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white"><span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans">${opt}</span></button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong>Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = quizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return;
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { btn.classList.add('correct-answer'); btn.innerHTML += '<i class="fas fa-check float-right"></i>'; }
+                else if (i === optIndex) { btn.classList.add('wrong-answer'); btn.innerHTML += '<i class="fas fa-times float-right"></i>'; }
+                else { btn.classList.add('opacity-50'); }
+            });
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            if (answeredCount === quizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score/quizData.length*100) >= 50 ? "Good Job!" : "Keep Studying";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+        renderQuiz();
+    </script>
+</body>
+</html>
