@@ -388,10 +388,10 @@
     "color": "#3b82f6",
     "department": "emergency",
     "lectures": [
-      {
-        "name": "جميع المحاضرات",
-        "file": "quizzes/جميع المحاضرات.html",
-        "questions": 0
+        {
+    "name": "كويز علي كل محاضره طب حرج",
+    "file": "quizzes/كويز علي كل محاضره طب حرج.html",
+    "questions": 0
       },
       {
         "name": "ميد طب حرج",
