@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinical Nutrition & Diet Therapy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --primary: #1a6b4a;
+    --primary-light: #e8f5ee;
+    --accent: #d4a017;
+    --accent-light: #fdf6e3;
+    --danger: #c0392b;
+    --danger-light: #fdecea;
+    --text: #1a202c;
+    --text-muted: #4a5568;
+    --border: #e2e8f0;
+    --radius: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    direction: ltr;
+    text-align: left;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #1a6b4a 0%, #0d4a31 60%, #0a3d28 100%);
+    padding: 48px 24px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(212,160,23,0.15);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  header .badge {
+    display: inline-block;
+    background: rgba(212,160,23,0.25);
+    color: #f5d67a;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(212,160,23,0.4);
+  }
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    font-family: 'Lato', sans-serif;
+  }
+  header p {
+    color: rgba(255,255,255,0.72);
+    font-size: 1rem;
+  }
+
+  /* CONTENT */
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* CATEGORY DIVIDER */
+  .cat-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 40px 0 22px;
+  }
+  .cat-divider:first-child { margin-top: 0; }
+  .cat-divider .cat-icon {
+    width: 44px; height: 44px;
+    background: var(--primary);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .cat-divider h2 {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--primary);
+    font-family: 'Lato', sans-serif;
+  }
+  .cat-divider .cat-sub {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .cat-divider .line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary-light), transparent);
+    border-radius: 2px;
+  }
+
+  /* MCQ TABLE */
+  .mcq-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: 0.93rem;
+  }
+  .mcq-table thead tr { background: var(--primary); color: #fff; }
+  .mcq-table thead th {
+    padding: 13px 18px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.84rem;
+    letter-spacing: 0.04em;
+  }
+  .mcq-table thead th:first-child { width: 44px; text-align: center; }
+  .mcq-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .mcq-table tbody tr:last-child { border-bottom: none; }
+  .mcq-table tbody tr:hover { background: var(--primary-light); }
+  .mcq-table tbody td { padding: 12px 18px; vertical-align: top; }
+  .mcq-table tbody td:first-child {
+    text-align: center;
+    font-weight: 900;
+    color: var(--primary);
+    font-size: 0.82rem;
+    background: var(--primary-light);
+    width: 44px;
+    border-right: 3px solid var(--primary);
+  }
+  .mcq-table .answer-cell {
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--accent-light);
+  }
+
+  /* TRUE/FALSE */
+  .tf-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    border-left: 5px solid transparent;
+  }
+  .tf-card.true { border-color: var(--primary); }
+  .tf-card.false { border-color: var(--danger); }
+  .tf-badge {
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    font-weight: 900;
+    padding: 5px 12px;
+    border-radius: 6px;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+  .tf-card.true .tf-badge { background: var(--primary-light); color: var(--primary); }
+  .tf-card.false .tf-badge { background: var(--danger-light); color: var(--danger); }
+  .tf-card p { font-size: 0.93rem; line-height: 1.6; }
+
+  /* ESSAY */
+  .essay-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .essay-header {
+    background: var(--primary);
+    padding: 13px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .essay-qnum {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 900;
+    padding: 3px 10px;
+    border-radius: 5px;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+  .essay-header h3 {
+    color: #fff;
+    font-size: 0.96rem;
+    font-weight: 700;
+    line-height: 1.4;
+    font-family: 'Lato', sans-serif;
+  }
+  .essay-body { padding: 16px 20px; }
+  .essay-body ul { list-style: none; padding: 0; }
+  .essay-body ul li {
+    display: flex;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 0.91rem;
+    align-items: flex-start;
+  }
+  .essay-body ul li:last-child { border-bottom: none; }
+  .essay-body ul li::before {
+    content: '●';
+    color: var(--accent);
+    font-size: 0.6rem;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+  .sub-label {
+    font-weight: 700;
+    color: var(--primary);
+    margin-right: 4px;
+  }
+
+  /* VITAMINS */
+  .vitamins-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 600px) { .vitamins-grid { grid-template-columns: 1fr; } }
+  .vitamin-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .vitamin-card-header {
+    padding: 13px 18px;
+    font-weight: 900;
+    font-size: 0.95rem;
+    color: #fff;
+    font-family: 'Lato', sans-serif;
+  }
+  .vitamin-card.fat .vitamin-card-header { background: #b45309; }
+  .vitamin-card.water .vitamin-card-header { background: #1d4ed8; }
+  .vitamin-card-body { padding: 14px 18px; }
+  .vitamin-item {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .vitamin-item:last-child { border-bottom: none; }
+  .vitamin-item .vit-name { font-weight: 700; color: var(--text); }
+  .vitamin-item .vit-alt { color: var(--text-muted); font-size: 0.82rem; }
+  .vitamin-item .vit-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    min-width: 28px;
+    text-align: center;
+  }
+  .fat .vit-tag { background: #fef3c7; color: #b45309; }
+  .water .vit-tag { background: #dbeafe; color: #1d4ed8; }
+
+  footer {
+    text-align: center;
+    padding: 28px 20px;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 640px) {
+    header h1 { font-size: 1.5rem; }
+    .mcq-table { font-size: 0.82rem; }
+    .mcq-table thead th, .mcq-table tbody td { padding: 10px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">ممنوع التصوير او الطباعه</div>
+  <h1>تحديدات &amp; مقالي تغذية</h1>
+  <p>تم صنعه بواسطة عبدالحليم رزق</p>
+</header>
+
+<div class="content">
+
+  <!-- I. MCQ -->
+  <div class="cat-divider">
+    <div class="cat-icon">📋</div>
+    <div>
+      <h2>I. Multiple Choice Questions (MCQs)</h2>
+      <div class="cat-sub">18 questions</div>
+    </div>
+    <div class="line"></div>
+  </div>
+
+  <table class="mcq-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Question</th>
+        <th>Answer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Body Mass Index calculation formula?</td><td class="answer-cell">Weight / Height²</td></tr>
+      <tr><td>2</td><td>Which clinical sign is commonly associated with iron deficiency?</td><td class="answer-cell">Spoon shaped nails</td></tr>
+      <tr><td>3</td><td>Which of the following is considered a form of chronic malnutrition?</td><td class="answer-cell">Stunting</td></tr>
+      <tr><td>4</td><td>Underweight is defined as?</td><td class="answer-cell">Low weight for age</td></tr>
+      <tr><td>5</td><td>Which of the following is an immediate cause of malnutrition?</td><td class="answer-cell">Inadequate dietary intake</td></tr>
+      <tr><td>6</td><td>Micronutrient deficiency that lead to vision problem is caused by lack of?</td><td class="answer-cell">Vitamin A</td></tr>
+      <tr><td>7</td><td>Overnutrition primarily results in which condition?</td><td class="answer-cell">Obesity</td></tr>
+      <tr><td>8</td><td>Exclusive breastfeeding is recommended for the first?</td><td class="answer-cell">6 months</td></tr>
+      <tr><td>9</td><td>Which nutrient important for adolescent bone development?</td><td class="answer-cell">Calcium</td></tr>
+      <tr><td>10</td><td>Which group at high risk for iron deficiency anemia due to menstruation?</td><td class="answer-cell">Adolescent girls</td></tr>
+      <tr><td>11</td><td>Which food rich in omega-3 fatty acids?</td><td class="answer-cell">Salmon (fatty fish) or Mackerel</td></tr>
+      <tr><td>12</td><td>Dietary approach to stop hypertension (DASH) diet emphasize food rich in?</td><td class="answer-cell">Potassium, Calcium and Magnesium</td></tr>
+      <tr><td>13</td><td>Which method provide the most accurate measurement of actual food intake in a hospital setting?</td><td class="answer-cell">Observed food consumption</td></tr>
+      <tr><td>14</td><td>Low serum albumin may indicate poor protein status but also may be affected by?</td><td class="answer-cell">Hydration and inflammation</td></tr>
+      <tr><td>15</td><td>Head circumference measurement is most important for assessing?</td><td class="answer-cell">Brain development</td></tr>
+      <tr><td>16</td><td>Child with low weight for height is described as?</td><td class="answer-cell">Wasted child</td></tr>
+      <tr><td>17</td><td>Which basic cause contribute to malnutrition?</td><td class="answer-cell">Lack of education</td></tr>
+      <tr><td>18</td><td>Overnutrition may directly lead to?</td><td class="answer-cell">Cardiovascular disease</td></tr>
+    </tbody>
+  </table>
+
+  <!-- II. TRUE / FALSE -->
+  <div class="cat-divider">
+    <div class="cat-icon">✅</div>
+    <div>
+      <h2>II. True or False Questions</h2>
+      <div class="cat-sub">2 questions</div>
+    </div>
+    <div class="line"></div>
+  </div>
+
+  <div class="tf-card true">
+    <span class="tf-badge">TRUE ✓</span>
+    <p>Mid-upper arm circumference is commonly used to assess malnutrition especially in children.</p>
+  </div>
+  <div class="tf-card false">
+    <span class="tf-badge">FALSE ✗</span>
+    <p>Malnutrition only results from inadequate food intake and not from disease or illness.</p>
+  </div>
+
+  <!-- III. ESSAY -->
+  <div class="cat-divider">
+    <div class="cat-icon">📝</div>
+    <div>
+      <h2>III. Essay Questions</h2>
+      <div class="cat-sub">10 detailed questions</div>
+    </div>
+    <div class="line"></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q1</span><h3>List the core principles of a heart-healthy diet.</h3></div>
+    <div class="essay-body"><ul>
+      <li><span class="sub-label">Fruits &amp; Vegetables:</span> Aim for 4–5 servings of each per day.</li>
+      <li><span class="sub-label">Whole Grains:</span> Opt for whole grains over refined grains.</li>
+      <li><span class="sub-label">Lean Protein Sources:</span> Fish, poultry, legumes, low-fat dairy.</li>
+      <li><span class="sub-label">Healthy Fats:</span> Focus on monounsaturated and polyunsaturated fats; limit saturated and trans fats.</li>
+      <li><span class="sub-label">Limit Sodium:</span> Reduce to less than 2,300 mg/day, ideally 1,500 mg/day.</li>
+      <li><span class="sub-label">Limit Added Sugars:</span> Minimize sugary beverages and desserts.</li>
+      <li><span class="sub-label">Moderate Alcohol:</span> If consumed, do so in moderation.</li>
+    </ul></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q2</span><h3>Enumerate the benefits of the Dietary Approaches to Stop Hypertension (DASH diet).</h3></div>
+    <div class="essay-body"><ul>
+      <li><span class="sub-label">Blood Pressure Reduction:</span> Clinically proven to lower both systolic and diastolic blood pressure.</li>
+      <li><span class="sub-label">Cholesterol Improvement:</span> Can help lower LDL cholesterol levels.</li>
+      <li><span class="sub-label">Weight Management:</span> Promotes a balanced intake of nutrient-dense foods, aiding in weight control.</li>
+      <li><span class="sub-label">Reduced Risk of Other Diseases:</span> Associated with a lower risk of heart disease, stroke, diabetes, and some cancers.</li>
+    </ul></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q3</span><h3>Signs of Good Nutrition</h3></div>
+    <div class="essay-body"><ul>
+      <li>A Well-Developed Body</li>
+      <li>Ideal Weight for Height</li>
+      <li>Healthy Skin</li>
+      <li>Glossy Hair</li>
+      <li>Clear and Bright Eyes</li>
+      <li>Normal Appetite, Digestion, and Elimination</li>
+      <li>Mentally and Physically Alert</li>
+      <li>Ability to Resist Infectious Diseases</li>
+      <li>Increasing Life Expectancy</li>
+    </ul></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q4</span><h3>Function of Nutrients (Diet)</h3></div>
+    <div class="essay-body"><ul>
+      <li><span class="sub-label">Provide Energy:</span> Specially carbohydrates and fats, essential for metabolic processes.</li>
+      <li><span class="sub-label">Build Tissue:</span> Proteins are primary building blocks (growth, repair, maintenance); minerals like calcium for bones.</li>
+      <li><span class="sub-label">Regulate Metabolic Processes:</span> Vitamins and minerals act as coenzymes/cofactors in biochemical reactions.</li>
+      <li><span class="sub-label">Maintain Optimal Health:</span> Support immune function, maintain fluid balance, and proper nerve/muscle function.</li>
+      <li><span class="sub-label">Preventing Chronic Diseases:</span> Adequate nutrition prevents heart disease, diabetes, etc.</li>
+    </ul></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q5</span><h3>Characters of Desirable / Optimal Nutrition</h3></div>
+    <div class="essay-body"><ul>
+      <li>The individual receives and effectively utilizes all essential nutrients from a varied and balanced diet in appropriate amounts.</li>
+      <li>Body tissues have sufficient nutrient reserves to support normal metabolic functions and maintain stores for periods of increased demand.</li>
+      <li>Characterized by robust health, high energy levels, and a strong immune system.</li>
+    </ul></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q6</span><h3>Factors affecting nutrition requirements</h3></div>
+    <div class="essay-body"><ul>
+      <li><span class="sub-label">Age:</span> Infants, children, elderly have different requirements.</li>
+      <li><span class="sub-label">Sex:</span> Different needs between males and females.</li>
+      <li><span class="sub-label">Pregnancy &amp; Lactation:</span> Increased nutrient needs (↑).</li>
+      <li><span class="sub-label">Illness or Injury:</span> Increased protein and energy needs (↑).</li>
+      <li><span class="sub-label">Physical Activity Level:</span> Higher activity increases caloric and nutrient demands.</li>
+      <li><span class="sub-label">Environmental Conditions:</span> Climate and surroundings affect nutritional requirements.</li>
+    </ul></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q7</span><h3>Key Principles of Therapeutic Nutrition (Diet)</h3></div>
+    <div class="essay-body"><ul>
+      <li><span class="sub-label">Customization:</span> Highly individualized based on diagnosis, age, weight, and lifestyle.</li>
+      <li><span class="sub-label">Disease Management:</span> Manage or alleviate symptoms (e.g., low-sodium for hypertension).</li>
+      <li><span class="sub-label">Nutrient Correction:</span> Correct deficiencies (e.g., iron-rich diet for anemia).</li>
+      <li><span class="sub-label">Support &amp; Healing:</span> Aid healing process, especially post-surgery or illness (e.g., high protein diet).</li>
+      <li><span class="sub-label">Prevention of Complications:</span> A controlled-carbohydrate diet helps prevent dangerously high blood sugar in diabetic patients.</li>
+    </ul></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q8</span><h3>Key Objectives of Nutritional Therapy in Diabetes</h3></div>
+    <div class="essay-body"><ul>
+      <li><span class="sub-label">Glycemic Control:</span> Maintain blood glucose levels within a target range.</li>
+      <li><span class="sub-label">Weight Management:</span> Achieve and maintain healthy body weight.</li>
+      <li><span class="sub-label">Prevention of Complications:</span> Reduce risk of acute and chronic complications (cardiovascular disease, nephropathy, etc.).</li>
+      <li><span class="sub-label">Lipid Profile Improvement:</span> Optimize blood lipid levels to reduce cardiovascular risk.</li>
+      <li><span class="sub-label">Individualization:</span> Develop a personalized eating plan.</li>
+    </ul></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q9</span><h3>Meal Planning Strategies for DM (Diabetes Mellitus)</h3></div>
+    <div class="essay-body"><ul>
+      <li><span class="sub-label">Regular Mealtimes:</span> Encourage consistent mealtimes to prevent extreme fluctuations.</li>
+      <li><span class="sub-label">Balanced Meals:</span> Each meal should include a balance of carbohydrates, proteins, and healthy fats.</li>
+      <li><span class="sub-label">Snacks:</span> Healthy snacks can help prevent hypoglycemia (especially for individuals on insulin).</li>
+      <li><span class="sub-label">Portion Control:</span> Emphasize the importance of portion control for all food groups.</li>
+    </ul></div>
+  </div>
+
+  <div class="essay-card">
+    <div class="essay-header"><span class="essay-qnum">Q10</span><h3>Nursing Implications (instructions) for Osteoporosis</h3></div>
+    <div class="essay-body"><ul>
+      <li>The importance of a balanced diet rich in calcium and vitamin D.</li>
+      <li>Reading food labels to identify sources of these nutrients.</li>
+      <li>The role of other nutrients and lifestyle factors in bone health.</li>
+      <li>The benefits of regular physical activity.</li>
+      <li>The risks associated with excessive sodium, caffeine, and alcohol intake.</li>
+    </ul></div>
+  </div>
+
+  <!-- IV. VITAMINS -->
+  <div class="cat-divider">
+    <div class="cat-icon">💊</div>
+    <div>
+      <h2>IV. Classification of Vitamins</h2>
+      <div class="cat-sub">Fat-soluble &amp; Water-soluble</div>
+    </div>
+    <div class="line"></div>
+  </div>
+
+  <div class="vitamins-grid">
+    <div class="vitamin-card fat">
+      <div class="vitamin-card-header">🫒 Fat-Soluble Vitamins</div>
+      <div class="vitamin-card-body">
+        <div class="vitamin-item"><span class="vit-tag">A</span><span class="vit-name">Vitamin A</span><span class="vit-alt">Retinol</span></div>
+        <div class="vitamin-item"><span class="vit-tag">D</span><span class="vit-name">Vitamin D</span><span class="vit-alt">Calciferol</span></div>
+        <div class="vitamin-item"><span class="vit-tag">E</span><span class="vit-name">Vitamin E</span><span class="vit-alt">Tocopherol</span></div>
+        <div class="vitamin-item"><span class="vit-tag">K</span><span class="vit-name">Vitamin K</span><span class="vit-alt">Phylloquinone / Menaquinone</span></div>
+      </div>
+    </div>
+    <div class="vitamin-card water">
+      <div class="vitamin-card-header">💧 Water-Soluble Vitamins</div>
+      <div class="vitamin-card-body">
+        <div class="vitamin-item"><span class="vit-tag">C</span><span class="vit-name">Vitamin C</span><span class="vit-alt">Ascorbic Acid</span></div>
+        <div class="vitamin-item"><span class="vit-tag">B1</span><span class="vit-name">Thiamin</span></div>
+        <div class="vitamin-item"><span class="vit-tag">B2</span><span class="vit-name">Riboflavin</span></div>
+        <div class="vitamin-item"><span class="vit-tag">B3</span><span class="vit-name">Niacin</span></div>
+        <div class="vitamin-item"><span class="vit-tag">B5</span><span class="vit-name">Pantothenic Acid</span></div>
+        <div class="vitamin-item"><span class="vit-tag">B6</span><span class="vit-name">Pyridoxine</span></div>
+        <div class="vitamin-item"><span class="vit-tag">B7</span><span class="vit-name">Biotin</span></div>
+        <div class="vitamin-item"><span class="vit-tag">B9</span><span class="vit-name">Folate</span></div>
+        <div class="vitamin-item"><span class="vit-tag">B12</span><span class="vit-name">Cobalamin</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>تم صنعه بواسطة عبدالحليم رزق</footer>
+
+</body>
+</html>
