@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Question Bank Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Noto Sans', 'Cairo', sans-serif; background-color: #f8fafc; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .correct-answer { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .hidden-content { display: none; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:disabled { cursor: default; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-12 bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 text-center border-t-4 border-blue-600 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-file-alt text-8xl text-blue-600"></i></div>
+            
+            <h1 class="text-4xl font-bold text-gray-800 mb-3 font-cairo text-center" dir="auto">English Question Bank</h1>
+            <p class="text-gray-500 mb-4">صلي علي النبي وادعيلي</p>
+            
+            <div class="flex items-center justify-center gap-2 text-green-600 font-semibold bg-green-50 w-fit mx-auto px-5 py-2 rounded-full text-sm border border-green-200 shadow-sm">
+                <i class="fas fa-check-circle text-lg"></i> "تم صنع هذا الامتحان بواسطة عبدالحليم رزق"
+            </div>
+        </div>
+        
+        <div id="quiz-container"></div>
+        
+        <div id="result-summary" class="hidden-content bg-white rounded-2xl shadow-lg p-8 text-center mt-8 border border-gray-100">
+            <h2 class="text-3xl font-bold text-gray-800">Exam Completed!</h2>
+            <div class="mt-4 text-5xl font-bold text-blue-600 mb-2">
+                <span id="score-display">0</span> <span class="text-2xl text-gray-400" id="total-display"></span>
+            </div>
+            <p id="score-message" class="text-gray-500 mb-6 text-lg"></p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-8 py-4 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200 font-bold text-lg">
+                <i class="fas fa-redo mr-2"></i> Restart Exam
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const rawQuizData = [
+            {
+                sectionTitle: "1. Medical Two-Word Expressions",
+                questions: [
+                    { question: "A condition in which the heart has reduced blood supply, causing myocardial infarction.", options: ["malignant tumor", "heart attack", "brain death"], correct: 1 },
+                    { question: "A substance given to make someone lose consciousness for major surgery.", options: ["general anesthetic", "blood transfusion", "clinical trial"], correct: 0 },
+                    { question: "Soft tissue in cancellous bone.", options: ["digestive system", "bone marrow", "primary tooth"], correct: 1 },
+                    { question: "The treatment of disease or other condition by surgery.", options: ["surgical intervention", "plastic surgery", "bedside manner"], correct: 0 },
+                    { question: "Any of the first twenty teeth which develop in children.", options: ["malignant tumor", "primary tooth", "allergic reaction"], correct: 1 },
+                    { question: "Surgery to repair damaged or malformed parts of the body.", options: ["plastic surgery", "surgical intervention", "general anesthetic"], correct: 0 },
+                    { question: "A condition in which the nerves in the brain stem have died, though the heart may still beat.", options: ["heart attack", "brain death", "bone marrow"], correct: 1 },
+                    { question: "The way a doctor behaves towards a patient, especially one who is in bed.", options: ["bedside manner", "digestive system", "biological clock"], correct: 0 },
+                    { question: "An effect produced by a substance to which a person has an allergy.", options: ["clinical trial", "allergic reaction", "malignant tumor"], correct: 1 },
+                    { question: "A trial carried out in a medical laboratory on a person or tissue.", options: ["clinical trial", "general practitioner", "balanced diet"], correct: 0 },
+                    { question: "A tumor which is cancerous and can spread into other parts of the body.", options: ["bone marrow", "malignant tumor", "heart attack"], correct: 1 },
+                    { question: "A doctor who provides first-line medical care for all types of illness.", options: ["general practitioner", "surgical intervention", "bedside manner"], correct: 0 },
+                    { question: "The rhythm of daily bodily processes that repeats every 24 hours.", options: ["digestive system", "biological clock", "balanced diet"], correct: 1 },
+                    { question: "The set of organs associated with the digestion of food.", options: ["digestive system", "biological clock", "bone marrow"], correct: 0 },
+                    { question: "A diet that provides all the nutrients needed in the correct proportions.", options: ["primary tooth", "balanced diet", "general anesthetic"], correct: 1 }
+                ]
+            },
+            {
+                sectionTitle: "2. Vocabulary Set 1",
+                questions: [
+                    { question: "You shouldn't drive because this medicine might make you feel", options: ["life-threatened", "light-headed", "malignant"], correct: 1 },
+                    { question: "The children's ______ is located on the fourth floor of the hospital.", options: ["vein", "transplant", "ward"], correct: 2 },
+                    { question: "Discontinue using this cream immediately if it makes you feel", options: ["itchy", "allergy", "sprain"], correct: 0 },
+                    { question: "Your blood count is abnormal, so you may have", options: ["amnesia", "anemia", "dementia"], correct: 1 },
+                    { question: "The doctor wrote me a ______ for a new type of pain reliever.", options: ["prescription", "patient", "radiation"], correct: 0 },
+                    { question: "______ from this medication include nausea and depression.", options: ["Side effects", "Stresses", "Spasms"], correct: 0 },
+                    { question: "The ______ suggests that your wife is seventeen weeks pregnant.", options: ["sore", "therapy", "ultrasound"], correct: 2 },
+                    { question: "The patient has asked for some ______ while her family is visiting.", options: ["poison", "privacy", "scrub up"], correct: 1 },
+                    { question: "The physician will be monitoring your ______ to make sure it isn't cancerous.", options: ["pharmacist", "laboratory", "growth"], correct: 2 },
+                    { question: "You couldn't have inherited the disease because it is not", options: ["feverish", "allergic", "genetic"], correct: 2 }
+                ]
+            },
+            {
+                sectionTitle: "3. Vocabulary Set 2",
+                questions: [
+                    { question: "My doctor ______ some medicine for me.", options: ["prescribed", "persuaded", "persisted"], correct: 0 },
+                    { question: "I'm having ______ sleeping.", options: ["hard", "trouble", "difficulty"], correct: 1 },
+                    { question: "The doctor told me to ______ the pills three times a day.", options: ["take", "eat", "consume"], correct: 0 },
+                    { question: "He ______ a few tests. (= He performed/did a few tests.)", options: ["hurried", "ran", "carried"], correct: 1 },
+                    { question: "To come ______ with something = To become ill/sick", options: ["clean", "out", "down"], correct: 2 },
+                    { question: "You can expect to make a ______ (= complete) recovery.", options: ["full", "fully", "fool-proof"], correct: 0 },
+                    { question: "A general practitioner can ______ you to a specialist.", options: ["bring", "refer", "report"], correct: 1 },
+                    { question: "A test to check your blood is called a ______.", options: ["blood exam", "blood test", "blood trial"], correct: 1 },
+                    { question: "This woman has lost a lot of blood; she might require a ______.", options: ["blood test", "blood bank", "blood transfusion"], correct: 2 },
+                    { question: "My doctor was able to ______ and treat my disease.", options: ["tell", "diagnose", "say"], correct: 1 }
+                ]
+            },
+            {
+                sectionTitle: "4. Verb → Noun Transformations",
+                questions: [
+                    { question: "diagnose", options: ["diagnosis", "diagnostication", "diagnoser"], correct: 0 },
+                    { question: "examine", options: ["examination", "examinement", "examiner"], correct: 0 },
+                    { question: "prescribe", options: ["prescription", "prescribement", "prescriber"], correct: 0 },
+                    { question: "suffer", options: ["suffering", "sufferance", "sufferer"], correct: 0 },
+                    { question: "operate", options: ["operation", "operature", "operating"], correct: 0 },
+                    { question: "cure", options: ["cure", "curation", "curement"], correct: 0 },
+                    { question: "recover", options: ["recovery", "recoverance", "recoverment"], correct: 0 },
+                    { question: "analyze", options: ["analysis", "analyzation", "analyzement"], correct: 0 },
+                    { question: "infect", options: ["infection", "infectment", "infector"], correct: 0 },
+                    { question: "carry", options: ["carriage / carrying", "carrison", "carrement"], correct: 0 },
+                    { question: "replace", options: ["replacement", "replacation", "replacery"], correct: 0 },
+                    { question: "degenerate", options: ["degeneration", "degenerature", "degenerify"], correct: 0 },
+                    { question: "refer", options: ["referral / reference", "referation", "referment"], correct: 0 },
+                    { question: "paralyze", options: ["paralysis", "paralyzation", "paralyzer"], correct: 0 },
+                    { question: "obstruct", options: ["obstruction", "obstructment", "obstructure"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "5. Verb + Noun Partnerships",
+                questions: [
+                    { question: "She was ______ a treatment.", options: ["prescribing", "arranging", "catching"], correct: 0 },
+                    { question: "As soon as the patient reported severe side-effects, the doctor ______ antibiotics.", options: ["administered", "discontinued", "detected"], correct: 1 },
+                    { question: "I've ______ a cold from one of my colleagues at work.", options: ["caught", "resisted", "eased"], correct: 0 },
+                    { question: "The laboratory ______ a sample of the food and found traces of bacteria.", options: ["analyzed", "burped", "arranged"], correct: 0 },
+                    { question: "A healthy body can ______ infection.", options: ["administer", "resist", "detect"], correct: 1 },
+                    { question: "I would like to ______ an appointment with the dental hygienist for 10:00 am tomorrow.", options: ["arrange", "catch", "ease"], correct: 0 },
+                    { question: "She had an injection to ______ the pain in her leg.", options: ["ease", "resist", "discontinue"], correct: 0 },
+                    { question: "The health visitor advised the new parents to ______ the baby after feeding.", options: ["burp", "analyze", "administer"], correct: 0 },
+                    { question: "The nurses ______ an improvement in the patient's condition.", options: ["caught", "detected", "arranged"], correct: 1 },
+                    { question: "The doctor will ______ a drug to the patient.", options: ["administer", "ease", "catch"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "6. Noun → Verb Transformations",
+                questions: [
+                    { question: "abuse", options: ["abuse", "abusement", "abusify"], correct: 0 },
+                    { question: "admission", options: ["admit", "admiss", "admitten"], correct: 0 },
+                    { question: "bandage", options: ["bandage", "bandagify", "bandagement"], correct: 0 },
+                    { question: "blood", options: ["bleed", "bloodify", "bloodage"], correct: 0 },
+                    { question: "breath", options: ["breathe", "breathify", "breathment"], correct: 0 },
+                    { question: "coagulation", options: ["coagulate", "coagulify", "coagulement"], correct: 0 },
+                    { question: "consultation", options: ["consult", "consultify", "consultate"], correct: 0 },
+                    { question: "convalescence", options: ["convalesce", "convalescify", "convalescement"], correct: 0 },
+                    { question: "fertilization", options: ["fertilize", "fertilate", "fertilify"], correct: 0 },
+                    { question: "identification", options: ["identify", "identicate", "identifate"], correct: 0 },
+                    { question: "immunization", options: ["immunize", "immunify", "immunate"], correct: 0 },
+                    { question: "implant", options: ["implant", "implantify", "implantate"], correct: 0 },
+                    { question: "maceration", options: ["macerate", "macerify", "macerment"], correct: 0 },
+                    { question: "management", options: ["manage", "managify", "managate"], correct: 0 },
+                    { question: "occurrence", options: ["occur", "occurify", "occurate"], correct: 0 },
+                    { question: "perspiration", options: ["perspire", "perspirate", "perspirify"], correct: 0 },
+                    { question: "preparation", options: ["prepare", "preparify", "preparate"], correct: 0 },
+                    { question: "provision", options: ["provide", "provisify", "provisionate"], correct: 0 },
+                    { question: "reabsorption", options: ["re-absorb", "reabsorpt", "reabsorbify"], correct: 0 },
+                    { question: "regeneration", options: ["regenerate", "regenify", "regenerify"], correct: 0 },
+                    { question: "registration", options: ["register", "registrate", "registify"], correct: 0 },
+                    { question: "regurgitation", options: ["regurgitate", "regurgify", "regurgement"], correct: 0 },
+                    { question: "rehabilitation", options: ["rehabilitate", "rehabilify", "rehabilment"], correct: 0 },
+                    { question: "reproduction", options: ["reproduce", "reproducify", "reproductate"], correct: 0 },
+                    { question: "resuscitation", options: ["resuscitate", "resuscify", "resuscment"], correct: 0 },
+                    { question: "sedation", options: ["sedate", "sedify", "sedament"], correct: 0 },
+                    { question: "stammer", options: ["stammer", "stammify", "stammerate"], correct: 0 },
+                    { question: "stitch", options: ["stitch", "stitchify", "stitchate"], correct: 0 },
+                    { question: "suppression", options: ["suppress", "suppressify", "suppresate"], correct: 0 },
+                    { question: "sweat", options: ["sweat", "sweatify", "sweatate"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "7. Medical Nouns — Gap-Fill",
+                questions: [
+                    { question: "He suffered ______ of coughing in the night.", options: ["paroxysms", "exercises", "allergies"], correct: 0 },
+                    { question: "She went into a coma after an ______ of heroin.", options: ["overdose", "injection", "examination"], correct: 0 },
+                    { question: "The patient will need plastic ______ to remove the scars he received in the accident.", options: ["surgery", "treatment", "vaccination"], correct: 0 },
+                    { question: "She took a ______ of steroid treatment.", options: ["course", "rash", "biopsy"], correct: 0 },
+                    { question: "He had a ______ of a fever which he had caught in the tropics.", options: ["progress", "recurrence", "consent"], correct: 1 },
+                    { question: "There is a ______ to obesity in her family.", options: ["tendency", "excess", "intake"], correct: 0 },
+                    { question: "From the ______ of the X-ray photographs, it seems the tumor has not spread.", options: ["examination", "biopsy", "ambulance"], correct: 0 },
+                    { question: "The doctor gave him an ______ to relieve the pain.", options: ["injection", "accident", "allergy"], correct: 0 },
+                    { question: "He doesn't take enough ______: that's why he's fat.", options: ["exercise", "surgery", "consent"], correct: 0 },
+                    { question: "The injured man was taken away in an ______.", options: ["ambulance", "overdose", "rash"], correct: 0 },
+                    { question: "She was advised to reduce her ______ of sugar.", options: ["intake", "progress", "biopsy"], correct: 0 },
+                    { question: "The ______ of the tissue from the growth showed that it was benign.", options: ["biopsy", "accident", "treatment"], correct: 0 },
+                    { question: "The parents gave their ______ for their son's heart to be used in the transplant operation.", options: ["consent", "rash", "excess"], correct: 0 },
+                    { question: "The doctors seem pleased that she has made such good ______ since her operation.", options: ["progress", "tendency", "allergy"], correct: 0 },
+                    { question: "This is a new ______ for heart disease.", options: ["treatment", "accident", "overdose"], correct: 0 },
+                    { question: "Her body could not cope with an ______ of blood sugar.", options: ["excess", "intake", "course"], correct: 0 },
+                    { question: "Three people were injured in the ______ on the motorway.", options: ["accident", "surgery", "examination"], correct: 0 },
+                    { question: "______ is mainly given against cholera, diphtheria, rabies, smallpox, tuberculosis and typhoid.", options: ["Vaccination", "Biopsy", "Consent"], correct: 0 },
+                    { question: "She had a high temperature and then broke out in a ______.", options: ["rash", "tendency", "overdose"], correct: 0 },
+                    { question: "He developed an ______ to penicillin.", options: ["allergy", "accident", "excess"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "8. Medical Adjectives — Gap-Fill",
+                questions: [
+                    { question: "This is a ______ painkiller, with no harmful side-effects.", options: ["safe", "lethal", "poisonous"], correct: 0 },
+                    { question: "Some mushrooms are good to eat and some are ______.", options: ["poisonous", "hoarse", "regular"], correct: 0 },
+                    { question: "The surgeons are trying to find a donor with a ______ blood group.", options: ["compatible", "inactive", "inborn"], correct: 0 },
+                    { question: "The surgeon decided that the cancer was ______.", options: ["inoperable", "incipient", "delicate"], correct: 0 },
+                    { question: "These fumes are ______ if inhaled.", options: ["lethal", "hygienic", "aware"], correct: 0 },
+                    { question: "The body has an ______ tendency to reject transplanted organs.", options: ["inborn", "confused", "motionless"], correct: 0 },
+                    { question: "The tests detected ______ diabetes mellitus.", options: ["incipient", "insanitary", "severe"], correct: 0 },
+                    { question: "The serum makes the poison ______.", options: ["inactive", "infectious", "predisposed"], correct: 0 },
+                    { question: "A ______ outbreak of whooping cough occurred during the winter.", options: ["severe", "depressed", "regular"], correct: 0 },
+                    { question: "Old people can easily become ______ if they are moved from their homes.", options: ["confused", "delicate", "hoarse"], correct: 0 },
+                    { question: "Catatonic patients can sit ______ for hours.", options: ["motionless", "aware", "poisonous"], correct: 0 },
+                    { question: "Don't touch food with dirty hands: it isn't ______.", options: ["hygienic", "insanitary", "lethal"], correct: 0 },
+                    { question: "All the members of the family are ______ to vascular diseases.", options: ["predisposed", "inoperable", "compatible"], correct: 0 },
+                    { question: "She is not ______ of what is happening around her.", options: ["aware", "regular", "depressed"], correct: 0 },
+                    { question: "The bones of a baby's skull are very ______.", options: ["delicate", "severe", "infectious"], correct: 0 },
+                    { question: "Cholera spread rapidly because of the ______ conditions in the town.", options: ["insanitary", "hygienic", "safe"], correct: 0 },
+                    { question: "He was ______ after his exam results.", options: ["depressed", "hoarse", "confused"], correct: 0 },
+                    { question: "He was advised to make ______ visits to the dentist.", options: ["regular", "incipient", "inborn"], correct: 0 },
+                    { question: "This strain of flu is highly ______.", options: ["infectious", "motionless", "predisposed"], correct: 0 },
+                    { question: "He became ______ after shouting too much.", options: ["hoarse", "aware", "delicate"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "9. Medical Verbs — Gap-Fill (Set 1)",
+                questions: [
+                    { question: "He ______ his back lifting the table.", options: ["strained", "fractured", "developed"], correct: 0 },
+                    { question: "She ______ from her concussion in a few days.", options: ["recovered", "fainted", "trembled"], correct: 0 },
+                    { question: "It was so hot standing in the sun that he ______.", options: ["weighed", "fainted", "adapted"], correct: 1 },
+                    { question: "The doctors decided that her condition ______ surgery.", options: ["required", "aggravated", "examined"], correct: 0 },
+                    { question: "She ______ from poor circulation, which made her feel the cold.", options: ["suffered", "received", "reacted"], correct: 0 },
+                    { question: "She ______ well to her new diet.", options: ["adapted", "fractured", "prolonged"], correct: 0 },
+                    { question: "The embryo ______ quite normally in spite of the mother's illness.", options: ["developed", "trembled", "weighed"], correct: 0 },
+                    { question: "His tibia ______ in two places.", options: ["fractured", "strained", "recovered"], correct: 0 },
+                    { question: "The patient ______ badly to the penicillin.", options: ["reacted", "examined", "required"], correct: 0 },
+                    { question: "The nurse ______ the baby on the scales.", options: ["weighed", "adapted", "suffered"], correct: 0 },
+                    { question: "The treatment ______ her life by three years.", options: ["prolonged", "aggravated", "fractured"], correct: 0 },
+                    { question: "Playing football only ______ his knee injury.", options: ["aggravated", "prolonged", "received"], correct: 0 },
+                    { question: "The doctor ______ the boy's throat.", options: ["examined", "weighed", "recovered"], correct: 0 },
+                    { question: "His hands ______ with the cold.", options: ["trembled", "fainted", "strained"], correct: 0 },
+                    { question: "He ______ a new kidney from his brother.", options: ["received", "required", "adapted"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "10. Medical Verbs — Practice (Set 2)",
+                questions: [
+                    { question: "I am going to ______ my brother in hospital.", options: ["visit", "undergo", "amputate"], correct: 0 },
+                    { question: "She ______ her disabilities and now leads a normal life.", options: ["overcame", "bruised", "measured"], correct: 0 },
+                    { question: "After the accident her pelvis was completely ______.", options: ["frozen", "rebuilt", "healed"], correct: 1 },
+                    { question: "She has ______ several operations.", options: ["undergone", "controlled", "expelled"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "11. Opposites in Medical English — Matching",
+                questions: [
+                    { question: "The opposite of back is", options: ["front", "rough", "closed"], correct: 0 },
+                    { question: "The opposite of acute is", options: ["chronic", "minor", "ill"], correct: 0 },
+                    { question: "The opposite of dead is", options: ["alive", "increase", "malignant"], correct: 0 },
+                    { question: "The opposite of improve is", options: ["deteriorate", "front", "chronic"], correct: 0 },
+                    { question: "The opposite of healthy is", options: ["ill", "alive", "rough"], correct: 0 },
+                    { question: "The opposite of open is", options: ["closed", "minor", "deteriorate"], correct: 0 },
+                    { question: "The opposite of major is", options: ["minor", "increase", "closed"], correct: 0 },
+                    { question: "The opposite of reduce is", options: ["increase", "ill", "front"], correct: 0 },
+                    { question: "The opposite of smooth is", options: ["rough", "alive", "chronic"], correct: 0 },
+                    { question: "The opposite of benign is", options: ["malignant", "minor", "deteriorate"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "11b. Opposites — Sentence Completion",
+                questions: [
+                    { question: "She had a/an ______ attack of shingles.", options: ["acute", "chronic", "minor"], correct: 0 },
+                    { question: "He became excited, causing his pulse rate to ______.", options: ["increase", "deteriorate", "close"], correct: 0 },
+                    { question: "He was very ill, but now his condition has begun to ______.", options: ["improve", "deteriorate", "close"], correct: 0 },
+                    { question: "The calf muscles are at the ______ of the lower leg.", options: ["back", "front", "rough"], correct: 0 },
+                    { question: "She put cream on her hands, which were ______ from heavy work.", options: ["rough", "smooth", "closed"], correct: 0 },
+                    { question: "The tumor is ______, and so may reappear even if removed surgically.", options: ["malignant", "benign", "minor"], correct: 0 },
+                    { question: "The hospital is ______ to visitors from noon to five o'clock.", options: ["open", "closed", "ill"], correct: 0 },
+                    { question: "The doctor arrived too late: the patient was already ______.", options: ["dead", "alive", "acute"], correct: 0 },
+                    { question: "There's nothing wrong with you: you're completely ______.", options: ["healthy", "ill", "chronic"], correct: 0 },
+                    { question: "He had to undergo ______ surgery on his heart.", options: ["minor", "major", "acute"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "12. Complete the Questions",
+                questions: [
+                    { question: "Have you ever had any ______ like measles or chicken pox?", options: ["childhood diseases", "symptoms", "health problem"], correct: 0 },
+                    { question: "Have you ever been ______ for more than a week?", options: ["in hospital", "up-to-date", "major"], correct: 0 },
+                    { question: "Do you have a ______ such as diabetes or high blood pressure?", options: ["major health problem", "childhood disease", "symptom"], correct: 0 },
+                    { question: "Are you ______ with your immunizations?", options: ["up-to-date", "in hospital", "major"], correct: 0 },
+                    { question: "What were the first ______ of your overactive thyroid?", options: ["symptoms", "childhood diseases", "health problems"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "13. The Doctor's Questions — Logical Order",
+                questions: [
+                    { question: "Which question comes 1st in the dialogue?", options: ["What is the problem today?", "Let me listen to your heart and lungs.", "What do you think brought it on this time?"], correct: 0 },
+                    { question: "Which question comes 2nd?", options: ["What do you mean by feeling poorly?", "What is the problem today?", "When did you first notice the symptoms?"], correct: 0 },
+                    { question: "Which question comes 3rd?", options: ["When did you first notice the symptoms?", "Let me listen to your heart and lungs.", "What is the problem today?"], correct: 0 },
+                    { question: "Which statement comes 4th?", options: ["Let me listen to your heart and lungs.", "What do you mean by feeling poorly?", "What do you think brought it on this time?"], correct: 0 },
+                    { question: "Which question comes 5th (last)?", options: ["What do you think brought it on this time?", "When did you first notice the symptoms?", "What is the problem today?"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "14. Dialogue Between Patient and Doctor",
+                questions: [
+                    { question: "P: I've been feeling very warm. D: ______", options: ["Did you take your medicine?", "What is your address?", "Are you up-to-date with vaccines?"], correct: 0 },
+                    { question: "P: Yes, I took it last night before going to bed. D: ______", options: ["What was your temperature? / How high was your fever?", "Do you smoke?", "Have you had surgery before?"], correct: 0 },
+                    { question: "P: It was 102°F. D: ______", options: ["Have you taken anything to bring the fever down?", "Are you allergic to penicillin?", "Did you exercise today?"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "15. Reading Comprehension: The Potential Use of Blogs",
+                questions: [
+                    { question: "How does the article define \"web logs\" (blogs)?", options: ["Automated, updated, self-archived web pages that provide Internet-based links and allow for public responses", "Commercial websites for selling medical textbooks only", "AI-based diagnostic software"], correct: 0 },
+                    { question: "Why are written communication skills important for health care professionals?", options: ["To communicate patients' needs and medical data accurately, contribute to research, advocate preventive healthcare, and avoid legal problems from poor documentation", "Because they are only required for a promotion", "Because they are unrelated to healthcare"], correct: 0 },
+                    { question: "Does the article describe the benefits of health care blogs?", options: ["True", "False"], correct: 0 },
+                    { question: "Does the article give step-by-step instructions for creating a blog?", options: ["True", "False"], correct: 0 },
+                    { question: "Does the article discuss the history of blogging from the 1990s to the present?", options: ["True", "False"], correct: 1 },
+                    { question: "Does the article list different types of web log genres or activities?", options: ["True", "False"], correct: 0 },
+                    { question: "Does the article describe specific skills a student can develop by using blogs regularly?", options: ["True", "False"], correct: 0 },
+                    { question: "Does the article include an example of a blog posting in healthcare education?", options: ["True", "False"], correct: 0 },
+                    { question: "Does the article list specific blogs for different clinical specialties?", options: ["True", "False"], correct: 1 },
+                    { question: "Does the article provide direct comments by students who have used blogs?", options: ["True", "False"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "16. Reading Comprehension: A Helping Relationship with Patients",
+                questions: [
+                    { question: "What is the difference between a professional helping relationship and a friendship?", options: ["A helping relationship is professional, based on mutual trust and responsibility, aiming to help the patient achieve optimal health — it is not just a friendship", "There is no difference at all", "Friendship is more important than the professional relationship"], correct: 0 },
+                    { question: "According to the text, what should a health professional do with patients?", options: ["Encourage an interaction of ideas and values, and put the patient's needs first", "Impose their medical opinion without discussion", "Ignore the patient's feelings completely"], correct: 0 },
+                    { question: "Which of the following is something a health professional should NOT do?", options: ["Patronize patients, use medical jargon patients don't understand, or make quick judgments", "Listen well to the patient", "Make sure patients feel comfortable and safe in their care"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "17. Quiz (Midterm 1) — True/False",
+                questions: [
+                    { question: "Doctors should be punctual and polite in communicating with patients.", options: ["True", "False"], correct: 0 },
+                    { question: "It's normal for older patients to have more worries about their health than younger patients.", options: ["True", "False"], correct: 0 },
+                    { question: "You should pretend to have knowledge that you do not have.", options: ["True", "False"], correct: 1 },
+                    { question: "Nurses should use medical jargon that patients don't understand.", options: ["True", "False"], correct: 1 },
+                    { question: "Nurses should encourage patients to take better care of themselves.", options: ["True", "False"], correct: 0 },
+                    { question: "One should make quick judgments about patients.", options: ["True", "False"], correct: 1 },
+                    { question: "It's better to show more prejudice against the patient's race, religion, or culture.", options: ["True", "False"], correct: 1 },
+                    { question: "It's advisable to make sure patients feel comfortable and safe in your care.", options: ["True", "False"], correct: 0 },
+                    { question: "There are no tips on ways to establish a helping relationship with all your patients.", options: ["True", "False"], correct: 1 },
+                    { question: "Many hospitals and health centers need more RNs, LVNs, and CNAs.", options: ["True", "False"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "18. Vocabulary Practice",
+                questions: [
+                    { question: "The new dental assistant was happy when her supervisor took time to ______ her for doing a good job.", options: ["praise", "patronize", "preach"], correct: 0 },
+                    { question: "When my patients aren't ______ for their appointments, they often have to wait.", options: ["punctual", "prejudiced", "optimal"], correct: 0 },
+                    { question: "This is a/an ______ time to be trained as a nurse.", options: ["optimal", "mutual", "punctual"], correct: 0 },
+                    { question: "I don't trust his ______ of people.", options: ["judgment", "reactions", "concerns"], correct: 0 },
+                    { question: "It's normal for older patients to have more ______ about their health.", options: ["concerns", "judgment", "praise"], correct: 0 },
+                    { question: "My mother will often ______ to me about smoking.", options: ["preach", "patronize", "praise"], correct: 0 },
+                    { question: "Health professionals need to be ready for different ______ from their patients.", options: ["reactions", "concerns", "judgment"], correct: 0 },
+                    { question: "The two new resident doctors share a ______ interest in alternative medicine.", options: ["mutual", "optimal", "punctual"], correct: 0 },
+                    { question: "I feel frustrated when my colleague seems to ______ me.", options: ["patronize", "praise", "preach"], correct: 0 },
+                    { question: "He thought they felt ______ against the different clothes he wore.", options: ["prejudiced", "mutual", "optimal"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "19. Helping Verb Practice: Discharge Dialogue",
+                questions: [
+                    { question: "\"He told me I ______ start exercising a little more each day.\"", options: ["must / should", "could", "might"], correct: 0 },
+                    { question: "\"You ______ lift anything over five pounds until your surgery site is completely healed.\"", options: ["must not", "could not", "may"], correct: 0 },
+                    { question: "\"The doctor told me I ______ eat a lot more vegetables and less fast food.\"", options: ["should", "must not", "won't"], correct: 0 },
+                    { question: "\"______ I see the doctor again before he sends me home?\"", options: ["Could / Can", "Must", "Shall"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "20. Helping Verbs for Advice — Grammar Points",
+                questions: [
+                    { question: "Which helping verb is most commonly used for suggesting what someone needs to do?", options: ["should", "could", "might"], correct: 0 },
+                    { question: "Which helping verb means there are no options (it's mandatory)?", options: ["must", "could", "would"], correct: 0 },
+                    { question: "Which helping verb offers an idea to consider without pushing it as the best option?", options: ["could", "must", "should"], correct: 0 },
+                    { question: "For softer, indirect advice, it is better to use:", options: ["could / would instead of should / must", "must only", "never"], correct: 0 },
+                    { question: "Questions need a helping verb before the main verb; it is often:", options: ["do / does / did", "has been", "should have"], correct: 0 },
+                    { question: "For the perfect tense, we use:", options: ["have/has/had + past participle", "do + base form", "be + -ing"], correct: 0 },
+                    { question: "\"You'd better clean your room\" means:", options: ["You need to do it, or there will be consequences", "A trivial, unimportant suggestion", "A question about an opinion"], correct: 0 },
+                    { question: "Which phrase is used to emphasize important advice?", options: ["It's essential to... / Be sure to...", "Maybe you could...", "What about...?"], correct: 0 },
+                    { question: "English avoids double negatives, so if you use 'never' you should not also use:", options: ["not", "should", "could"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "21. Phrasal Verbs in Healthcare Communication",
+                questions: [
+                    { question: "My last doctor put my son on antibiotics for his ear infection.", options: ["withdrew", "prescribed", "replaced", "recommended"], correct: 1 },
+                    { question: "The rash on my arm seems to have cleared up.", options: ["become infected", "spread", "disappeared", "got worse"], correct: 2 },
+                    { question: "That lecture was so difficult that I couldn't take anything in.", options: ["eat", "keep", "understand", "feel"], correct: 2 },
+                    { question: "I often nod off for just a few minutes in the middle of the day.", options: ["feel nauseated", "feel tired", "fall asleep", "have a hot flash"], correct: 2 },
+                    { question: "My eyes puff up whenever I get a bee sting.", options: ["swell", "can't see", "change color", "itch"], correct: 0 },
+                    { question: "I've blacked out three times in the last few weeks.", options: ["vomited", "fainted", "had migraine headaches", "had a seizure"], correct: 1 },
+                    { question: "Ms. Kim refused her dinner; she says she can't keep anything down.", options: ["relax", "stay still", "stop shaking", "eat or drink without vomiting"], correct: 3 },
+                    { question: "The ward clerk is taking off the medication orders that Dr. Schultz wrote.", options: ["transcribing", "canceling", "removing", "correcting"], correct: 1 },
+                    { question: "Dr. Goldstein will call in a prescription for you.", options: ["cancel", "renew", "order by telephone", "talk about"], correct: 2 },
+                    { question: "Mr. Bogdanoff got a pain shot that really knocked him out.", options: ["caused a fall", "caused heavy sedation", "caused him to be nauseated", "caused him great pain"], correct: 1 }
+                ]
+            },
+            {
+                sectionTitle: "22. Chokepoints & Straits",
+                questions: [
+                    { question: "What does \"Chokepoint\" mean?", options: ["A narrow, strategic sea passage", "A strait with no strategic importance", "An afflicted area"], correct: 0 },
+                    { question: "Gibraltar refers to", options: ["the Strait of Gibraltar", "the Strait of Hormuz", "the Bosporus"], correct: 0 },
+                    { question: "Bab el-Mandeb refers to", options: ["the Bab el-Mandeb Strait", "the Dardanelles", "the Strait of Malacca"], correct: 0 },
+                    { question: "Hormuz refers to", options: ["the Strait of Hormuz", "the Strait of Gibraltar", "the Strait of Malacca"], correct: 0 },
+                    { question: "Bosporus refers to", options: ["the Bosporus Strait", "the Dardanelles", "Bab el-Mandeb"], correct: 0 },
+                    { question: "Malacca refers to", options: ["the Strait of Malacca", "Bab el-Mandeb", "the Strait of Hormuz"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "23. War Idioms & Expressions",
+                questions: [
+                    { question: "fight tooth and nail means", options: ["to fight desperately/fiercely", "to fight fire with fire", "battle of wills"], correct: 0 },
+                    { question: "fight to the death means", options: ["to fight until death", "war of attrition", "war of nerves"], correct: 0 },
+                    { question: "fight fire with fire means", options: ["to respond in kind", "to fight desperately", "all's fair in love and war"], correct: 0 },
+                    { question: "battle of wills means", options: ["a struggle of determination between two sides", "a fierce war", "a brutal war"], correct: 0 },
+                    { question: "All's fair in love and war means", options: ["anything is acceptable in love and war", "time for politeness is over", "to raise the white flag"], correct: 0 },
+                    { question: "The gloves are off means", options: ["the time for politeness is over and serious fighting has begun", "a war of nerves", "a paper tiger"], correct: 0 },
+                    { question: "all-out war means", options: ["a total war using all weapons and targets", "a war of attrition", "a protracted war"], correct: 0 },
+                    { question: "brutal war means", options: ["a savage, bloody war", "a fierce war", "a war of nerves"], correct: 0 },
+                    { question: "drastic war means", options: ["an extremely harsh war", "a psychological war", "a war of attrition"], correct: 0 },
+                    { question: "relentless war / war to the knife means", options: ["a war without mercy", "attacks on US bases", "a fierce war"], correct: 0 },
+                    { question: "fierce war means", options: ["an intense, ferocious war", "a drastic war", "a protracted war"], correct: 0 },
+                    { question: "war of nerves means", options: ["a psychological war", "a war of attrition", "battle of wills"], correct: 0 },
+                    { question: "war of attrition means", options: ["a war of gradual wearing down of the enemy", "a war of nerves", "a brutal war"], correct: 0 },
+                    { question: "protracted war means", options: ["a long-lasting war", "a fierce war", "a drastic war"], correct: 0 },
+                    { question: "armchair warrior means", options: ["someone who promotes war via media without participating", "someone who fights fiercely", "a brave soldier in the field"], correct: 0 },
+                    { question: "paper tiger means", options: ["a person or country that looks powerful but is actually weak", "a truly brave person", "a psychological war"], correct: 0 },
+                    { question: "raise the white flag means", options: ["to surrender", "to fight desperately", "battle of wills"], correct: 0 },
+                    { question: "in the heat of the battle means", options: ["in the middle of the fighting", "after the battle ends", "before the battle starts"], correct: 0 },
+                    { question: "heavy bombardment means", options: ["intense shelling/bombing", "falling shrapnel", "afflicted areas"], correct: 0 },
+                    { question: "facilitating an air bridge means", options: ["enabling an airlift", "all's fair in love and war", "attacks on US bases"], correct: 0 },
+                    { question: "repatriate stranded citizens means", options: ["returning stranded citizens to their home country", "important narrow chokepoints", "falling shrapnel"], correct: 0 },
+                    { question: "afflicted areas means", options: ["disaster-stricken areas", "US bases", "an air bridge"], correct: 0 },
+                    { question: "falling shrapnel means", options: ["fragments falling from an explosion", "heavy bombardment", "afflicted areas"], correct: 0 },
+                    { question: "attacks on US bases means", options: ["strikes targeting US military bases", "facilitating an air bridge", "repatriating stranded citizens"], correct: 0 }
+                ]
+            },
+            {
+                sectionTitle: "24. Quiz (Midterm 2) — Vocabulary Meaning (True/False)",
+                questions: [
+                    { question: "protracted war means a long-lasting war", options: ["True", "False"], correct: 0 },
+                    { question: "armchair warrior means to fight desperately", options: ["True", "False"], correct: 1 },
+                    { question: "Repatriate stranded citizens means an important narrow chokepoint", options: ["True", "False"], correct: 1 },
+                    { question: "All-out war means a total war including violent armed conflict", options: ["True", "False"], correct: 0 },
+                    { question: "Chokepoints means to fight fire with fire", options: ["True", "False"], correct: 1 },
+                    { question: "fierce war means an intense, ferocious war", options: ["True", "False"], correct: 0 },
+                    { question: "facilitating an air bridge means all's fair in love and war", options: ["True", "False"], correct: 1 },
+                    { question: "Malacca means Bab el-Mandeb", options: ["True", "False"], correct: 1 },
+                    { question: "the gloves are off means the time for politeness is over and serious fighting has begun", options: ["True", "False"], correct: 0 },
+                    { question: "Relentless war / war to the knife means attacks on US bases", options: ["True", "False"], correct: 1 }
+                ]
+            },
+            {
+                sectionTitle: "Final Translation Statements",
+                questions: [
+                    { question: "protracted war means حرب طويلة الأمد", options: ["True", "False"], correct: 0 },
+                    { question: "armchair warrior means يستميت في القتال", options: ["True", "False"], correct: 1 },
+                    { question: "Repatriate stranded citizens means نقاط اختناق (ممرات ضيقة مهمة)", options: ["True", "False"], correct: 1 },
+                    { question: "All-out war means حرب شاملة تتضمن صراع مسلح عنيف", options: ["True", "False"], correct: 0 },
+                    { question: "Chokepoints means يحارب النار بالنار", options: ["True", "False"], correct: 1 },
+                    { question: "fierce war means حرب شعواء", options: ["True", "False"], correct: 0 },
+                    { question: "facilitating an air bridge means كل شيء مسموح في الحب والحرب", options: ["True", "False"], correct: 1 },
+                    { question: "Malacca means باب المندب", options: ["True", "False"], correct: 1 },
+                    { question: "the gloves are off means انتهى وقت المجاملات وبدأ القتال", options: ["True", "False"], correct: 0 },
+                    { question: "Relentless war / war to the knife means ضرب القواعد الأمريكية", options: ["True", "False"], correct: 1 }
+                ]
+            }
+        ];
+
+        // --- PROCESSING DATA & SHUFFLING OPTIONS ---
+        let flatQuizData = [];
+        rawQuizData.forEach(section => {
+            section.questions.forEach(q => {
+                // Shuffle options only
+                const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correct }));
+                for (let i = opts.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [opts[i], opts[j]] = [opts[j], opts[i]];
+                }
+                flatQuizData.push({
+                    sectionTitle: section.sectionTitle,
+                    question: q.question,
+                    options: opts.map(o => o.text),
+                    correct: opts.findIndex(o => o.isCorrect),
+                    rationale: "Correct Answer is: " + q.options[q.correct]
+                });
+            });
+        });
+
+        // --- RENDER LOGIC ---
+        const container = document.getElementById('quiz-container');
+        let score = 0; let answeredCount = 0;
+
+        function renderQuiz() {
+            document.getElementById('total-display').innerText = `/ ${flatQuizData.length}`;
+            let htmlContent = "";
+            let currentSection = "";
+
+            flatQuizData.forEach((q, index) => {
+                // Add Section Header if it changed
+                if (q.sectionTitle !== currentSection) {
+                    currentSection = q.sectionTitle;
+                    htmlContent += `
+                    <div class="mt-12 mb-6 bg-blue-600 text-white py-4 px-6 rounded-xl shadow-md border-l-8 border-blue-800">
+                        <h2 class="text-2xl font-bold font-cairo text-left" dir="auto">${currentSection}</h2>
+                    </div>`;
+                }
+
+                htmlContent += `
+                <div class="card bg-white rounded-xl p-6 mb-6 border border-gray-100 shadow-sm relative">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Question ${index + 1}</span>
+                         ${q.options.length === 2 ? '<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-md">True/False</span>' : ''}
+                    </div>
+                    <h3 class="text-gray-800 font-bold mb-6 text-lg leading-relaxed font-cairo" style="direction: ltr; text-align: left;" dir="auto">${q.question}</h3>
+                    <div class="grid gap-3 ${q.options.length === 2 ? 'grid-cols-2' : ''}">
+                        ${q.options.map((opt, i) => `
+                        <button onclick="checkAnswer(${index}, ${i})" class="option-btn option-btn-${index} w-full text-left px-5 py-4 rounded-xl border border-gray-200 hover:bg-blue-50 hover:border-blue-300 focus:outline-none flex items-center justify-between group bg-white">
+                            <span class="font-medium text-gray-700 group-hover:text-blue-700 font-sans" dir="auto">${opt}</span>
+                        </button>`).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="hidden-content mt-6 bg-blue-50 rounded-xl p-5 border border-blue-100 animate-fade-in text-left">
+                        <p class="text-blue-800 text-sm leading-relaxed"><strong><i class="fas fa-info-circle mr-1"></i> Rationale:</strong> ${q.rationale}</p>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = htmlContent;
+        }
+
+        window.checkAnswer = function(qIndex, optIndex) {
+            const q = flatQuizData[qIndex];
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            const btns = document.querySelectorAll(`.option-btn-${qIndex}`);
+            if (!feedback.classList.contains('hidden-content')) return; // Prevent double clicking
+            
+            feedback.classList.remove('hidden-content');
+            btns.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) { 
+                    btn.classList.add('correct-answer'); 
+                    btn.innerHTML += '<i class="fas fa-check float-right text-xl"></i>'; 
+                } else if (i === optIndex) { 
+                    btn.classList.add('wrong-answer'); 
+                    btn.innerHTML += '<i class="fas fa-times float-right text-xl"></i>'; 
+                } else { 
+                    btn.classList.add('opacity-50'); 
+                }
+            });
+            
+            if (optIndex === q.correct) score++;
+            answeredCount++;
+            
+            if (answeredCount === flatQuizData.length) {
+                document.getElementById('result-summary').classList.remove('hidden-content');
+                document.getElementById('score-display').innerText = score;
+                document.getElementById('score-message').innerText = (score / flatQuizData.length * 100) >= 60 ? "Excellent Work! 🎉" : "Keep Studying, you can do better! 💪";
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+            }
+        };
+
+        // Initialize Exam
+        renderQuiz();
+    </script>
+</body>
+</html>
