@@ -905,7 +905,11 @@
     "color": "#14b8a6",
     "department": "common_t2",
     "lectures": [
-      { "name": "كويز 1", "file": "#", "questions": 20 }
+        {
+    "name": "English Question Bank",
+    "file": "quizzes/English Question Bank.html",
+    "questions": 0
+  }
     ]
   }
 ]
